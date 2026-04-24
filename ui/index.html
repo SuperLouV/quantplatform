@@ -642,26 +642,68 @@
       justify-content: flex-end;
     }
 
-    .indicator-switch {
-      display: flex;
-      gap: 2px;
-      padding: 3px;
+    .series-toolbar {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 3px 4px 3px 8px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: #0b0c0e;
     }
 
-    .indicator-btn {
-      min-width: 52px;
-      height: 28px;
-      border-radius: 5px;
-      color: var(--muted);
-      font-size: 12px;
+    .series-toolbar-label {
+      color: var(--faint);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
-    .indicator-btn.active {
-      background: #18342d;
-      color: #bcf3d5;
+    .series-switch {
+      display: flex;
+      gap: 3px;
+    }
+
+    .series-toggle {
+      --series-color: var(--accent-2);
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 9px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .series-toggle::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--series-color);
+      opacity: 0.4;
+    }
+
+    .series-toggle:hover {
+      background: #15171a;
+      color: var(--soft);
+    }
+
+    .series-toggle.active {
+      border-color: color-mix(in srgb, var(--series-color) 60%, #24272c);
+      background: #17191d;
+      color: var(--text);
+    }
+
+    .series-toggle.active::before {
+      opacity: 1;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--series-color) 18%, transparent);
     }
 
     .chart-readout {
@@ -1390,10 +1432,13 @@
             <div class="chart-head">
               <div class="chart-head-spacer" id="chartMeta">历史游标显示所选交易日</div>
               <div class="chart-controls">
-                <div class="indicator-switch" id="indicatorSwitch" aria-label="图表指标">
-                  <button class="indicator-btn active" data-indicator="rsi6">RSI6</button>
-                  <button class="indicator-btn active" data-indicator="rsi12">RSI12</button>
-                  <button class="indicator-btn active" data-indicator="rsi24">RSI24</button>
+                <div class="series-toolbar" aria-label="图表指标">
+                  <span class="series-toolbar-label">指标</span>
+                  <div class="series-switch" id="indicatorSwitch">
+                    <button class="series-toggle active" style="--series-color: #f2c14e;" data-indicator="rsi6">RSI 6</button>
+                    <button class="series-toggle active" style="--series-color: #5aa7ff;" data-indicator="rsi12">RSI 12</button>
+                    <button class="series-toggle active" style="--series-color: #b58cff;" data-indicator="rsi24">RSI 24</button>
+                  </div>
                 </div>
                 <div class="range-switch" id="rangeSwitch">
                   <button class="range-btn active" data-period="1mo">1M</button>
@@ -1546,6 +1591,12 @@
       hour: "2-digit",
       minute: "2-digit",
     });
+
+    const chartIndicatorConfig = {
+      rsi6: { color: "#f2c14e", width: 1 },
+      rsi12: { color: "#5aa7ff", width: 1 },
+      rsi24: { color: "#b58cff", width: 1 },
+    };
 
     async function init() {
       initChart();
@@ -2244,6 +2295,18 @@
       resizeChart();
     }
 
+    function createIndicatorLineSeries(key) {
+      const config = chartIndicatorConfig[key] || { color: "#5aa7ff", width: 1 };
+      return state.rsiChart.addSeries(LightweightCharts.LineSeries, {
+        color: config.color,
+        lineWidth: config.width,
+        priceLineVisible: false,
+        lastValueVisible: true,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 3,
+      });
+    }
+
     function initChart() {
       const host = document.getElementById("chartContainer");
       const rsiHost = document.getElementById("rsiContainer");
@@ -2349,24 +2412,9 @@
           handleScale: false,
         });
         state.rsiSeries = {
-          rsi6: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
-            color: "#f7c948",
-            lineWidth: 1,
-            priceLineVisible: false,
-            lastValueVisible: true,
-          }),
-          rsi12: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
-            color: "#7aa8ff",
-            lineWidth: 1,
-            priceLineVisible: false,
-            lastValueVisible: true,
-          }),
-          rsi24: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
-            color: "#f06ab3",
-            lineWidth: 1,
-            priceLineVisible: false,
-            lastValueVisible: true,
-          }),
+          rsi6: createIndicatorLineSeries("rsi6"),
+          rsi12: createIndicatorLineSeries("rsi12"),
+          rsi24: createIndicatorLineSeries("rsi24"),
         };
       }
 
@@ -2521,7 +2569,7 @@
 
     function bindIndicatorSwitch() {
       document.getElementById("indicatorSwitch").addEventListener("click", event => {
-        const button = event.target.closest(".indicator-btn");
+        const button = event.target.closest(".series-toggle");
         if (!button) return;
         const key = button.dataset.indicator;
         state.chartIndicators[key] = !state.chartIndicators[key];
