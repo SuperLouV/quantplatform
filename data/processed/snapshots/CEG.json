@@ -1,0 +1,28 @@
+{
+  "symbol": "CEG",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Constellation Energy Corporatio",
+  "sector": "Utilities",
+  "industry": "Utilities - Independent Power Producers",
+  "currency": "USD",
+  "open_price": 289.4200134277344,
+  "high_price": 293.70361328125,
+  "low_price": 284.010009765625,
+  "latest_close": 292.7699890136719,
+  "previous_close": 287.1600036621094,
+  "change_percent": 1.9536095835141316,
+  "latest_volume": 2565981.0,
+  "market_cap": 106069007141.15186,
+  "avg_dollar_volume": 767839067.0864868,
+  "trailing_pe": 39.51012,
+  "forward_pe": 21.400986,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:46.750303+00:00"
+}

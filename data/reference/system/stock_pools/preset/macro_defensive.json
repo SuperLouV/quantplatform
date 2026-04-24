@@ -1,0 +1,157 @@
+{
+  "pool_id": "macro_defensive",
+  "name": "Macro",
+  "pool_type": "preset",
+  "source": "quantplatform_curated",
+  "market": "us_equities",
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "TLT",
+    "IEF",
+    "SHY",
+    "TIP",
+    "GLD",
+    "IAU",
+    "SLV"
+  ],
+  "members": [
+    {
+      "symbol": "SPY",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "QQQ",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TLT",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "IEF",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SHY",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TIP",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GLD",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "IAU",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SLV",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "macro",
+        "defensive"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T05:00:26.955761+00:00",
+  "notes": "Treasuries, gold, and broad market hedges."
+}

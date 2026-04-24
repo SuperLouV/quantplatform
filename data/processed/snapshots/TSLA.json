@@ -1,0 +1,28 @@
+{
+  "symbol": "TSLA",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Tesla, Inc.",
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Manufacturers",
+  "currency": "USD",
+  "open_price": 375.4849853515625,
+  "high_price": 385.3382873535156,
+  "low_price": 368.3901062011719,
+  "latest_close": 373.7200012207031,
+  "previous_close": 387.510009765625,
+  "change_percent": -3.5586199575237787,
+  "latest_volume": 93500126.0,
+  "market_cap": 1403589129654.744,
+  "avg_dollar_volume": 25134908664.899597,
+  "trailing_pe": 346.03702,
+  "forward_pe": 135.7797,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:32.189728+00:00"
+}

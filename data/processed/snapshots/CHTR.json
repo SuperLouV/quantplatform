@@ -1,0 +1,28 @@
+{
+  "symbol": "CHTR",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Charter Communications, Inc.",
+  "sector": "Communication Services",
+  "industry": "Telecom Services",
+  "currency": "USD",
+  "open_price": 250.0,
+  "high_price": 254.11000061035156,
+  "low_price": 241.41000366210938,
+  "latest_close": 241.77999877929688,
+  "previous_close": 242.49000549316406,
+  "change_percent": -0.29279834128553517,
+  "latest_volume": 3601054.0,
+  "market_cap": 30616976004.42047,
+  "avg_dollar_volume": 448559924.93530273,
+  "trailing_pe": 6.6753173,
+  "forward_pe": 5.086197,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:04.088718+00:00"
+}

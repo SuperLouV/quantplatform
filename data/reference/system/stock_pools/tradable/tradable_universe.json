@@ -1,0 +1,11 @@
+{
+  "pool_id": "tradable_universe",
+  "name": "Tradable Universe",
+  "pool_type": "tradable",
+  "source": "screening_passed",
+  "market": "us_equities",
+  "symbols": [],
+  "members": [],
+  "updated_at": "2026-04-24T03:25:07.547903+00:00",
+  "notes": null
+}

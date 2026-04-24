@@ -1,0 +1,29 @@
+{
+  "symbol": "MSFT",
+  "pool_ids": [
+    "nasdaq100",
+    "default_core"
+  ],
+  "company_name": "Microsoft Corporation",
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "currency": "USD",
+  "open_price": 419.6600036621094,
+  "high_price": 423.3599853515625,
+  "low_price": 411.41009521484375,
+  "latest_close": 415.75,
+  "previous_close": 432.9200134277344,
+  "change_percent": -3.9660937113503296,
+  "latest_volume": 37996014.0,
+  "market_cap": 3090011010482.0,
+  "avg_dollar_volume": 14804009370.0,
+  "trailing_pe": 26.0495,
+  "forward_pe": 21.975752,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:29.607691+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "DXCM",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "DexCom, Inc.",
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "currency": "USD",
+  "open_price": 63.09000015258789,
+  "high_price": 63.779998779296875,
+  "low_price": 61.900001525878906,
+  "latest_close": 62.70000076293945,
+  "previous_close": 63.40999984741211,
+  "change_percent": -1.1196957675148658,
+  "latest_volume": 1978140.0,
+  "market_cap": 24194235952.297718,
+  "avg_dollar_volume": 290710434.53739166,
+  "trailing_pe": 30.000002,
+  "forward_pe": 20.966816,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:08.554384+00:00"
+}

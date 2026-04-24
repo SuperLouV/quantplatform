@@ -1,0 +1,193 @@
+{
+  "pool_id": "tech_leaders",
+  "name": "Tech",
+  "pool_type": "preset",
+  "source": "quantplatform_curated",
+  "market": "us_equities",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMD",
+    "AVGO",
+    "META",
+    "GOOGL",
+    "AMZN",
+    "PLTR",
+    "QCOM",
+    "ASML",
+    "NFLX"
+  ],
+  "members": [
+    {
+      "symbol": "AAPL",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMD",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "META",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "QCOM",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ASML",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "NFLX",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "technology"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T05:00:26.955746+00:00",
+  "notes": "Large-cap technology and software leaders."
+}

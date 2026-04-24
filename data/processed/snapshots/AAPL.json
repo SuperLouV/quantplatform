@@ -1,0 +1,30 @@
+{
+  "symbol": "AAPL",
+  "pool_ids": [
+    "nasdaq100",
+    "default_core",
+    "custom_manual"
+  ],
+  "company_name": "Apple Inc.",
+  "sector": "Technology",
+  "industry": "Consumer Electronics",
+  "currency": "USD",
+  "open_price": 275.0450134277344,
+  "high_price": 275.7699890136719,
+  "low_price": 271.6499938964844,
+  "latest_close": 273.42999267578125,
+  "previous_close": 273.1700134277344,
+  "change_percent": 0.09517122497621837,
+  "latest_volume": 33138070.0,
+  "market_cap": 4014264002672.119,
+  "avg_dollar_volume": 11723051177.48108,
+  "trailing_pe": 34.65526,
+  "forward_pe": 29.173273,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:29.614999+00:00"
+}

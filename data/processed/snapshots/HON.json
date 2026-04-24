@@ -1,0 +1,28 @@
+{
+  "symbol": "HON",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Honeywell International Inc.",
+  "sector": "Industrials",
+  "industry": "Conglomerates",
+  "currency": "USD",
+  "open_price": 207.87399291992188,
+  "high_price": 218.0,
+  "low_price": 207.87399291992188,
+  "latest_close": 214.33999633789062,
+  "previous_close": 219.97000122070312,
+  "change_percent": -2.5594421291854843,
+  "latest_volume": 6962945.0,
+  "market_cap": 135817207205.95297,
+  "avg_dollar_volume": 728901738.7463379,
+  "trailing_pe": 30.929293,
+  "forward_pe": 18.688997,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:43.690822+00:00"
+}

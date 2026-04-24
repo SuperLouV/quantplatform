@@ -1,0 +1,28 @@
+{
+  "symbol": "VRTX",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Vertex Pharmaceuticals Incorpor",
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "currency": "USD",
+  "open_price": 440.7099914550781,
+  "high_price": 442.0350036621094,
+  "low_price": 433.80999755859375,
+  "latest_close": 435.1000061035156,
+  "previous_close": 437.6700134277344,
+  "change_percent": -0.5872020575709592,
+  "latest_volume": 775811.0,
+  "market_cap": 110671922250.98862,
+  "avg_dollar_volume": 471461313.6135864,
+  "trailing_pe": 28.400784,
+  "forward_pe": 19.951284,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:46.529802+00:00"
+}

@@ -1,0 +1,1629 @@
+{
+  "pool_id": "nasdaq100",
+  "name": "Nasdaq-100",
+  "pool_type": "index",
+  "source": "nasdaq100_constituents_2026-04-24",
+  "market": "us_equities",
+  "symbols": [
+    "NVDA",
+    "GOOGL",
+    "GOOG",
+    "AAPL",
+    "MSFT",
+    "AMZN",
+    "AVGO",
+    "META",
+    "TSLA",
+    "WMT",
+    "ASML",
+    "MU",
+    "AMD",
+    "COST",
+    "NFLX",
+    "CSCO",
+    "PLTR",
+    "INTC",
+    "LRCX",
+    "AMAT",
+    "TXN",
+    "KLAC",
+    "LIN",
+    "ARM",
+    "TMUS",
+    "PEP",
+    "ADI",
+    "AMGN",
+    "ISRG",
+    "GILD",
+    "SHOP",
+    "APP",
+    "MRVL",
+    "QCOM",
+    "PANW",
+    "PDD",
+    "BKNG",
+    "WDC",
+    "HON",
+    "STX",
+    "CMCSA",
+    "SBUX",
+    "CRWD",
+    "VRTX",
+    "CEG",
+    "INTU",
+    "MAR",
+    "ADBE",
+    "MELI",
+    "SNPS",
+    "CDNS",
+    "CSX",
+    "ABNB",
+    "ADP",
+    "REGN",
+    "MPWR",
+    "ORLY",
+    "DASH",
+    "MNST",
+    "MDLZ",
+    "AEP",
+    "ROST",
+    "CTAS",
+    "PCAR",
+    "WBD",
+    "BKR",
+    "FTNT",
+    "NXPI",
+    "MSTR",
+    "FANG",
+    "FAST",
+    "EA",
+    "FER",
+    "XEL",
+    "MCHP",
+    "ADSK",
+    "EXC",
+    "ODFL",
+    "DDOG",
+    "PYPL",
+    "IDXX",
+    "CCEP",
+    "ALNY",
+    "TRI",
+    "TTWO",
+    "KDP",
+    "ROP",
+    "CHTR",
+    "CPRT",
+    "PAYX",
+    "GEHC",
+    "AXON",
+    "INSM",
+    "WDAY",
+    "CTSH",
+    "KHC",
+    "DXCM",
+    "VRSK",
+    "ZS",
+    "TEAM",
+    "CSGP"
+  ],
+  "members": [
+    {
+      "symbol": "NVDA",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GOOG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AAPL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "META",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TSLA",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "WMT",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ASML",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MU",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMD",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "COST",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "NFLX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CSCO",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "INTC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "LRCX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMAT",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TXN",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "KLAC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "LIN",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ARM",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TMUS",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PEP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ADI",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMGN",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ISRG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GILD",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SHOP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "APP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MRVL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "QCOM",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PANW",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PDD",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "BKNG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "WDC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "HON",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "STX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CMCSA",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SBUX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CRWD",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "VRTX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CEG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "INTU",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MAR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ADBE",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MELI",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SNPS",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CDNS",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CSX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ABNB",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ADP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "REGN",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MPWR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ORLY",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "DASH",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MNST",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MDLZ",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AEP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ROST",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CTAS",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PCAR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "WBD",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "BKR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "FTNT",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "NXPI",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MSTR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "FANG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "FAST",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "EA",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "FER",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "XEL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MCHP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ADSK",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "EXC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ODFL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "DDOG",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PYPL",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "IDXX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CCEP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ALNY",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TRI",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TTWO",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "KDP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ROP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CHTR",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CPRT",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "PAYX",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GEHC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AXON",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "INSM",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "WDAY",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CTSH",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "KHC",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "DXCM",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "VRSK",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "ZS",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TEAM",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "CSGP",
+      "sources": [
+        "nasdaq100"
+      ],
+      "themes": [],
+      "tags": [
+        "index_constituent",
+        "nasdaq100"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T03:53:36.465376+00:00",
+  "notes": "Constituent list captured from StockAnalysis Nasdaq-100 page on 2026-04-24."
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "KHC",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "The Kraft Heinz Company",
+  "sector": "Consumer Defensive",
+  "industry": "Packaged Foods",
+  "currency": "USD",
+  "open_price": 21.915000915527344,
+  "high_price": 22.114999771118164,
+  "low_price": 21.75,
+  "latest_close": 21.969999313354492,
+  "previous_close": 21.889999389648438,
+  "change_percent": 0.3654633437033619,
+  "latest_volume": 11335918.0,
+  "market_cap": 26006871366.656982,
+  "avg_dollar_volume": 297391622.9053879,
+  "trailing_pe": null,
+  "forward_pe": 10.279853,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:07.414021+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "WBD",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Warner Bros. Discovery, Inc. - ",
+  "sector": "Communication Services",
+  "industry": "Entertainment",
+  "currency": "USD",
+  "open_price": 27.440000534057617,
+  "high_price": 27.440000534057617,
+  "low_price": 26.899999618530273,
+  "latest_close": 26.899999618530273,
+  "previous_close": 27.329999923706055,
+  "change_percent": -1.5733637262208653,
+  "latest_volume": 20186023.0,
+  "market_cap": 67432068707.84375,
+  "avg_dollar_volume": 543946506.2862778,
+  "trailing_pe": 92.75862,
+  "forward_pe": -1613.6772,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:55.464220+00:00"
+}

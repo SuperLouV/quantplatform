@@ -1,0 +1,28 @@
+{
+  "symbol": "INTC",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Intel Corporation",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 66.08999633789062,
+  "high_price": 68.27999877929688,
+  "low_price": 65.69999694824219,
+  "latest_close": 66.77999877929688,
+  "previous_close": 65.2699966430664,
+  "change_percent": 2.313470528408362,
+  "latest_volume": 124372383.0,
+  "market_cap": 335303056896.6771,
+  "avg_dollar_volume": 7191360433.745728,
+  "trailing_pe": null,
+  "forward_pe": 59.714573,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:36.468331+00:00"
+}

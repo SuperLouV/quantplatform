@@ -1,0 +1,28 @@
+{
+  "symbol": "MELI",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "MercadoLibre, Inc.",
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail",
+  "currency": "USD",
+  "open_price": 1845.1500244140625,
+  "high_price": 1846.8499755859375,
+  "low_price": 1792.3199462890625,
+  "latest_close": 1809.199951171875,
+  "previous_close": 1860.97998046875,
+  "change_percent": -2.7824065728978162,
+  "latest_volume": 303395.0,
+  "market_cap": 91721339198.95166,
+  "avg_dollar_volume": 656631030.2783203,
+  "trailing_pe": 45.86058,
+  "forward_pe": 26.077534,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:48.920466+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "IDXX",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "IDEXX Laboratories, Inc.",
+  "sector": "Healthcare",
+  "industry": "Diagnostics & Research",
+  "currency": "USD",
+  "open_price": 577.8499755859375,
+  "high_price": 577.8499755859375,
+  "low_price": 554.530029296875,
+  "latest_close": 560.9299926757812,
+  "previous_close": 578.3499755859375,
+  "change_percent": -3.0120141169726393,
+  "latest_volume": 625622.0,
+  "market_cap": 44663509369.36615,
+  "avg_dollar_volume": 259570354.11071777,
+  "trailing_pe": 42.91737,
+  "forward_pe": 34.18977,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:02.130418+00:00"
+}

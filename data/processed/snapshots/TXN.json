@@ -1,0 +1,28 @@
+{
+  "symbol": "TXN",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Texas Instruments Incorporated",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 260.7558898925781,
+  "high_price": 284.0899963378906,
+  "low_price": 259.80999755859375,
+  "latest_close": 282.2300109863281,
+  "previous_close": 236.30999755859375,
+  "change_percent": 19.43210778306084,
+  "latest_volume": 25620382.0,
+  "market_cap": 256829309997.5586,
+  "avg_dollar_volume": 1765992203.1445312,
+  "trailing_pe": 48.327057,
+  "forward_pe": 31.62,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:36.684298+00:00"
+}

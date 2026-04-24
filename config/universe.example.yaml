@@ -1,0 +1,28 @@
+universe:
+  market: us_equities
+  manual:
+    enabled: true
+    symbols: ["AAPL", "MSFT", "NVDA"]
+  themes:
+    ai:
+      enabled: true
+      symbols: ["NVDA", "AMD", "AVGO", "META", "PLTR"]
+    cloud:
+      enabled: true
+      symbols: ["MSFT", "AMZN", "GOOGL", "ORCL", "CRM"]
+    digital_payments:
+      enabled: false
+      symbols: ["V", "MA", "PYPL", "SQ"]
+  system:
+    enabled: true
+    seed_symbols: ["SPY", "QQQ"]
+  ai:
+    enabled: false
+    symbols: []
+  screening:
+    min_price: 10
+    min_market_cap: 2000000000
+    min_avg_dollar_volume: 10000000
+    min_listing_months: 12
+    excluded_symbols: []
+    allowed_exchanges: ["NMS", "NYQ", "ASE"]

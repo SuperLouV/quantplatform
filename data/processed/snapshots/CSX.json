@@ -1,0 +1,28 @@
+{
+  "symbol": "CSX",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "CSX Corporation",
+  "sector": "Industrials",
+  "industry": "Railroads",
+  "currency": "USD",
+  "open_price": 45.459999084472656,
+  "high_price": 46.54999923706055,
+  "low_price": 44.810001373291016,
+  "latest_close": 46.18000030517578,
+  "previous_close": 43.18000030517578,
+  "change_percent": 6.947660905042661,
+  "latest_volume": 26106293.0,
+  "market_cap": 85808852937.13898,
+  "avg_dollar_volume": 490017830.4382324,
+  "trailing_pe": 28.33129,
+  "forward_pe": 22.066763,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:50.171258+00:00"
+}

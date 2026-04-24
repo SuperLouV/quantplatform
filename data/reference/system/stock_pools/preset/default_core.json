@@ -1,0 +1,173 @@
+{
+  "pool_id": "default_core",
+  "name": "Default",
+  "pool_type": "preset",
+  "source": "quantplatform_curated",
+  "market": "us_equities",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "GOOGL",
+    "META",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "GLD"
+  ],
+  "members": [
+    {
+      "symbol": "AAPL",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "META",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "QQQ",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "TLT",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    },
+    {
+      "symbol": "GLD",
+      "sources": [
+        "quantplatform_curated"
+      ],
+      "themes": [],
+      "tags": [
+        "core",
+        "default"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "snapshot_not_fetched"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T05:00:26.955719+00:00",
+  "notes": "Core market names and macro benchmarks for the first view."
+}

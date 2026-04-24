@@ -1,0 +1,12 @@
+.DS_Store
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+!.env.example
+data/system/state.db
+data/cache/
+data/raw/

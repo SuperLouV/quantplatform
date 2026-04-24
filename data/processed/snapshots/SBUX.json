@@ -1,0 +1,28 @@
+{
+  "symbol": "SBUX",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Starbucks Corporation",
+  "sector": "Consumer Cyclical",
+  "industry": "Restaurants",
+  "currency": "USD",
+  "open_price": 99.97000122070312,
+  "high_price": 100.80989837646484,
+  "low_price": 99.19999694824219,
+  "latest_close": 99.54000091552734,
+  "previous_close": 99.5199966430664,
+  "change_percent": 0.020100756768193888,
+  "latest_volume": 4504758.0,
+  "market_cap": 113405923043.0603,
+  "avg_dollar_volume": 565269747.999115,
+  "trailing_pe": 82.95,
+  "forward_pe": 34.210064,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:46.536193+00:00"
+}

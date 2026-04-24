@@ -1,0 +1,28 @@
+{
+  "symbol": "ADI",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Analog Devices, Inc.",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 397.8999938964844,
+  "high_price": 408.3699951171875,
+  "low_price": 395.79998779296875,
+  "latest_close": 403.8800048828125,
+  "previous_close": 381.4200134277344,
+  "change_percent": 5.8885193918471455,
+  "latest_volume": 4400832.0,
+  "market_cap": 197175897312.96936,
+  "avg_dollar_volume": 1209386364.2211914,
+  "trailing_pe": 74.10642,
+  "forward_pe": 30.721859,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:39.988557+00:00"
+}

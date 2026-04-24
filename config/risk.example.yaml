@@ -1,0 +1,5 @@
+risk:
+  max_position_weight: 0.08
+  max_sector_weight: 0.25
+  max_open_positions: 12
+  max_portfolio_drawdown: 0.12

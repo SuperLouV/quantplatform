@@ -1,0 +1,28 @@
+{
+  "symbol": "ADP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Automatic Data Processing, Inc.",
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "currency": "USD",
+  "open_price": 200.8300018310547,
+  "high_price": 200.89999389648438,
+  "low_price": 195.1199951171875,
+  "latest_close": 198.52999877929688,
+  "previous_close": 201.69000244140625,
+  "change_percent": -1.5667626673897233,
+  "latest_volume": 4140117.0,
+  "market_cap": 79936985093.41077,
+  "avg_dollar_volume": 561700925.5462646,
+  "trailing_pe": 19.089424,
+  "forward_pe": 16.595335,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:50.219099+00:00"
+}

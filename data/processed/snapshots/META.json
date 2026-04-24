@@ -1,0 +1,29 @@
+{
+  "symbol": "META",
+  "pool_ids": [
+    "nasdaq100",
+    "default_core"
+  ],
+  "company_name": "Meta Platforms, Inc.",
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information",
+  "currency": "USD",
+  "open_price": 663.530029296875,
+  "high_price": 669.5599975585938,
+  "low_price": 653.0499877929688,
+  "latest_close": 659.1500244140625,
+  "previous_close": 674.719970703125,
+  "change_percent": -2.307616042969215,
+  "latest_volume": 11599083.0,
+  "market_cap": 1673201782804.8252,
+  "avg_dollar_volume": 8625320827.470703,
+  "trailing_pe": 28.084791,
+  "forward_pe": 18.380068,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:29.612381+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "LRCX",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Lam Research Corporation",
+  "sector": "Technology",
+  "industry": "Semiconductor Equipment & Materials",
+  "currency": "USD",
+  "open_price": 264.1099853515625,
+  "high_price": 272.81988525390625,
+  "low_price": 253.2899932861328,
+  "latest_close": 258.55999755859375,
+  "previous_close": 265.54998779296875,
+  "change_percent": -2.6322690851805346,
+  "latest_volume": 12223630.0,
+  "market_cap": 323339360786.9263,
+  "avg_dollar_volume": 2259793693.8623047,
+  "trailing_pe": 48.784904,
+  "forward_pe": 36.13934,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:36.568891+00:00"
+}

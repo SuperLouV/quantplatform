@@ -1,0 +1,185 @@
+{
+  "pool_id": "theme_pool",
+  "name": "Theme Pool",
+  "pool_type": "theme",
+  "source": "manual_and_theme",
+  "market": "us_equities",
+  "symbols": [
+    "AMD",
+    "AMZN",
+    "AVGO",
+    "CRM",
+    "GOOGL",
+    "META",
+    "MSFT",
+    "NVDA",
+    "ORCL",
+    "PLTR"
+  ],
+  "members": [
+    {
+      "symbol": "AMD",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "CRM",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "META",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sources": [
+        "manual",
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "sources": [
+        "manual",
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "ORCL",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T03:25:07.547903+00:00",
+  "notes": null
+}

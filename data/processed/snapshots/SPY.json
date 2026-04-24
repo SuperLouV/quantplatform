@@ -1,0 +1,28 @@
+{
+  "symbol": "SPY",
+  "pool_ids": [
+    "default_core"
+  ],
+  "company_name": "State Street SPDR S&P 500 ETF T",
+  "sector": null,
+  "industry": null,
+  "currency": "USD",
+  "open_price": 709.5,
+  "high_price": 712.3599853515625,
+  "low_price": 702.280029296875,
+  "latest_close": 708.4500122070312,
+  "previous_close": 711.2100219726562,
+  "change_percent": -0.38807239498252083,
+  "latest_volume": 56047300.0,
+  "market_cap": 650202710016.0,
+  "avg_dollar_volume": 38245567641.49475,
+  "trailing_pe": 28.088146,
+  "forward_pe": null,
+  "next_earnings_date": null,
+  "exchange": "PCX",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T05:15:10.791682+00:00"
+}

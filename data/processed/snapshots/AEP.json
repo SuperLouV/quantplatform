@@ -1,0 +1,28 @@
+{
+  "symbol": "AEP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "American Electric Power Company",
+  "sector": "Utilities",
+  "industry": "Utilities - Regulated Electric",
+  "currency": "USD",
+  "open_price": 132.77999877929688,
+  "high_price": 135.35000610351562,
+  "low_price": 132.5850067138672,
+  "latest_close": 135.0800018310547,
+  "previous_close": 131.6199951171875,
+  "change_percent": 2.628785019165652,
+  "latest_volume": 1891696.0,
+  "market_cap": 73424555873.69446,
+  "avg_dollar_volume": 338136312.983551,
+  "trailing_pe": 20.282284,
+  "forward_pe": 19.655949,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:53.678212+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "MPWR",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Monolithic Power Systems, Inc.",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 1550.4000244140625,
+  "high_price": 1597.7615966796875,
+  "low_price": 1533.0,
+  "latest_close": 1592.1700439453125,
+  "previous_close": 1522.0400390625,
+  "change_percent": 4.607632065054547,
+  "latest_volume": 636095.0,
+  "market_cap": 78204208218.50586,
+  "avg_dollar_volume": 807676019.8925781,
+  "trailing_pe": 123.42404,
+  "forward_pe": 61.338516,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:50.619001+00:00"
+}

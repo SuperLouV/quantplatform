@@ -1,0 +1,28 @@
+{
+  "symbol": "DDOG",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Datadog, Inc.",
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "currency": "USD",
+  "open_price": 127.47000122070312,
+  "high_price": 129.97000122070312,
+  "low_price": 124.44999694824219,
+  "latest_close": 127.86000061035156,
+  "previous_close": 132.13999938964844,
+  "change_percent": -3.2389880422779544,
+  "latest_volume": 6065343.0,
+  "market_cap": 45243431141.91371,
+  "avg_dollar_volume": 662690711.5634155,
+  "trailing_pe": 412.4516,
+  "forward_pe": 48.6217,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:00.723467+00:00"
+}

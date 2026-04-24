@@ -1,0 +1,138 @@
+"""Configuration loading helpers."""
+
+from __future__ import annotations
+
+from ast import literal_eval
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+
+@dataclass(slots=True)
+class AppConfig:
+    name: str
+    env: str
+
+
+@dataclass(slots=True)
+class DataConfig:
+    provider: str
+    timezone: str
+    fred_api_key: str = ""
+    user_agent: str = "quant-platform/0.1"
+
+
+@dataclass(slots=True)
+class StorageConfig:
+    raw_dir: Path
+    processed_dir: Path
+    reference_dir: Path
+    cache_dir: Path
+    state_db: Path
+    raw_format: str = "json"
+    processed_format: str = "parquet"
+
+
+@dataclass(slots=True)
+class Settings:
+    app: AppConfig
+    data: DataConfig
+    storage: StorageConfig
+
+
+def load_mapping_file(path: str | Path) -> dict[str, Any]:
+    return _read_yaml(Path(path))
+
+
+def _read_yaml(path: Path) -> dict[str, Any]:
+    data = _parse_simple_yaml(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"Config file must contain a mapping: {path}")
+    return data
+
+
+def _parse_simple_yaml(text: str) -> dict[str, Any]:
+    """Parse a small YAML subset used by project config templates.
+
+    Supported:
+    - nested mappings by indentation
+    - string, int, float, bool, and empty-string scalars
+    - blank lines and whole-line comments
+    """
+
+    root: dict[str, Any] = {}
+    stack: list[tuple[int, dict[str, Any]]] = [(-1, root)]
+
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        if not line or line.lstrip().startswith("#"):
+            continue
+
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        stripped = raw_line.strip()
+        if ":" not in stripped:
+            raise ValueError(f"Unsupported config line: {raw_line}")
+
+        key, raw_value = stripped.split(":", 1)
+        key = key.strip()
+        value = raw_value.strip()
+
+        while len(stack) > 1 and indent <= stack[-1][0]:
+            stack.pop()
+
+        current = stack[-1][1]
+        if not value:
+            nested: dict[str, Any] = {}
+            current[key] = nested
+            stack.append((indent, nested))
+            continue
+
+        current[key] = _parse_scalar(value)
+
+    return root
+
+
+def _parse_scalar(value: str) -> Any:
+    if value in {"true", "True"}:
+        return True
+    if value in {"false", "False"}:
+        return False
+    if value in {'""', "''"}:
+        return ""
+
+    try:
+        return literal_eval(value)
+    except (SyntaxError, ValueError):
+        return value
+
+
+def load_settings(path: str | Path) -> Settings:
+    config_path = Path(path)
+    data = load_mapping_file(config_path)
+
+    app = data.get("app", {})
+    market_data = data.get("data", {})
+    storage = data.get("storage", {})
+    base_dir = config_path.parent.parent
+
+    return Settings(
+        app=AppConfig(
+            name=app.get("name", "quant-platform"),
+            env=app.get("env", "dev"),
+        ),
+        data=DataConfig(
+            provider=market_data.get("provider", "yfinance"),
+            timezone=market_data.get("timezone", "America/New_York"),
+            fred_api_key=market_data.get("fred_api_key", ""),
+            user_agent=market_data.get("user_agent", "quant-platform/0.1"),
+        ),
+        storage=StorageConfig(
+            raw_dir=(base_dir / storage.get("raw_dir", "data/raw")).resolve(),
+            processed_dir=(base_dir / storage.get("processed_dir", "data/processed")).resolve(),
+            reference_dir=(base_dir / storage.get("reference_dir", "data/reference")).resolve(),
+            cache_dir=(base_dir / storage.get("cache_dir", "data/cache")).resolve(),
+            state_db=(base_dir / storage.get("state_db", "data/system/state.db")).resolve(),
+            raw_format=storage.get("raw_format", "json"),
+            processed_format=storage.get("processed_format", "parquet"),
+        ),
+    )

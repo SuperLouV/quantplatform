@@ -1,0 +1,28 @@
+{
+  "symbol": "VRSK",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Verisk Analytics, Inc.",
+  "sector": "Industrials",
+  "industry": "Consulting Services",
+  "currency": "USD",
+  "open_price": 177.97999572753906,
+  "high_price": 178.75,
+  "low_price": 173.13999938964844,
+  "latest_close": 177.13999938964844,
+  "previous_close": 178.88999938964844,
+  "change_percent": -0.9782547967861778,
+  "latest_volume": 1582875.0,
+  "market_cap": 23205434867.08362,
+  "avg_dollar_volume": 365792327.3396301,
+  "trailing_pe": 27.33642,
+  "forward_pe": 20.607618,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:10.033457+00:00"
+}

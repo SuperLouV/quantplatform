@@ -1,0 +1,30 @@
+{
+  "symbol": "NVDA",
+  "pool_ids": [
+    "nasdaq100",
+    "default_core",
+    "custom_manual"
+  ],
+  "company_name": "NVIDIA Corporation",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 202.39999389648438,
+  "high_price": 203.82899475097656,
+  "low_price": 197.22059631347656,
+  "latest_close": 199.63999938964844,
+  "previous_close": 202.5,
+  "change_percent": -1.4123459804205247,
+  "latest_volume": 108937228.0,
+  "market_cap": 4852250185165.405,
+  "avg_dollar_volume": 27677023437.78412,
+  "trailing_pe": 40.826176,
+  "forward_pe": 17.762863,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:29.683450+00:00"
+}

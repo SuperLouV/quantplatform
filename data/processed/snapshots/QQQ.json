@@ -1,0 +1,28 @@
+{
+  "symbol": "QQQ",
+  "pool_ids": [
+    "default_core"
+  ],
+  "company_name": "Invesco QQQ Trust, Series 1",
+  "sector": null,
+  "industry": null,
+  "currency": "USD",
+  "open_price": 653.5499877929688,
+  "high_price": 656.9199829101562,
+  "low_price": 645.52001953125,
+  "latest_close": 651.4199829101562,
+  "previous_close": 655.1099853515625,
+  "change_percent": -0.5632645699066887,
+  "latest_volume": 39722800.0,
+  "market_cap": 256073187328.0,
+  "avg_dollar_volume": 27141661127.545166,
+  "trailing_pe": 34.414803,
+  "forward_pe": null,
+  "next_earnings_date": null,
+  "exchange": "NGM",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T05:15:06.348347+00:00"
+}

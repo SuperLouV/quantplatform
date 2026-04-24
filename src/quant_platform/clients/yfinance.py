@@ -1,0 +1,250 @@
+"""Yahoo Finance research client placeholder."""
+
+from __future__ import annotations
+
+from dataclasses import asdict
+from datetime import UTC, date, datetime
+from typing import Any
+
+import pandas as pd
+import yfinance as yf
+
+from quant_platform.clients.base import BaseDataClient
+from quant_platform.core.models import Bar, DataRequest, Security, TradingCalendarEvent
+
+
+class YFinanceClient(BaseDataClient):
+    provider_name = "yfinance"
+
+    def fetch_bars(self, request: DataRequest) -> list[Bar]:
+        ticker = yf.Ticker(request.symbol)
+        history = ticker.history(
+            start=_coerce_history_date(request.start),
+            end=_coerce_history_date(request.end),
+            interval=request.interval,
+            auto_adjust=request.adjusted,
+            actions=False,
+        )
+        if history.empty:
+            return []
+
+        history = history.reset_index()
+        timestamp_column = "Date" if "Date" in history.columns else history.columns[0]
+
+        bars: list[Bar] = []
+        for row in history.to_dict(orient="records"):
+            bars.append(
+                Bar(
+                    symbol=request.symbol,
+                    timestamp=_normalize_timestamp(row[timestamp_column]),
+                    open=_to_float(row.get("Open")),
+                    high=_to_float(row.get("High")),
+                    low=_to_float(row.get("Low")),
+                    close=_to_float(row.get("Close")),
+                    volume=_to_float(row.get("Volume")),
+                    provider=self.provider_name,
+                    adjusted=request.adjusted,
+                )
+            )
+        return bars
+
+    def fetch_security(self, symbol: str) -> Security | None:
+        ticker = yf.Ticker(symbol)
+        info = ticker.info or {}
+        if not info:
+            return None
+        return Security(
+            symbol=symbol,
+            name=info.get("shortName") or info.get("longName"),
+            exchange=info.get("exchange"),
+            sector=info.get("sector"),
+            industry=info.get("industry"),
+            market_cap=_optional_float(info.get("marketCap")),
+            currency=info.get("currency"),
+            extra=info,
+        )
+
+    def fetch_events(self, symbol: str) -> list[TradingCalendarEvent]:
+        ticker = yf.Ticker(symbol)
+        events: list[TradingCalendarEvent] = []
+
+        calendar = ticker.calendar
+        if isinstance(calendar, pd.DataFrame) and not calendar.empty:
+            data = calendar.to_dict()
+            for label, values in data.items():
+                normalized_label = str(label).strip().lower().replace(" ", "_")
+                event_date = _extract_first_date(values.values())
+                if event_date is None:
+                    continue
+                events.append(
+                    TradingCalendarEvent(
+                        symbol=symbol,
+                        event_type=normalized_label,
+                        event_date=event_date,
+                        provider=self.provider_name,
+                        detail=str(asdict(Security(symbol=symbol, extra={"source": "yfinance_calendar"}))),
+                    )
+                )
+        return events
+
+    def fetch_raw_history(self, request: DataRequest) -> list[dict[str, Any]]:
+        bars = self.fetch_bars(request)
+        return [
+            {
+                "symbol": bar.symbol,
+                "timestamp": bar.timestamp.isoformat(),
+                "open": bar.open,
+                "high": bar.high,
+                "low": bar.low,
+                "close": bar.close,
+                "volume": bar.volume,
+                "provider": bar.provider,
+                "adjusted": bar.adjusted,
+            }
+            for bar in bars
+        ]
+
+    def fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
+        ticker = yf.Ticker(symbol)
+        fast_info = dict(ticker.fast_info)
+        history = ticker.history(period="5d", interval="1d", auto_adjust=False, actions=False)
+        info = ticker.info or {}
+
+        latest_row = history.iloc[-1] if not history.empty else None
+        previous_row = history.iloc[-2] if len(history.index) > 1 else None
+
+        previous_close = (
+            _optional_float(previous_row["Close"])
+            if previous_row is not None
+            else _optional_float(fast_info.get("previousClose")) or _optional_float(info.get("previousClose"))
+        )
+        latest_close = (
+            _optional_float(latest_row["Close"])
+            if latest_row is not None
+            else _optional_float(fast_info.get("lastPrice")) or _optional_float(info.get("currentPrice"))
+        )
+        change_percent = None
+        if latest_close is not None and previous_close not in (None, 0):
+            change_percent = ((latest_close - previous_close) / previous_close) * 100
+
+        earnings_date = _extract_calendar_date(ticker.calendar)
+
+        return {
+            "symbol": symbol,
+            "company_name": info.get("shortName") or info.get("longName"),
+            "sector": info.get("sector"),
+            "industry": info.get("industry"),
+            "exchange": fast_info.get("exchange") or info.get("exchange"),
+            "currency": fast_info.get("currency") or info.get("currency"),
+            "open_price": _optional_float(latest_row["Open"]) if latest_row is not None else _optional_float(fast_info.get("open")),
+            "high_price": _optional_float(latest_row["High"]) if latest_row is not None else _optional_float(fast_info.get("dayHigh")),
+            "low_price": _optional_float(latest_row["Low"]) if latest_row is not None else _optional_float(fast_info.get("dayLow")),
+            "latest_close": latest_close,
+            "previous_close": previous_close,
+            "change_percent": change_percent,
+            "latest_volume": _optional_float(latest_row["Volume"]) if latest_row is not None else _optional_float(fast_info.get("lastVolume")),
+            "market_cap": _optional_float(fast_info.get("marketCap")) or _optional_float(info.get("marketCap")),
+            "avg_dollar_volume": _optional_float(fast_info.get("tenDayAverageVolume")) * latest_close
+            if _optional_float(fast_info.get("tenDayAverageVolume")) is not None and latest_close is not None
+            else None,
+            "trailing_pe": _optional_float(info.get("trailingPE")),
+            "forward_pe": _optional_float(info.get("forwardPE")),
+            "next_earnings_date": earnings_date,
+        }
+
+    def fetch_chart_history(self, symbol: str, period: str = "6mo", interval: str = "1d") -> list[dict[str, Any]]:
+        ticker = yf.Ticker(symbol)
+        history = ticker.history(period=period, interval=interval, auto_adjust=False, actions=False)
+        if history.empty:
+            return []
+
+        history = history.reset_index()
+        timestamp_column = "Date" if "Date" in history.columns else history.columns[0]
+        points: list[dict[str, Any]] = []
+        for row in history.to_dict(orient="records"):
+            points.append(
+                {
+                    "timestamp": _normalize_timestamp(row[timestamp_column]).isoformat(),
+                    "open": _optional_float(row.get("Open")),
+                    "high": _optional_float(row.get("High")),
+                    "low": _optional_float(row.get("Low")),
+                    "close": _optional_float(row.get("Close")),
+                    "volume": _optional_float(row.get("Volume")),
+                }
+            )
+        return points
+
+    def search_symbols(self, query: str, limit: int = 8) -> list[dict[str, Any]]:
+        if not query.strip():
+            return []
+
+        try:
+            search = yf.Search(query, max_results=limit)
+        except TypeError:
+            search = yf.Search(query)
+
+        results: list[dict[str, Any]] = []
+        for item in (search.quotes or [])[:limit]:
+            symbol = item.get("symbol")
+            if not symbol:
+                continue
+            results.append(
+                {
+                    "symbol": symbol.upper(),
+                    "name": item.get("shortname") or item.get("longname") or item.get("name"),
+                    "exchange": item.get("exchange") or item.get("exchDisp"),
+                    "type": item.get("quoteType") or item.get("typeDisp"),
+                }
+            )
+        return results
+
+
+def _coerce_history_date(value: date | datetime | None) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    return value.isoformat()
+
+
+def _normalize_timestamp(value: Any) -> datetime:
+    ts = pd.Timestamp(value)
+    if ts.tzinfo is None:
+        ts = ts.tz_localize(UTC)
+    else:
+        ts = ts.tz_convert(UTC)
+    return ts.to_pydatetime()
+
+
+def _to_float(value: Any) -> float:
+    return float(0 if value is None else value)
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    return float(value)
+
+
+def _extract_first_date(values: Any) -> date | None:
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        try:
+            return pd.Timestamp(value).date()
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _extract_calendar_date(calendar: Any) -> str | None:
+    if isinstance(calendar, pd.DataFrame) and not calendar.empty:
+        for values in calendar.to_dict().values():
+            value = _extract_first_date(values.values())
+            if value is not None:
+                return value.isoformat()
+    return None

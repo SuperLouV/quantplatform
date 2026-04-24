@@ -1,0 +1,28 @@
+{
+  "symbol": "MCHP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Microchip Technology Incorporat",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 85.80999755859375,
+  "high_price": 92.23999786376953,
+  "low_price": 85.45999908447266,
+  "latest_close": 90.63999938964844,
+  "previous_close": 82.4800033569336,
+  "change_percent": 9.89330225582354,
+  "latest_volume": 17817448.0,
+  "market_cap": 49048517582.83713,
+  "avg_dollar_volume": 750333323.747406,
+  "trailing_pe": null,
+  "forward_pe": 34.067375,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:59.798224+00:00"
+}

@@ -1,0 +1,228 @@
+{
+  "pool_id": "watchlist",
+  "name": "Watchlist",
+  "pool_type": "watchlist",
+  "source": "merged_candidates",
+  "market": "us_equities",
+  "symbols": [
+    "AAPL",
+    "AMD",
+    "AMZN",
+    "AVGO",
+    "CRM",
+    "GOOGL",
+    "META",
+    "MSFT",
+    "NVDA",
+    "ORCL",
+    "PLTR",
+    "QQQ",
+    "SPY"
+  ],
+  "members": [
+    {
+      "symbol": "AAPL",
+      "sources": [
+        "manual"
+      ],
+      "themes": [],
+      "tags": [],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "AMD",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "CRM",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "META",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sources": [
+        "manual",
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "sources": [
+        "manual",
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "ORCL",
+      "sources": [
+        "theme:cloud"
+      ],
+      "themes": [
+        "cloud"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "PLTR",
+      "sources": [
+        "theme:ai"
+      ],
+      "themes": [
+        "ai"
+      ],
+      "tags": [
+        "theme"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "QQQ",
+      "sources": [
+        "system_seed"
+      ],
+      "themes": [],
+      "tags": [
+        "system"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "sources": [
+        "system_seed"
+      ],
+      "themes": [],
+      "tags": [
+        "system"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T03:25:07.547903+00:00",
+  "notes": null
+}

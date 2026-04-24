@@ -1,0 +1,28 @@
+{
+  "symbol": "PANW",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Palo Alto Networks, Inc.",
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "currency": "USD",
+  "open_price": 173.3699951171875,
+  "high_price": 175.49000549316406,
+  "low_price": 169.60000610351562,
+  "latest_close": 173.2100067138672,
+  "previous_close": 181.1999969482422,
+  "change_percent": -4.409486958577187,
+  "latest_volume": 6944554.0,
+  "market_cap": 140473315444.9463,
+  "avg_dollar_volume": 1393174850.7014465,
+  "trailing_pe": 96.22778,
+  "forward_pe": 43.594147,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:43.291613+00:00"
+}

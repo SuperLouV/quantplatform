@@ -1,0 +1,29 @@
+{
+  "symbol": "GOOGL",
+  "pool_ids": [
+    "nasdaq100",
+    "default_core"
+  ],
+  "company_name": "Alphabet Inc.",
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information",
+  "currency": "USD",
+  "open_price": 341.3550109863281,
+  "high_price": 341.9599914550781,
+  "low_price": 336.17999267578125,
+  "latest_close": 338.8900146484375,
+  "previous_close": 339.32000732421875,
+  "change_percent": -0.1267218750736363,
+  "latest_volume": 18458741.0,
+  "market_cap": 4099552507202.1484,
+  "avg_dollar_volume": 7547853295.454102,
+  "trailing_pe": 31.349676,
+  "forward_pe": 25.10542,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:28.875062+00:00"
+}

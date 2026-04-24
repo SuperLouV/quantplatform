@@ -1,0 +1,28 @@
+{
+  "symbol": "CTAS",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Cintas Corporation",
+  "sector": "Industrials",
+  "industry": "Specialty Business Services",
+  "currency": "USD",
+  "open_price": 174.39999389648438,
+  "high_price": 178.2449951171875,
+  "low_price": 174.0399932861328,
+  "latest_close": 177.6199951171875,
+  "previous_close": 174.66000366210938,
+  "change_percent": 1.694716244713021,
+  "latest_volume": 2309500.0,
+  "market_cap": 71063472123.22961,
+  "avg_dollar_volume": 333618308.22875977,
+  "trailing_pe": 37.551796,
+  "forward_pe": 32.7418,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:54.003658+00:00"
+}

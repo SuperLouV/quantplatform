@@ -1,0 +1,28 @@
+{
+  "symbol": "APP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Applovin Corporation",
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies",
+  "currency": "USD",
+  "open_price": 471.1600036621094,
+  "high_price": 471.19000244140625,
+  "low_price": 442.3893127441406,
+  "latest_close": 454.1700134277344,
+  "previous_close": 483.7099914550781,
+  "change_percent": -6.106960482350737,
+  "latest_volume": 3507382.0,
+  "market_cap": 152719624280.77225,
+  "avg_dollar_volume": 2026529308.4152222,
+  "trailing_pe": 45.236057,
+  "forward_pe": 22.328096,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:39.963465+00:00"
+}

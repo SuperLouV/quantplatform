@@ -1,0 +1,28 @@
+{
+  "symbol": "MU",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Micron Technology, Inc.",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 482.1719970703125,
+  "high_price": 493.6199035644531,
+  "low_price": 471.79998779296875,
+  "latest_close": 481.7200012207031,
+  "previous_close": 487.4800109863281,
+  "change_percent": -1.1815889135578412,
+  "latest_volume": 37680357.0,
+  "market_cap": 543252048424.3485,
+  "avg_dollar_volume": 18410206404.652405,
+  "trailing_pe": 22.722641,
+  "forward_pe": 4.7660303,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:33.098781+00:00"
+}

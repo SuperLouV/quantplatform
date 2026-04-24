@@ -1,0 +1,28 @@
+{
+  "symbol": "SHOP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Shopify Inc.",
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "currency": "USD",
+  "open_price": 129.74000549316406,
+  "high_price": 130.0,
+  "low_price": 121.7301025390625,
+  "latest_close": 124.2300033569336,
+  "previous_close": 131.9600067138672,
+  "change_percent": -5.8578379536572704,
+  "latest_volume": 7413789.0,
+  "market_cap": 161621642111.41757,
+  "avg_dollar_volume": 1025666511.4154816,
+  "trailing_pe": 132.15958,
+  "forward_pe": 53.931213,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:40.041599+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "symbol": "ARM",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Arm Holdings plc",
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "currency": "USD",
+  "open_price": 194.16000366210938,
+  "high_price": 210.8000030517578,
+  "low_price": 192.17999267578125,
+  "latest_close": 204.61000061035156,
+  "previous_close": 196.57000732421875,
+  "change_percent": 4.090142436059335,
+  "latest_volume": 15515195.0,
+  "market_cap": 217295527851.28247,
+  "avg_dollar_volume": 1379454024.814911,
+  "trailing_pe": 272.81332,
+  "forward_pe": 95.42932,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:36.603286+00:00"
+}

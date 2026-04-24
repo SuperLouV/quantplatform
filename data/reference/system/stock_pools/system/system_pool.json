@@ -1,0 +1,43 @@
+{
+  "pool_id": "system_pool",
+  "name": "System Pool",
+  "pool_type": "system",
+  "source": "system_and_ai",
+  "market": "us_equities",
+  "symbols": [
+    "QQQ",
+    "SPY"
+  ],
+  "members": [
+    {
+      "symbol": "QQQ",
+      "sources": [
+        "system_seed"
+      ],
+      "themes": [],
+      "tags": [
+        "system"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "sources": [
+        "system_seed"
+      ],
+      "themes": [],
+      "tags": [
+        "system"
+      ],
+      "status": "pending_data",
+      "reasons": [
+        "missing_snapshot"
+      ]
+    }
+  ],
+  "updated_at": "2026-04-24T03:25:07.547903+00:00",
+  "notes": null
+}

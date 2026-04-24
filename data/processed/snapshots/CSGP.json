@@ -1,0 +1,28 @@
+{
+  "symbol": "CSGP",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "CoStar Group, Inc.",
+  "sector": "Real Estate",
+  "industry": "Real Estate Services",
+  "currency": "USD",
+  "open_price": 38.47999954223633,
+  "high_price": 38.70000076293945,
+  "low_price": 36.560001373291016,
+  "latest_close": 37.380001068115234,
+  "previous_close": 38.77000045776367,
+  "change_percent": -3.5852447078578535,
+  "latest_volume": 6537454.0,
+  "market_cap": 15842496380.27158,
+  "avg_dollar_volume": 221888807.74036407,
+  "trailing_pe": 1869.0001,
+  "forward_pe": 21.189997,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:59:09.985013+00:00"
+}

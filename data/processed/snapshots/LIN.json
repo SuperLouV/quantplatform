@@ -1,0 +1,28 @@
+{
+  "symbol": "LIN",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Linde plc",
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals",
+  "currency": "USD",
+  "open_price": 499.0450134277344,
+  "high_price": 508.260009765625,
+  "low_price": 498.1000061035156,
+  "latest_close": 508.05999755859375,
+  "previous_close": 494.6199951171875,
+  "change_percent": 2.717237995649971,
+  "latest_volume": 1671751.0,
+  "market_cap": 235432033766.0266,
+  "avg_dollar_volume": 929180768.3349609,
+  "trailing_pe": 34.727272,
+  "forward_pe": 26.029156,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:36.638830+00:00"
+}

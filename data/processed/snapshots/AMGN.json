@@ -1,0 +1,28 @@
+{
+  "symbol": "AMGN",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Amgen Inc.",
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - General",
+  "currency": "USD",
+  "open_price": 347.2300109863281,
+  "high_price": 350.69000244140625,
+  "low_price": 345.4963073730469,
+  "latest_close": 348.6199951171875,
+  "previous_close": 345.9200134277344,
+  "change_percent": 0.7805219659593862,
+  "latest_volume": 2030297.0,
+  "market_cap": 187929770226.33362,
+  "avg_dollar_volume": 835680476.4953613,
+  "trailing_pe": 24.516174,
+  "forward_pe": 14.927513,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:40.089984+00:00"
+}

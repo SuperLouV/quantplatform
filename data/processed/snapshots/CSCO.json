@@ -1,0 +1,28 @@
+{
+  "symbol": "CSCO",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Cisco Systems, Inc.",
+  "sector": "Technology",
+  "industry": "Communication Equipment",
+  "currency": "USD",
+  "open_price": 89.22000122070312,
+  "high_price": 89.98999786376953,
+  "low_price": 88.2699966430664,
+  "latest_close": 88.58999633789062,
+  "previous_close": 89.80000305175781,
+  "change_percent": -1.3474461834592353,
+  "latest_volume": 21127349.0,
+  "market_cap": 349921010125.83966,
+  "avg_dollar_volume": 1553598336.277771,
+  "trailing_pe": 31.866905,
+  "forward_pe": 19.635525,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:33.259962+00:00"
+}

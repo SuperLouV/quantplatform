@@ -1,0 +1,28 @@
+{
+  "symbol": "ORLY",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "O'Reilly Automotive, Inc.",
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts",
+  "currency": "USD",
+  "open_price": 94.02999877929688,
+  "high_price": 94.25,
+  "low_price": 92.22000122070312,
+  "latest_close": 93.23999786376953,
+  "previous_close": 93.91999816894531,
+  "change_percent": -0.7240207819772122,
+  "latest_volume": 4099421.0,
+  "market_cap": 78180529258.95845,
+  "avg_dollar_volume": 433181841.2753296,
+  "trailing_pe": 31.393938,
+  "forward_pe": 26.158165,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:52.198654+00:00"
+}

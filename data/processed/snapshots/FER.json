@@ -1,0 +1,28 @@
+{
+  "symbol": "FER",
+  "pool_ids": [
+    "nasdaq100"
+  ],
+  "company_name": "Ferrovial SE",
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "currency": "USD",
+  "open_price": 69.87999725341797,
+  "high_price": 70.51499938964844,
+  "low_price": 69.20999908447266,
+  "latest_close": 69.88999938964844,
+  "previous_close": 69.93000030517578,
+  "change_percent": -0.05720136615584017,
+  "latest_volume": 1008040.0,
+  "market_cap": 50135520263.594925,
+  "avg_dollar_volume": 88382893.22814941,
+  "trailing_pe": 49.21831,
+  "forward_pe": 47.439827,
+  "next_earnings_date": null,
+  "exchange": "NMS",
+  "indicators": {},
+  "events": [],
+  "screening_status": "ready",
+  "screening_reasons": [],
+  "as_of": "2026-04-24T03:58:58.810101+00:00"
+}
