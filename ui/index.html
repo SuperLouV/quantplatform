@@ -494,7 +494,7 @@
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 22px;
       align-items: end;
-      padding: 14px 18px 13px;
+      padding: 10px 18px;
       border-bottom: 1px solid var(--line);
       background: #111315;
     }
@@ -506,43 +506,43 @@
     .symbol-line {
       display: flex;
       align-items: baseline;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .symbol-big {
-      font-size: clamp(32px, 3.4vw, 54px);
-      line-height: 0.9;
+      font-size: clamp(24px, 2vw, 34px);
+      line-height: 1;
       font-weight: 680;
       letter-spacing: 0;
     }
 
     .company {
       color: var(--soft);
-      font-size: 17px;
+      font-size: 14px;
       font-weight: 520;
     }
 
     .meta {
-      margin-top: 10px;
+      margin-top: 5px;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .quote-stats {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
       max-width: 100%;
     }
 
     .quote-stat {
-      min-height: 30px;
+      min-height: 28px;
       display: inline-flex;
       align-items: baseline;
       gap: 6px;
-      padding: 5px 8px;
+      padding: 4px 8px;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: #0d0e10;
@@ -1309,11 +1309,11 @@
 
     @media (max-width: 680px) {
       .quote {
-        padding: 16px;
+        padding: 12px 16px;
       }
 
       .symbol-big {
-        font-size: 40px;
+        font-size: 30px;
       }
 
       .indicator-grid {
@@ -1375,7 +1375,6 @@
       <main class="workspace">
         <section class="quote">
           <div class="quote-main">
-            <p class="label" id="symbolEyebrow">--</p>
             <div class="symbol-line">
               <h2 class="symbol-big" id="symbolBig">--</h2>
               <p class="company" id="companyName">加载中</p>
@@ -1458,7 +1457,7 @@
                 <div class="readout-value numeric" id="readoutOpen">-</div>
               </div>
               <div class="readout-cell">
-                <div class="readout-label">收盘</div>
+                <div class="readout-label" id="readoutCloseLabel">收盘</div>
                 <div class="readout-value numeric" id="readoutClose">-</div>
               </div>
               <div class="readout-cell">
@@ -1760,7 +1759,6 @@
 
     function renderSnapshot(item) {
       document.getElementById("chartMeta").textContent = `${item.symbol} · ${rangeLabel(state.currentPeriod)} 历史游标`;
-      document.getElementById("symbolEyebrow").textContent = item.symbol;
       document.getElementById("symbolBig").textContent = item.symbol;
       document.getElementById("companyName").textContent = item.company_name_zh || item.company_name || item.symbol;
       document.getElementById("companyMeta").textContent = `${item.sector_zh || item.sector || "-"} / ${item.industry_zh || item.industry || "-"}`;
@@ -2255,12 +2253,14 @@
           const node = document.getElementById(id);
           if (node) node.textContent = "-";
         });
+        setNodeText("readoutCloseLabel", "收盘");
         return;
       }
 
       const change = bar.close - bar.previousClose;
       const changePct = bar.previousClose ? (change / bar.previousClose) * 100 : null;
       const className = change > 0 ? "up" : change < 0 ? "down" : "flat";
+      setNodeText("readoutCloseLabel", isLiveLatestBar(bar) ? "最新" : "收盘");
       const values = {
         readoutDate: formatChartDate(bar.time),
         readoutOpen: money(bar.open),
@@ -2280,6 +2280,20 @@
         node.classList.toggle("down", id === "readoutChange" || id === "readoutChangePct" ? className === "down" : false);
         node.classList.toggle("flat", id === "readoutChange" || id === "readoutChangePct" ? className === "flat" : false);
       });
+    }
+
+    function isLiveLatestBar(bar) {
+      if (!bar || !state.latestChartBar || chartTimeKey(bar.time) !== chartTimeKey(state.latestChartBar.time)) {
+        return false;
+      }
+      const marketState = String(state.activeItem?.market_state || "").toUpperCase();
+      if (["REGULAR", "PRE", "PREPRE", "POST", "POSTPOST"].includes(marketState)) {
+        return true;
+      }
+      if (marketState === "CLOSED") {
+        return false;
+      }
+      return chartTimeKey(bar.time) === usMarketDateKey(new Date());
     }
 
     function updateChartIndicatorSeries() {
@@ -2701,7 +2715,6 @@
     }
 
     function renderEmpty() {
-      document.getElementById("symbolEyebrow").textContent = "--";
       document.getElementById("symbolBig").textContent = "--";
       document.getElementById("companyName").textContent = "当前没有标的";
       document.getElementById("companyMeta").textContent = "从搜索框加入股票后，这里会显示行情与走势图。";
@@ -2977,6 +2990,15 @@
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return String(value);
       return `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function usMarketDateKey(date) {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(date);
     }
 
     function riskLabel(value) {
