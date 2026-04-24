@@ -1,0 +1,3105 @@
+{
+  "generated_at": "2026-04-24T09:22:26.431117+00:00",
+  "window": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+  },
+  "provider_counts": {
+    "fed": 16,
+    "census": 93,
+    "fred": 76
+  },
+  "events": [
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-01-08",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-01-08T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：October 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-01-09",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-01-09T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：October 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-01-09",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-01-09T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-01-13",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-01-13T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-01-13",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-01-13T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：October 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-01-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-01-14T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：November 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-01-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-01-14T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fred:46:2026-01-14",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-01-14T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-01-21",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-01-21T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：October 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-01-22",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-01-22T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-01-22",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-01-22T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-01-26",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-01-26T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：November 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2026-01-28",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-01-28T19:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-01-29",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-01-29T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：November 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:46:2026-01-30",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-01-30T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-02-10",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-02-10T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-02-10",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-02-10T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fred:50:2026-02-11",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-02-11T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-02-13",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-02-13T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-02-18",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-02-18T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-02-18",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-02-18T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-02-19",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-02-19T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-02-19",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-02-19T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-02-20",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-02-20T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-02-20",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-02-20T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-02-20",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-02-20T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:46:2026-02-27",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-02-27T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-02-27",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-02-27T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：December 2025",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-03-06",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-03-06T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-03-06",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-03-06T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fred:50:2026-03-06",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-03-06T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-03-11",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-03-11T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-03-12",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-03-12T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-03-12",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-03-12T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-03-13",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-03-13T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-03-13",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-03-13T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-03-13",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-03-13T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "fred:46:2026-03-18",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-03-18T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "fed:fomc:2026-03-18",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-03-18T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-03-19",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-03-19T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-03-23",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-03-23T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：January 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-04-01",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-04-01T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：February 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-04-01",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-04-01T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-04-02",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-04-02T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：February 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-04-03",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-04-03T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-04-07",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-04-07T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：February 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-04-09",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-04-09T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-04-09",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-04-09T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "fred:10:2026-04-10",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-04-10T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-04-14",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-04-14T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-04-21",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-04-21T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-04-21",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-04-21T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-04-29",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-04-29T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-04-29",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-04-29T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-04-29",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-04-29T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2026-04-29",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-04-29T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fred:53:2026-04-30",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-04-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-04-30",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-04-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-05-05",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-05-05T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-05-05",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-05-05T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-05-07",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-05-07T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：March 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-05-08",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-05-08T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-05-12",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-05-12T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-05-13",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-05-13T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-05-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-05-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-05-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-05-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-05-21",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-05-21T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-05-28",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-05-28T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-05-28",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-05-28T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-05-28",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-05-28T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-05-28",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-05-28T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-05-29",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-05-29T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-06-01",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-06-01T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-06-05",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-06-05T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-06-09",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-06-09T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：April 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:10:2026-06-10",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-06-10T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-06-11",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-06-11T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-06-16",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-06-16T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-06-17",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-06-17T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-06-17",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-06-17T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fed:fomc:2026-06-17",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-06-17T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-06-24",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-06-24T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-06-25",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-06-25T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-06-25",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-06-25T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-06-25",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-06-25T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-06-26",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-06-26T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-07-01",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-07-01T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-07-02",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-07-02T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-07-07",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-07-07T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：May 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:10:2026-07-14",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-07-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-07-15",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-07-15T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-07-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-07-16T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-07-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-07-16T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-07-17",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-07-17T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-07-24",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-07-24T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-07-27",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-07-27T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-07-28",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-07-28T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2026-07-29",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-07-29T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fred:53:2026-07-30",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-07-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-07-30",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-07-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-08-03",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-08-03T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-08-04",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-08-04T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：June 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-08-07",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-08-07T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-08-12",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-08-12T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-08-13",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-08-13T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-08-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-08-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-08-14",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-08-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-08-18",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-08-18T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-08-25",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-08-25T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-08-26",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-08-26T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-08-26",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-08-26T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-08-26",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-08-26T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-08-27",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-08-27T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-09-01",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-09-01T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-09-03",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-09-03T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：July 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-09-04",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-09-04T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:46:2026-09-10",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-09-10T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "fred:10:2026-09-11",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-09-11T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-09-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-09-16T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-09-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-09-16T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fed:fomc:2026-09-16",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-09-16T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-09-17",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-09-17T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-09-24",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-09-24T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-09-25",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-09-25T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-09-30",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-09-30T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-09-30",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-09-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-09-30",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-09-30T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-10-01",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-10-01T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-10-02",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-10-02T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-10-06",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-10-06T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：August 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:10:2026-10-14",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-10-14T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-10-15",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-10-15T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-10-15",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-10-15T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "fred:46:2026-10-15",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-10-15T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-10-20",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-10-20T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-10-27",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-10-27T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-10-27",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-10-27T14:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-10-28",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-10-28T12:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2026-10-28",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-10-28T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fred:53:2026-10-29",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-10-29T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-10-29",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-10-29T12:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-11-02",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-11-02T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-11-04",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-11-04T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：September 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-11-06",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-11-06T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "fred:10:2026-11-10",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-11-10T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-11-13",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-11-13T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-11-17",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-11-17T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-11-17",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-11-17T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-11-18",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-11-18T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-11-25",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-11-25T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-11-25",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-11-25T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-11-25",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-11-25T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-11-25",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-11-25T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-11-27",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-11-27T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:construction-spending--construction-put-in-place:2026-12-01",
+      "title": "建筑支出",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-12-01T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Construction Spending (Construction Put in Place)，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:50:2026-12-04",
+      "title": "非农就业",
+      "category": "labor",
+      "source": "fred",
+      "event_time": "2026-12-04T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=50",
+      "url": "https://fred.stlouisfed.org/release?rid=50"
+    },
+    {
+      "event_id": "census:u-s--international-trade-in-goods-and-services:2026-12-08",
+      "title": "贸易帐",
+      "category": "trade",
+      "source": "census",
+      "event_time": "2026-12-08T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "U.S. International Trade in Goods and Services，覆盖期：October 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2026-12-09",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2026-12-09T19:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fred:10:2026-12-10",
+      "title": "CPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-12-10T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "GLD",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=10",
+      "url": "https://fred.stlouisfed.org/release?rid=10"
+    },
+    {
+      "event_id": "fred:46:2026-12-15",
+      "title": "PPI 通胀",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-12-15T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=46",
+      "url": "https://fred.stlouisfed.org/release?rid=46"
+    },
+    {
+      "event_id": "census:advance-monthly-sales-for-retail-and-food-services:2026-12-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-12-16T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Monthly Sales for Retail and Food Services，覆盖期：November 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:9:2026-12-16",
+      "title": "零售销售",
+      "category": "consumer",
+      "source": "fred",
+      "event_time": "2026-12-16T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "XLY",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=9",
+      "url": "https://fred.stlouisfed.org/release?rid=9"
+    },
+    {
+      "event_id": "census:new-residential-construction--building-permits--housing-starts--and-housing-completions:2026-12-17",
+      "title": "新屋开工 / 建筑许可",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-12-17T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Construction (Building Permits, Housing Starts, and Housing Completions)，覆盖期：November 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-report-on-durable-goods--manufacturers--shipments--inventories--and-orders:2026-12-23",
+      "title": "耐用品订单",
+      "category": "manufacturing",
+      "source": "census",
+      "event_time": "2026-12-23T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Report on Durable Goods--Manufacturers' Shipments, Inventories, and Orders，覆盖期：November 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fred:53:2026-12-23",
+      "title": "GDP",
+      "category": "growth",
+      "source": "fred",
+      "event_time": "2026-12-23T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=53",
+      "url": "https://fred.stlouisfed.org/release?rid=53"
+    },
+    {
+      "event_id": "fred:54:2026-12-23",
+      "title": "个人收入与 PCE",
+      "category": "inflation",
+      "source": "fred",
+      "event_time": "2026-12-23T13:30:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY"
+      ],
+      "status": "estimated",
+      "detail": "FRED release_id=54",
+      "url": "https://fred.stlouisfed.org/release?rid=54"
+    },
+    {
+      "event_id": "census:new-residential-sales:2026-12-23",
+      "title": "新屋销售",
+      "category": "housing",
+      "source": "census",
+      "event_time": "2026-12-23T15:00:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "New Residential Sales，覆盖期：November 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "census:advance-economic-indicators-report--international-trade--retail----wholesale:2026-12-28",
+      "title": "提前经济指标",
+      "category": "consumer",
+      "source": "census",
+      "event_time": "2026-12-28T13:30:00+00:00",
+      "importance": "medium",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "XHB",
+        "XLY"
+      ],
+      "status": "scheduled",
+      "detail": "Advance Economic Indicators Report (International Trade, Retail, & Wholesale)，覆盖期：November 2026",
+      "url": "https://www.census.gov/economic-indicators/calendar-listview.html"
+    },
+    {
+      "event_id": "fed:fomc:2027-01-27",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-01-27T19:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-03-17",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-03-17T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-04-28",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-04-28T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-06-09",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-06-09T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-07-28",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-07-28T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-09-15",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-09-15T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-10-27",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-10-27T18:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "event_id": "fed:fomc:2027-12-08",
+      "title": "FOMC 利率决议",
+      "category": "fomc",
+      "source": "fed",
+      "event_time": "2027-12-08T19:00:00+00:00",
+      "importance": "high",
+      "affected_assets": [
+        "SPY",
+        "QQQ",
+        "TLT",
+        "DXY",
+        "GLD"
+      ],
+      "status": "scheduled",
+      "detail": "美联储议息会议结束日。通常 14:00 ET 公布声明，部分会议含经济预测和发布会。",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    }
+  ]
+}
