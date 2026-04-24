@@ -26,6 +26,7 @@
 
 ```text
 QuantPlatform/
+  AGENTS.md
   README.md
   PROJECT_STRUCTURE.md
   docs/
@@ -81,6 +82,19 @@ QuantPlatform/
 ```
 
 ## 各目录职责
+
+### `AGENTS.md`
+
+Codex 每次打开项目时优先阅读的入口文件。
+
+职责：
+
+- 说明当前项目状态和下一阶段优先级
+- 给出新会话阅读顺序
+- 梳理真实目录职责和常用命令
+- 指向详细计划和上下文文档
+
+详细计划仍放在 `tasks/plan.md`，历史工作记录仍放在 `tasks/work_journal.md`。
 
 ### `docs/`
 

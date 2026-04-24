@@ -9,6 +9,10 @@
 - 先做股票池、数据层、分析层和回测底座
 - 后续扩展到网页分析台和半自动执行
 
+Codex 接手入口：
+
+- [AGENTS.md](/Users/louyilin/项目文件夹/QuantPlatform/AGENTS.md)
+
 ## 当前进度
 
 - 已完成项目分层骨架和本地存储结构初始化
@@ -24,7 +28,7 @@
 - 已将主图区比例收敛为更紧凑的终端布局，避免走势图过大影响工作台信息密度
 - 已支持左右分栏伸缩，便于后续扩展右侧新闻和 AI 分析面板
 - 已完成第一版简单建议引擎，基于历史价格与当前快照输出趋势、风险和动作建议
-- 下一步重点是增强筛选状态、补充事件数据和 UI 交互细节
+- 下一步重点是策略规格、数据层保护、技术指标、信号检测、风控建议和每日报告
 
 ## 当前主流程
 
@@ -33,8 +37,9 @@
 1. 先确定股票候选来源
 2. 再形成正式股票池对象
 3. 针对股票池批量更新最新快照
-4. 生成个股详情快照与分析结果
-5. 最后再进入回测和执行建议
+4. 计算技术指标、规则信号和风险建议
+5. 生成每日报告，供人工复盘和 AI 辅助研判
+6. 用同一套指标和信号进入回测验证
 
 当前 UI 第一版遵循最小化原则：
 
@@ -80,11 +85,11 @@ flowchart TD
 - [docs/architecture/stock-screening-design.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/stock-screening-design.md)
 - [docs/architecture/product-objects.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/product-objects.md)
 
-请先阅读：
+Codex 新会话请先阅读：
 
-- [PROJECT_STRUCTURE.md](/Users/louyilin/项目文件夹/QuantPlatform/PROJECT_STRUCTURE.md)
-- [tasks/plan.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/plan.md)
-- [tasks/work_journal.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/work_journal.md)
+- [AGENTS.md](/Users/louyilin/项目文件夹/QuantPlatform/AGENTS.md)
+
+`AGENTS.md` 会指向当前需要继续阅读的计划、上下文和交接文档。
 
 当前可用脚本：
 
@@ -94,6 +99,11 @@ flowchart TD
 - 按配置构建股票池快照：`PYTHONPATH=src python3 scripts/build_universe.py`
 - 批量更新股票池最新快照：`PYTHONPATH=src python3 scripts/update_pool_snapshots.py`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
+
+下一阶段计划入口：
+
+- [tasks/plan.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/plan.md)
+- [tasks/roadmap.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/roadmap.md)
 
 ## 审阅约定
 
