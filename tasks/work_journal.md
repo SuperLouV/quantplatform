@@ -63,3 +63,31 @@
 - 新增根目录 `AGENTS.md` 作为 Codex 每次打开项目的第一入口
 - 重新梳理 `AGENTS.md` 中的项目状态、启动阅读顺序、目录职责、常用命令和实现规则
 - 更新 `README.md` 与 `PROJECT_STRUCTURE.md`，明确 `AGENTS.md` 是新会话接手入口
+- 开始执行 `Phase A`，新增 `docs/strategy/strategy-v1.md` 固化第一版日线波段策略规格
+- 新增 provider 请求保护工具，支持配置化限频、重试、backoff 和 timeout
+- 将 `YFinanceClient` 接入请求保护，并从 `settings.example.yaml` 读取 provider 保护参数
+- 新增 `services/data_quality.py`，为历史日线和 quote snapshot 提供基础质量检查
+- 批量快照更新开始写入 `screening_status/screening_reasons` 和 dashboard 数据质量摘要
+- 开始执行 `Phase B1`，新增本地 parquet 输入的技术指标计算层
+- 实现 SMA、EMA、MACD、RSI、ROC、布林带、ATR 和成交量比率
+- 新增 `scripts/compute_indicators.py`，用于从本地 processed bars 验证指标输出
+- 将技术指标接入批量快照生成，但只在本地 bars 与快照时间一致时写入指标
+- 对缺失、未来或过期 bars 写入 `screening_reasons` 并降级为 `data_warning`，避免混用旧指标
+- 开始执行信号层，新增 `core/signal_models.py` 和 `indicators/signals.py`
+- 第一版信号检测支持 MACD 交叉、RSI 反转、布林带收回、放量突破、SMA20/50 交叉和均线排列
+- 新增 `scripts/detect_signals.py`，用于从本地 processed bars 计算指标并检测标准化信号
+- 按新的产品方向重做 `ui/index.html`，将 UI 从玻璃拟态风格调整为更专业的纯色研究终端
+- 新 UI 保留股票池、搜索、行情、K 线、指标带、系统判断和数据状态，并继续复用现有本地 API
+- 前端新增局部容错，图表或分析接口失败时只降级对应区域，不再让整个页面初始化失败
+- 修复 `StockSnapshotBatchService.create_snapshot_from_quote` 调用兼容问题，缺省时自动生成 quote quality report，避免 `/api/analysis` 因漏传质量报告返回 500
+- 根据使用反馈压缩中间 K 线视图高度，新增中间交易指标矩阵，展示 SMA、RSI、MACD、ATR、量比、ROC 和布林带参考，降低图表压迫感
+- 排查交易指标显示“数据不足”的原因：本地 `processed` 日线只有 11 根且停在 2025-01-17，无法支撑 20/50/200 日指标
+- 为 UI 单只快照接口增加后端兜底：当快照缺少指标时，使用 1 年图表历史计算 UI 交易指标，并写回快照 payload
+- 为图表增加历史游标数据栏，默认显示最新 K 线，鼠标滑动时实时显示对应日期的 OHLC、涨跌额、涨跌幅和成交量
+- 重构右侧工作栏，按优先级展示买入/卖出/AI 判断、全市场事件、当前股票事件、AI 关键点、风险提示和数据状态
+- 将右侧栏拖拽最大宽度调整为视口 40%，便于展开查看事件和分析内容
+- 接入全市场重大事件日历，新增 Fed FOMC、Census 经济指标日历和 FRED release calendar 客户端
+- 新增 `MarketEventService`、`/api/events/market` 和 `scripts/update_market_events.py`，事件历史写入 `data/reference/system/market_events.json`
+- 将 FRED API key 放入本地 `.env`，并让配置加载器读取 `FRED_API_KEY`，避免把密钥写入可提交配置
+- 新增 `data/logs/market_events_YYYYMMDD.jsonl` 操作日志，记录事件更新的 `info/error`、provider 计数和失败原因
+- 新增 `docs/operations/data-api-limits.md`，记录 FRED key 要求、429 限流、2 requests/sec 节流约束和当前项目处理原则

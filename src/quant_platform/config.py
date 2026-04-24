@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from ast import literal_eval
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,10 @@ class DataConfig:
     timezone: str
     fred_api_key: str = ""
     user_agent: str = "quant-platform/0.1"
+    request_min_interval_seconds: float = 0.5
+    request_max_retries: int = 2
+    request_backoff_seconds: float = 1.0
+    request_timeout_seconds: float = 15.0
 
 
 @dataclass(slots=True)
@@ -108,6 +113,7 @@ def _parse_scalar(value: str) -> Any:
 
 def load_settings(path: str | Path) -> Settings:
     config_path = Path(path)
+    _load_local_env(config_path.parent.parent / ".env")
     data = load_mapping_file(config_path)
 
     app = data.get("app", {})
@@ -123,8 +129,12 @@ def load_settings(path: str | Path) -> Settings:
         data=DataConfig(
             provider=market_data.get("provider", "yfinance"),
             timezone=market_data.get("timezone", "America/New_York"),
-            fred_api_key=market_data.get("fred_api_key", ""),
+            fred_api_key=os.environ.get("FRED_API_KEY") or market_data.get("fred_api_key", ""),
             user_agent=market_data.get("user_agent", "quant-platform/0.1"),
+            request_min_interval_seconds=float(market_data.get("request_min_interval_seconds", 0.5)),
+            request_max_retries=int(market_data.get("request_max_retries", 2)),
+            request_backoff_seconds=float(market_data.get("request_backoff_seconds", 1.0)),
+            request_timeout_seconds=float(market_data.get("request_timeout_seconds", 15.0)),
         ),
         storage=StorageConfig(
             raw_dir=(base_dir / storage.get("raw_dir", "data/raw")).resolve(),
@@ -136,3 +146,17 @@ def load_settings(path: str | Path) -> Settings:
             processed_format=storage.get("processed_format", "parquet"),
         ),
     )
+
+
+def _load_local_env(path: Path) -> None:
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        os.environ[key] = value.strip().strip('"').strip("'")

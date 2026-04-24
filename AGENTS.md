@@ -34,6 +34,7 @@ Read in this order when taking over a new session:
 Only open deeper documents when needed:
 
 - Architecture: `docs/architecture/`
+- Strategy: `docs/strategy/`
 - Full structure notes: `PROJECT_STRUCTURE.md`
 - Work history: `tasks/work_journal.md`
 - Short roadmap: `tasks/roadmap.md`
@@ -70,17 +71,21 @@ Already available:
 - First local UI under `ui/index.html`
 - Local API/static server in `scripts/serve_ui.py`
 - Simple analysis endpoint `/api/analysis`
+- Strategy V1 spec under `docs/strategy/strategy-v1.md`
+- Configurable provider request guard for `yfinance`
+- Basic data quality checks for bars and quote snapshots
+- Phase B1 technical indicator engine using local processed parquet data
+- First rule-based signal detector for standardized indicator events
 
 Main missing pieces:
 
-- Strategy spec document
-- Provider retry/rate-limit/timeout/failure protection
-- Technical indicator engine
-- Signal model and detector
+- Indicator integration into snapshots and pool scans
+- Signal integration into reports, UI, and backtests
 - Position sizing and risk advice
 - Daily report generator
 - One-command daily pipeline
 - Minimal signal-driven backtest
+- Deeper failure logs and provider fallback
 
 ## Repository Structure
 
@@ -122,7 +127,9 @@ Source modules:
 - `src/quant_platform/storage/`: local path layout and state store
 - `src/quant_platform/screeners/`: stock pool filtering and construction rules
 - `src/quant_platform/services/`: product-level orchestration services
-- `src/quant_platform/indicators/`: technical indicators, currently mostly empty
+- `src/quant_platform/services/data_quality.py`: reusable data quality checks
+- `src/quant_platform/indicators/`: technical indicators and orchestration engine
+- `src/quant_platform/indicators/signals.py`: rule-based signal detector
 - `src/quant_platform/risk/`: risk and position sizing, currently mostly empty
 - `src/quant_platform/backtest/`: backtesting, currently mostly empty
 - `src/quant_platform/i18n/`: Chinese labels and market mappings
@@ -154,6 +161,9 @@ PYTHONPATH=src python3 scripts/update_yfinance_history.py AAPL --start 2025-01-0
 PYTHONPATH=src python3 scripts/build_nasdaq100_pool.py
 PYTHONPATH=src python3 scripts/build_universe.py
 PYTHONPATH=src python3 scripts/update_pool_snapshots.py
+PYTHONPATH=src python3 scripts/compute_indicators.py AAPL
+PYTHONPATH=src python3 scripts/detect_signals.py AAPL
+PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31
 python3 scripts/serve_ui.py
 ```
 
@@ -165,6 +175,7 @@ python3 scripts/serve_ui.py
 - Keep account size and risk parameters configurable; do not hard-code the `5,000 USD` IBKR account.
 - Treat `yfinance` as a research/prototype source, not production-grade market data.
 - A single symbol failure must not break a pool-level or daily pipeline run.
+- Do not mix stale local bars into current snapshots; stale indicators should become warnings, not fake values.
 - Every signal should be traceable to data, indicators, and a named rule.
 - Reports should be readable by humans first and AI second.
 - Do not implement real broker auto-trading until the user explicitly asks for it.

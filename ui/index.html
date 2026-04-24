@@ -3,79 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuantPlatform 交易终端</title>
+  <title>QuantPlatform Research Desk</title>
   <style>
     :root {
-      --bg: #0a0c11;
-      --bg-2: #10131a;
-      --panel: #12151d;
-      --panel-2: #171b24;
-      --panel-3: #0f131a;
-      --line: rgba(255, 255, 255, 0.08);
-      --line-strong: rgba(255, 255, 255, 0.14);
-      --text: #f3f6fb;
-      --muted: #96a1b4;
-      --soft: #cbd4e2;
-      --blue: #4d86ff;
-      --blue-2: #2d6dff;
-      --green: #18c471;
-      --red: #ff4f64;
-      --amber: #f0b14b;
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-      --shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --bg: #090a0b;
+      --surface: #101113;
+      --surface-2: #15171a;
+      --surface-3: #0c0d0f;
+      --line: #24272c;
+      --line-strong: #343943;
+      --text: #eef1f4;
+      --soft: #c8ced6;
+      --muted: #858d98;
+      --faint: #5f6773;
+      --accent: #50d6c9;
+      --accent-2: #7aa8ff;
+      --green: #26c281;
+      --red: #ef5b69;
+      --amber: #e7b75f;
+      --purple: #b59cff;
+      --watch-width: 312px;
+      --context-width: 372px;
+      --radius: 8px;
+      --mono: "SFMono-Regular", "Roboto Mono", Consolas, monospace;
+      --sans: "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(circle at top left, rgba(77, 134, 255, 0.12), transparent 24%),
-        linear-gradient(180deg, #0c1016 0%, #080a0f 100%);
+      background: var(--bg);
       color: var(--text);
-      font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: var(--sans);
       -webkit-font-smoothing: antialiased;
     }
 
+    body {
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
     .numeric {
+      font-family: var(--mono);
       font-variant-numeric: tabular-nums lining-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
-      letter-spacing: -0.02em;
     }
 
-    .shell {
-      min-height: 100vh;
-      padding: 14px;
+    .terminal {
+      min-height: 100svh;
       display: grid;
-      grid-template-columns: var(--watchlist-width, 320px) 10px minmax(0, 1fr) 10px var(--context-width, 360px);
-      gap: 12px;
+      grid-template-rows: 48px minmax(0, 1fr);
+      background: #090a0b;
     }
 
-    .panel {
-      background: linear-gradient(180deg, rgba(20, 24, 33, 0.96), rgba(14, 17, 24, 0.98));
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+    .topbar {
+      display: grid;
+      grid-template-columns: var(--watch-width) minmax(0, 1fr) var(--context-width);
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: #0d0e10;
+    }
+
+    .brand,
+    .top-context,
+    .market-tape {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand {
+      padding: 0 16px;
+      gap: 10px;
+      border-right: 1px solid var(--line);
+    }
+
+    .brand-mark {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #347d78;
+      border-radius: 5px;
+      position: relative;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      background: var(--accent);
+    }
+
+    .brand-mark::before {
+      left: 4px;
+      right: 4px;
+      top: 9px;
+      height: 1px;
+    }
+
+    .brand-mark::after {
+      top: 4px;
+      bottom: 4px;
+      left: 9px;
+      width: 1px;
+    }
+
+    .brand strong {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .market-tape {
+      gap: 22px;
+      padding: 0 18px;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+    }
+
+    .tape-item {
+      display: flex;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tape-item strong {
+      color: var(--soft);
+      font-weight: 560;
+    }
+
+    .top-context {
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .desk {
       min-height: 0;
+      display: grid;
+      grid-template-columns: var(--watch-width) 8px minmax(0, 1fr) 8px var(--context-width);
+    }
+
+    .watch,
+    .workspace,
+    .context {
+      min-height: 0;
+      background: #101113;
+    }
+
+    .watch {
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      border-right: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      overflow: hidden;
+    }
+
+    .context {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      border-left: 1px solid var(--line);
+      overflow: hidden;
     }
 
     .splitter {
-      position: relative;
-      min-height: 0;
       cursor: col-resize;
-      user-select: none;
-    }
-
-    .splitter::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      transition: background 150ms ease;
+      position: relative;
+      background: #0c0d0f;
     }
 
     .splitter::after {
@@ -83,127 +200,123 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 4px;
+      width: 2px;
       height: 44px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.16);
+      background: #3a3f48;
       transform: translate(-50%, -50%);
     }
 
-    .splitter:hover::before,
-    .splitter.dragging::before {
-      background: rgba(77, 134, 255, 0.12);
+    .splitter:hover,
+    .splitter.dragging {
+      background: #122320;
     }
 
-    .watchlist {
-      border-radius: 24px;
-      padding: 14px;
-      display: grid;
-      grid-template-rows: auto auto auto 1fr;
-      gap: 10px;
-      overflow: hidden;
+    .section-head {
+      padding: 15px 16px 12px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .toolbar {
+    .label {
+      margin: 0 0 6px;
+      color: var(--faint);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .section-title {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       gap: 12px;
     }
 
-    .toolbar-left {
+    .section-title h1,
+    .section-title h2 {
       min-width: 0;
+      font-size: 18px;
+      line-height: 1.15;
+      font-weight: 640;
     }
 
-    .eyebrow {
-      margin: 0 0 6px;
-      color: #6d97ff;
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .title {
-      margin: 0;
-      font-size: 24px;
-      line-height: 1;
-      letter-spacing: -0.05em;
-      font-weight: 650;
-    }
-
-    .subtitle {
-      margin: 6px 0 0;
+    .section-title span {
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .toolbar-pill {
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      color: #dbe6ff;
-      background: rgba(77, 134, 255, 0.1);
-      border: 1px solid rgba(77, 134, 255, 0.24);
+      font-size: 11px;
       white-space: nowrap;
     }
 
-    .pool-scroll {
+    .pool-tabs {
       display: flex;
-      gap: 8px;
-      overflow: auto;
-      padding-bottom: 2px;
+      gap: 2px;
+      padding: 10px 10px 0;
+      overflow-x: auto;
+    }
+
+    .pool-chip,
+    .range-btn,
+    .context-tab,
+    .add-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
     }
 
     .pool-chip {
-      border: 1px solid transparent;
-      background: rgba(255,255,255,0.035);
-      color: var(--soft);
-      border-radius: 999px;
-      padding: 10px 14px;
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-size: 12px;
       white-space: nowrap;
-      cursor: pointer;
-      transition: transform 150ms ease, background 150ms ease, border-color 150ms ease;
     }
 
     .pool-chip.active {
-      background: linear-gradient(180deg, rgba(77, 134, 255, 0.18), rgba(77, 134, 255, 0.05));
-      border-color: rgba(77, 134, 255, 0.34);
+      color: var(--text);
+      background: #1b1e23;
+      border-color: var(--line);
     }
 
     .search-box {
       position: relative;
+      padding: 10px;
     }
 
     .search-box input {
       width: 100%;
-      height: 48px;
-      padding: 0 16px;
-      border-radius: 14px;
+      height: 38px;
+      padding: 0 12px;
       border: 1px solid var(--line);
-      background: #10141c;
+      border-radius: var(--radius);
+      outline: 0;
+      background: #0b0c0e;
       color: var(--text);
-      outline: none;
-      transition: border-color 150ms ease, background 150ms ease;
     }
 
     .search-box input:focus {
-      border-color: rgba(77, 134, 255, 0.34);
-      background: #111723;
+      border-color: #347d78;
     }
 
     .search-results {
       position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
+      top: calc(100% - 2px);
+      left: 10px;
+      right: 10px;
       z-index: 20;
-      background: rgba(16, 20, 28, 0.98);
-      border: 1px solid var(--line-strong);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
       display: none;
+      max-height: 360px;
+      overflow: auto;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: #111316;
+      box-shadow: 0 12px 24px #050506;
     }
 
     .search-results.show {
@@ -211,13 +324,13 @@
     }
 
     .search-item {
-      min-height: 74px;
-      padding: 12px 14px;
-      display: flex;
+      min-height: 64px;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: space-between;
       gap: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid var(--line);
     }
 
     .search-item:last-child {
@@ -230,207 +343,174 @@
 
     .search-meta strong {
       display: block;
-      font-size: 15px;
-      line-height: 1.2;
-    }
-
-    .search-meta span {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .add-btn {
-      width: 68px;
-      height: 36px;
-      flex: 0 0 68px;
-      border: 0;
-      border-radius: 999px;
-      background: rgba(77, 134, 255, 0.14);
-      color: #dce8ff;
-      cursor: pointer;
-      transition: transform 150ms ease, background 150ms ease;
-    }
-
-    .add-btn:hover {
-      transform: translateY(-1px);
-      background: rgba(77, 134, 255, 0.22);
-    }
-
-    .stock-list {
-      display: grid;
-      grid-auto-rows: 86px;
-      gap: 10px;
-      overflow: auto;
-      padding-right: 4px;
-      align-content: start;
-    }
-
-    .stock-item {
-      height: 86px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      border: 1px solid transparent;
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.018));
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 150ms ease, background 150ms ease, border-color 150ms ease;
-    }
-
-    .stock-item:hover {
-      transform: translateY(-1px);
-      border-color: rgba(77, 134, 255, 0.18);
-    }
-
-    .stock-item.active {
-      background: linear-gradient(180deg, rgba(38, 60, 105, 0.46), rgba(22, 29, 44, 0.8));
-      border-color: rgba(77, 134, 255, 0.36);
-    }
-
-    .stock-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 6px;
-      align-items: baseline;
-    }
-
-    .stock-top strong {
-      font-size: 18px;
-      line-height: 1.2;
-      letter-spacing: -0.03em;
-    }
-
-    .stock-sub {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .workspace {
-      min-height: 0;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 10px;
-    }
-
-    .workspace-top,
-    .quote-band,
-    .chart-panel,
-    .side-panel,
-    .context-card {
-      border-radius: 24px;
-      padding: 16px;
-    }
-
-    .workspace-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .workspace-top h2 {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 600;
-      letter-spacing: -0.03em;
-    }
-
-    .workspace-top p {
-      margin: 6px 0 0;
-      color: var(--muted);
       font-size: 13px;
     }
 
-    .quote-band {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: center;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(77, 134, 255, 0.18), transparent 26%),
-        linear-gradient(180deg, rgba(17, 22, 32, 0.98), rgba(12, 15, 22, 0.98));
+    .search-meta span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .quote-main {
+    .add-btn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 6px;
+      color: var(--accent);
+      background: #10211f;
+    }
+
+    .stock-list {
+      min-height: 0;
+      overflow: auto;
+      border-top: 1px solid var(--line);
+    }
+
+    .stock-item {
+      min-height: 72px;
+      padding: 11px 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      border-bottom: 1px solid #202329;
+      cursor: pointer;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+
+    .stock-item:hover {
+      background: #17191d;
+    }
+
+    .stock-item.active {
+      background: #19201f;
+      box-shadow: inset 2px 0 0 var(--accent);
+    }
+
+    .stock-main {
       min-width: 0;
     }
 
-    .symbol-row {
+    .stock-symbol {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .stock-symbol strong {
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .stock-symbol span {
+      color: var(--faint);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stock-name {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stock-price {
+      text-align: right;
+      align-self: center;
+    }
+
+    .stock-price strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 520;
+    }
+
+    .stock-price span {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .up { color: var(--green); }
+    .down { color: var(--red); }
+    .flat { color: var(--muted); }
+
+    .quote {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: end;
+      padding: 14px 18px 13px;
+      border-bottom: 1px solid var(--line);
+      background: #111315;
+    }
+
+    .symbol-line {
       display: flex;
       align-items: baseline;
       gap: 12px;
       flex-wrap: wrap;
     }
 
-    .symbol {
-      margin: 0;
-      font-size: 44px;
+    .symbol-big {
+      font-size: clamp(32px, 3.4vw, 54px);
       line-height: 0.9;
-      letter-spacing: -0.06em;
-      font-weight: 650;
+      font-weight: 680;
+      letter-spacing: 0;
     }
 
     .company {
-      margin: 0;
-      font-size: 16px;
       color: var(--soft);
+      font-size: 17px;
       font-weight: 520;
     }
 
     .meta {
-      margin: 8px 0 0;
+      margin-top: 10px;
       color: var(--muted);
       font-size: 12px;
     }
 
     .price-block {
       text-align: right;
-      min-width: 220px;
+      white-space: nowrap;
     }
 
     .price-big {
-      font-size: 48px;
-      line-height: 0.92;
-      font-weight: 640;
-      letter-spacing: -0.05em;
+      font-size: clamp(28px, 2.7vw, 42px);
+      line-height: 0.95;
+      font-weight: 620;
     }
 
     .delta {
       margin-top: 6px;
-      font-size: 22px;
+      font-size: 17px;
       font-weight: 560;
     }
 
-    .delta.up { color: var(--green); }
-    .delta.down { color: var(--red); }
-
-    .main-grid {
+    .workspace-body {
       min-height: 0;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 244px;
-      gap: 10px;
+      grid-template-rows: minmax(220px, 42%) auto auto;
+      overflow: hidden;
     }
 
-    .chart-panel {
-      background: linear-gradient(180deg, rgba(16, 20, 28, 0.98), rgba(11, 14, 20, 0.98));
+    .chart-section {
+      min-height: 0;
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 12px;
-      overflow: hidden;
+      grid-template-rows: 48px auto minmax(0, 1fr);
+      border-bottom: 1px solid var(--line);
     }
 
     .chart-head {
@@ -438,246 +518,506 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .chart-head h3,
-    .side-panel h3,
-    .context-card h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.03em;
+    .chart-head h2 {
+      font-size: 14px;
+      font-weight: 580;
+    }
+
+    .chart-readout {
+      display: grid;
+      grid-template-columns: 168px repeat(7, minmax(82px, 1fr));
+      border-bottom: 1px solid var(--line);
+      background: #0d0e10;
+      overflow-x: auto;
+    }
+
+    .readout-cell {
+      min-height: 58px;
+      padding: 9px 12px;
+      border-right: 1px solid var(--line);
+    }
+
+    .readout-cell:last-child {
+      border-right: 0;
+    }
+
+    .readout-label {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .readout-value {
+      margin-top: 6px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 590;
+      white-space: nowrap;
     }
 
     .range-switch {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0b0c0e;
     }
 
     .range-btn {
-      min-width: 48px;
-      height: 34px;
-      border: 0;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      color: var(--soft);
-      cursor: pointer;
-      transition: transform 140ms ease, background 140ms ease;
-    }
-
-    .range-btn.active {
-      background: linear-gradient(180deg, rgba(77, 134, 255, 0.24), rgba(77, 134, 255, 0.08));
-      color: #edf4ff;
-    }
-
-    .chart-wrap {
-      min-height: 188px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.05);
-      background:
-        linear-gradient(180deg, rgba(77, 134, 255, 0.05), transparent 34%),
-        #0d1118;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #chartSvg {
-      width: 100%;
-      height: 100%;
-      min-height: 188px;
-      display: block;
-    }
-
-    .chart-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      color: var(--muted);
+      min-width: 42px;
+      height: 28px;
+      border-radius: 5px;
       font-size: 12px;
     }
 
-    .side-panel {
-      background: linear-gradient(180deg, rgba(17, 22, 30, 0.98), rgba(11, 14, 21, 0.98));
-      display: grid;
-      align-content: start;
-      gap: 12px;
+    .range-btn.active {
+      background: #24272d;
+      color: var(--text);
     }
 
-    .metrics-list {
-      display: grid;
-      gap: 8px;
+    .chart-wrap {
+      min-height: 0;
+      position: relative;
+      background: var(--surface-3);
+      overflow: hidden;
     }
 
-    .metric-row {
-      min-height: 46px;
-      padding: 8px 0;
+    #chartContainer {
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+    }
+
+    .trade-panel {
+      min-height: 152px;
+      display: grid;
+      grid-template-rows: auto auto;
+      border-bottom: 1px solid var(--line);
+      background: #101113;
+    }
+
+    .trade-head {
+      min-height: 44px;
       display: flex;
-      align-items: end;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .metric-row:last-child {
-      border-bottom: 0;
+    .trade-head h2 {
+      font-size: 14px;
+      font-weight: 580;
+    }
+
+    .trade-meta {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .indicator-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(122px, 1fr));
+      overflow: auto;
+    }
+
+    .indicator-cell {
+      min-height: 68px;
+      padding: 11px 14px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .indicator-name {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .indicator-value {
+      margin-top: 8px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 590;
+      white-space: nowrap;
+    }
+
+    .indicator-note {
+      margin-top: 5px;
+      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .indicator-empty {
+      grid-column: 1 / -1;
+      min-height: 108px;
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .indicator-empty strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--soft);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(108px, 1fr));
+      border-top: 1px solid var(--line);
+      background: #0d0e10;
+      overflow-x: auto;
+    }
+
+    .metric-cell {
+      min-height: 70px;
+      padding: 12px 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .metric-cell:last-child {
+      border-right: 0;
     }
 
     .metric-label {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .metric-value {
-      font-size: 18px;
+      margin-top: 8px;
+      color: var(--text);
+      font-size: 16px;
       font-weight: 560;
-      text-align: right;
+      white-space: nowrap;
     }
 
-    .context {
-      min-height: 0;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 10px;
-    }
-
-    .context-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .context-tab {
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.03);
-      color: var(--soft);
-      cursor: default;
-    }
-
-    .context-tab.active {
-      background: linear-gradient(180deg, rgba(77, 134, 255, 0.2), rgba(77, 134, 255, 0.05));
-      border-color: rgba(77, 134, 255, 0.26);
-    }
-
-    .context-card {
-      display: grid;
-      gap: 10px;
-      align-content: start;
-    }
-
-    .placeholder-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .placeholder-item {
-      padding: 12px 13px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .placeholder-item strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .placeholder-item p {
-      margin: 0;
+    .chart-footer {
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 16px;
+      border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.5;
+      background: #0b0c0e;
     }
 
-    .analysis-summary {
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
+    .context-head {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #0d0e10;
+    }
+
+    .context-head strong {
+      font-size: 13px;
+      font-weight: 620;
+    }
+
+    .context-head span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .context-scroll {
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .context-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .context-section h3 {
+      margin-top: 4px;
+      font-size: 15px;
+      font-weight: 620;
+    }
+
+    .decision {
+      margin-top: 14px;
+      padding: 13px 0 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .decision-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .action-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+      border: 1px solid var(--line);
+    }
+
+    .action-pill.buy {
+      color: #bcf3d5;
+      border-color: #285943;
+      background: #102019;
+    }
+
+    .action-pill.watch {
+      color: #c8ced6;
+      border-color: #343943;
+      background: #15171a;
+    }
+
+    .action-pill.avoid {
+      color: #ffc5cb;
+      border-color: #63333a;
+      background: #241316;
+    }
+
+    .action-pill.review {
+      color: #f9db9a;
+      border-color: #675332;
+      background: #211b10;
+    }
+
+    .risk-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     .risk-chip {
       display: inline-flex;
       align-items: center;
-      height: 30px;
-      padding: 0 12px;
-      border-radius: 999px;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
       font-size: 12px;
-      margin-bottom: 10px;
-      border: 1px solid transparent;
+      white-space: nowrap;
     }
 
     .risk-chip.low {
-      color: #c9f8de;
-      background: rgba(24, 196, 113, 0.12);
-      border-color: rgba(24, 196, 113, 0.18);
+      color: #bdf4d7;
+      border-color: #285943;
+      background: #102019;
     }
 
     .risk-chip.medium {
-      color: #ffe5bf;
-      background: rgba(240, 177, 75, 0.12);
-      border-color: rgba(240, 177, 75, 0.18);
+      color: #f9db9a;
+      border-color: #675332;
+      background: #211b10;
     }
 
     .risk-chip.high {
-      color: #ffd5d9;
-      background: rgba(255, 79, 100, 0.12);
-      border-color: rgba(255, 79, 100, 0.18);
+      color: #ffc5cb;
+      border-color: #63333a;
+      background: #241316;
     }
 
-    .analysis-summary p {
-      margin: 0;
+    .analysis-summary {
       color: var(--soft);
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    .analysis-block {
+    .event-list {
       display: grid;
-      gap: 8px;
+      gap: 0;
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
     }
 
-    .analysis-block ul {
-      margin: 0;
-      padding-left: 18px;
+    .event-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .event-date {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .event-main {
+      min-width: 0;
+    }
+
+    .event-main strong {
+      display: block;
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 590;
+      line-height: 1.35;
+    }
+
+    .event-main span {
+      display: block;
+      margin-top: 4px;
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.35;
+    }
+
+    .event-tag {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .event-tag.high {
+      color: #ffc5cb;
+      border-color: #63333a;
+      background: #241316;
+    }
+
+    .event-tag.medium {
+      color: #f9db9a;
+      border-color: #675332;
+      background: #211b10;
+    }
+
+    .analysis-list {
+      display: grid;
+      gap: 9px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .analysis-list li {
+      position: relative;
+      padding-left: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .analysis-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.68em;
+      width: 5px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .quality-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .quality-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #202329;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .quality-row:last-child {
+      border-bottom: 0;
+    }
+
+    .quality-row strong {
+      color: var(--soft);
+      font-weight: 520;
+      text-align: right;
     }
 
     .empty {
       color: var(--muted);
-      padding: 24px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.03);
-      border: 1px dashed rgba(255,255,255,0.08);
+      font-size: 13px;
+      line-height: 1.6;
     }
 
-    @media (max-width: 1480px) {
-      .shell {
-        grid-template-columns: 308px 10px minmax(0, 1fr);
+    @media (max-width: 1360px) {
+      :root {
+        --watch-width: 292px;
+        --context-width: 340px;
       }
 
-      .context {
-        grid-column: 1 / -1;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: auto;
+      .metrics-strip {
+        grid-template-columns: repeat(4, minmax(112px, 1fr));
       }
 
-      .splitter-right {
-        display: none;
+      .indicator-grid {
+        grid-template-columns: repeat(3, minmax(122px, 1fr));
       }
 
-      .context-tabs {
-        grid-column: 1 / -1;
+      .chart-readout {
+        grid-template-columns: 156px repeat(7, minmax(86px, 1fr));
       }
     }
 
-    @media (max-width: 1100px) {
-      .shell {
+    @media (max-width: 1120px) {
+      body {
+        overflow: auto;
+      }
+
+      .terminal {
+        min-height: 100vh;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .brand,
+      .market-tape,
+      .top-context {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .desk {
         grid-template-columns: 1fr;
       }
 
@@ -685,154 +1025,245 @@
         display: none;
       }
 
-      .main-grid {
+      .watch,
+      .context {
+        border: 0;
+      }
+
+      .watch {
+        max-height: 460px;
+      }
+
+      .workspace {
+        min-height: 720px;
+      }
+
+      .workspace-body {
+        grid-template-rows: 300px auto auto;
+      }
+
+      .quote {
         grid-template-columns: 1fr;
       }
 
       .price-block {
-        min-width: 0;
         text-align: left;
       }
+    }
 
-      .quote-band {
-        flex-direction: column;
-        align-items: start;
+    @media (max-width: 680px) {
+      .quote {
+        padding: 16px;
       }
 
-      .context {
-        grid-template-columns: 1fr;
+      .symbol-big {
+        font-size: 40px;
+      }
+
+      .metrics-strip {
+        grid-template-columns: repeat(2, minmax(132px, 1fr));
+      }
+
+      .indicator-grid {
+        grid-template-columns: repeat(2, minmax(132px, 1fr));
+      }
+
+      .chart-readout {
+        grid-template-columns: repeat(4, minmax(112px, 1fr));
+      }
+
+      .market-tape {
+        gap: 14px;
+        overflow-x: auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="watchlist panel">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <div class="eyebrow">QuantPlatform</div>
-          <h1 class="title">自选列表</h1>
-          <p class="subtitle">左侧保留轻量导航，中间先专注股票列表与主工作区。</p>
-        </div>
-        <div id="syncMeta" class="toolbar-pill numeric">加载中…</div>
+  <div class="terminal">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <strong>QuantPlatform</strong>
       </div>
-
-      <div class="pool-scroll" id="poolTabs"></div>
-
-      <div class="search-box">
-        <input id="searchInput" type="text" placeholder="搜索代码、公司或 ETF" autocomplete="off" />
-        <div id="searchResults" class="search-results"></div>
+      <div class="market-tape" aria-label="market tape">
+        <div class="tape-item"><strong>Desk</strong><span>Research</span></div>
+        <div class="tape-item"><strong>Mode</strong><span>Manual trade assist</span></div>
+        <div class="tape-item"><strong>Data</strong><span>yfinance prototype</span></div>
+        <div class="tape-item"><strong>Risk</strong><span>PDT aware later</span></div>
       </div>
+      <div class="top-context">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="syncMeta" class="numeric">加载中</span>
+      </div>
+    </header>
 
-      <div id="stockList" class="stock-list"></div>
-    </aside>
-
-    <div class="splitter splitter-left" id="splitterLeft" aria-hidden="true"></div>
-
-    <main class="workspace">
-      <section class="workspace-top panel">
-        <div>
-          <div class="eyebrow">Workspace</div>
-          <h2 id="poolTitle">加载中…</h2>
-          <p id="poolDescription">正在准备市场工作台。</p>
-        </div>
-        <div class="toolbar-pill">第一版参照 IBKR Desktop 的终端结构</div>
-      </section>
-
-      <section class="quote-band panel">
-        <div class="quote-main">
-          <div class="eyebrow" id="symbolEyebrow">--</div>
-          <div class="symbol-row">
-            <h2 class="symbol" id="symbolBig">--</h2>
-            <p class="company" id="companyName">加载中</p>
-          </div>
-          <p class="meta" id="companyMeta">-</p>
-        </div>
-        <div class="price-block">
-          <div class="price-big numeric" id="priceBig">-</div>
-          <div class="delta numeric" id="priceDelta">-</div>
-        </div>
-      </section>
-
-      <section class="main-grid">
-        <div class="chart-panel panel">
-          <div class="chart-head">
-            <div>
-              <div class="eyebrow">Chart</div>
-              <h3>价格走势</h3>
-            </div>
-            <div class="range-switch" id="rangeSwitch">
-              <button class="range-btn active" data-period="1mo">1M</button>
-              <button class="range-btn" data-period="3mo">3M</button>
-              <button class="range-btn" data-period="6mo">6M</button>
-              <button class="range-btn" data-period="1y">1Y</button>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <div id="chartContainer" style="width:100%;height:100%;min-height:280px;"></div>
-          </div>
-          <div class="chart-footer">
-            <span id="chartLow" class="numeric">低点 -</span>
-            <span id="chartMid" class="numeric">中位 -</span>
-            <span id="chartHigh" class="numeric">高点 -</span>
+    <div class="desk">
+      <aside class="watch">
+        <div class="section-head">
+          <p class="label">Universe</p>
+          <div class="section-title">
+            <h1>股票池</h1>
+            <span id="poolCount" class="numeric">--</span>
           </div>
         </div>
 
-        <aside class="side-panel panel">
+        <div class="pool-tabs" id="poolTabs"></div>
+
+        <div class="search-box">
+          <input id="searchInput" type="text" placeholder="搜索代码、公司或 ETF" autocomplete="off" />
+          <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <div id="stockList" class="stock-list"></div>
+      </aside>
+
+      <div class="splitter splitter-left" id="splitterLeft" aria-hidden="true"></div>
+
+      <main class="workspace">
+        <section class="quote">
           <div>
-            <div class="eyebrow">Snapshot</div>
-            <h3>当前指标</h3>
+            <p class="label" id="symbolEyebrow">--</p>
+            <div class="symbol-line">
+              <h2 class="symbol-big" id="symbolBig">--</h2>
+              <p class="company" id="companyName">加载中</p>
+            </div>
+            <p class="meta" id="companyMeta">-</p>
           </div>
-          <div class="metrics-list" id="metricGrid"></div>
-        </aside>
-      </section>
-    </main>
-
-    <div class="splitter splitter-right" id="splitterRight" aria-hidden="true"></div>
-
-    <aside class="context">
-      <div class="context-tabs">
-        <button class="context-tab active">概览</button>
-        <button class="context-tab">新闻</button>
-        <button class="context-tab">AI 判断</button>
-      </div>
-
-      <section class="context-card panel">
-        <div>
-          <div class="eyebrow">Roadmap</div>
-          <h3>预留给新闻流</h3>
-        </div>
-        <div class="placeholder-list">
-          <div class="placeholder-item">
-            <strong>新闻模块</strong>
-            <p>后续接入财报、突发事件、主题新闻和宏观快讯。</p>
+          <div class="price-block">
+            <div class="price-big numeric" id="priceBig">-</div>
+            <div class="delta numeric" id="priceDelta">-</div>
           </div>
-          <div class="placeholder-item">
-            <strong>事件提醒</strong>
-            <p>这里会展示财报日、分红、拆股与重要日历提醒。</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="context-card panel">
-        <div>
-          <div class="eyebrow">Analysis</div>
-          <h3>系统判断</h3>
+        <section class="workspace-body">
+          <div class="chart-section">
+            <div class="chart-head">
+              <div>
+                <p class="label">Price Action</p>
+                <h2 id="poolTitle">加载中</h2>
+              </div>
+              <div class="range-switch" id="rangeSwitch">
+                <button class="range-btn active" data-period="1mo">1M</button>
+                <button class="range-btn" data-period="3mo">3M</button>
+                <button class="range-btn" data-period="6mo">6M</button>
+                <button class="range-btn" data-period="1y">1Y</button>
+              </div>
+            </div>
+            <div class="chart-readout" id="chartReadout">
+              <div class="readout-cell">
+                <div class="readout-label">日期</div>
+                <div class="readout-value numeric" id="readoutDate">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">开盘</div>
+                <div class="readout-value numeric" id="readoutOpen">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">收盘</div>
+                <div class="readout-value numeric" id="readoutClose">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">最高</div>
+                <div class="readout-value numeric" id="readoutHigh">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">最低</div>
+                <div class="readout-value numeric" id="readoutLow">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">涨跌额</div>
+                <div class="readout-value numeric" id="readoutChange">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">涨跌幅</div>
+                <div class="readout-value numeric" id="readoutChangePct">-</div>
+              </div>
+              <div class="readout-cell">
+                <div class="readout-label">成交量</div>
+                <div class="readout-value numeric" id="readoutVolume">-</div>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <div id="chartContainer"></div>
+            </div>
+          </div>
+
+          <div class="trade-panel">
+            <div class="trade-head">
+              <div>
+                <p class="label">Trading Metrics</p>
+                <h2>交易指标</h2>
+              </div>
+              <div class="trade-meta numeric" id="indicatorMeta">本地指标 --</div>
+            </div>
+            <div class="indicator-grid" id="indicatorGrid"></div>
+          </div>
+
+          <div>
+            <div class="chart-footer">
+              <span id="chartLow" class="numeric">低点 -</span>
+              <span id="chartMid" class="numeric">中位 -</span>
+              <span id="chartHigh" class="numeric">高点 -</span>
+            </div>
+            <div class="metrics-strip" id="metricGrid"></div>
+          </div>
+        </section>
+      </main>
+
+      <div class="splitter splitter-right" id="splitterRight" aria-hidden="true"></div>
+
+      <aside class="context">
+        <div class="context-head">
+          <strong>决策工作栏</strong>
+          <span>最大 40% 宽度</span>
         </div>
-        <div class="analysis-summary">
-          <div id="analysisRisk" class="risk-chip low">风险等级：低</div>
-          <p id="analysisSummary">正在生成股票分析。</p>
+
+        <div class="context-scroll">
+          <section class="context-section">
+            <p class="label">Decision</p>
+            <h3>买入 / 卖出 / AI 分析</h3>
+            <div class="decision">
+              <div class="decision-action">
+                <div id="decisionAction" class="action-pill watch">继续观察</div>
+                <div id="analysisRisk" class="risk-chip medium">风险等级：中</div>
+              </div>
+              <p class="analysis-summary" id="analysisSummary">正在生成股票分析。</p>
+            </div>
+          </section>
+
+          <section class="context-section">
+            <p class="label">Market Calendar</p>
+            <h3>全市场重要事件</h3>
+            <div class="event-list" id="marketEventList"></div>
+          </section>
+
+          <section class="context-section">
+            <p class="label">Symbol Events</p>
+            <h3>当前股票重大事件</h3>
+            <div class="event-list" id="symbolEventList"></div>
+          </section>
+
+          <section class="context-section">
+            <p class="label">Key Points</p>
+            <h3>AI 关键点</h3>
+            <ul class="analysis-list" id="analysisPoints"></ul>
+          </section>
+
+          <section class="context-section">
+            <p class="label">Warnings</p>
+            <h3>风险提示</h3>
+            <ul class="analysis-list" id="analysisWarnings"></ul>
+          </section>
+
+          <section class="context-section">
+            <p class="label">Snapshot Quality</p>
+            <h3>数据状态</h3>
+            <div class="quality-list" id="qualityList"></div>
+          </section>
         </div>
-        <div class="analysis-block">
-          <strong style="font-size:13px;">关键点</strong>
-          <ul id="analysisPoints"></ul>
-        </div>
-        <div class="analysis-block">
-          <strong style="font-size:13px;">风险提示</strong>
-          <ul id="analysisWarnings"></ul>
-        </div>
-      </section>
-    </aside>
+      </aside>
+    </div>
   </div>
 
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -846,7 +1277,9 @@
       chart: null,
       candleSeries: null,
       volumeSeries: null,
-      resizeCleanup: null,
+      chartBarsByTime: new Map(),
+      latestChartBar: null,
+      marketEvents: [],
     };
 
     const zhDateTime = new Intl.DateTimeFormat("zh-CN", {
@@ -905,7 +1338,7 @@
       }
 
       document.getElementById("poolTitle").textContent = `${payload.pool.name_zh || payload.pool.name} · ${payload.pool.symbol_count} 个标的`;
-      document.getElementById("poolDescription").textContent = `来源：${readableSource(payload.pool.source)}`;
+      document.getElementById("poolCount").textContent = `${payload.pool.symbol_count || 0}`;
       document.getElementById("syncMeta").textContent = `更新 ${formatDateTime(payload.generated_at)}`;
 
       renderStockList(payload.snapshots);
@@ -940,14 +1373,22 @@
       const host = document.getElementById("stockList");
       host.innerHTML = "";
       items.forEach((item, index) => {
+        const change = item.change_percent ?? 0;
+        const changeClass = change > 0 ? "up" : change < 0 ? "down" : "flat";
         const node = document.createElement("div");
         node.className = "stock-item" + (index === 0 ? " active" : "");
         node.innerHTML = `
-          <div class="stock-top">
-            <strong>${item.symbol}</strong>
-            <span class="numeric">${money(item.latest_close)}</span>
+          <div class="stock-main">
+            <div class="stock-symbol">
+              <strong>${escapeHtml(item.symbol)}</strong>
+              <span>${escapeHtml(item.exchange_zh || item.exchange || "-")}</span>
+            </div>
+            <div class="stock-name">${escapeHtml(item.company_name_zh || item.company_name || "-")}</div>
           </div>
-          <div class="stock-sub">${item.company_name_zh || item.company_name || "-"}</div>
+          <div class="stock-price">
+            <strong class="numeric">${money(item.latest_close)}</strong>
+            <span class="numeric ${changeClass}">${formatSigned(change)}%</span>
+          </div>
         `;
         node.onclick = async () => {
           document.querySelectorAll(".stock-item").forEach(el => el.classList.remove("active"));
@@ -959,10 +1400,22 @@
     }
 
     async function setActiveItem(item) {
-      state.activeItem = item;
-      renderSnapshot(item);
-      await loadChart(item.symbol, state.currentPeriod);
-      await loadAnalysis(item.symbol);
+      const selected = await loadSnapshotForSelection(item);
+      state.activeItem = selected;
+      renderSnapshot(selected);
+      await Promise.all([
+        loadChart(selected.symbol, state.currentPeriod),
+        loadAnalysis(selected.symbol),
+        loadMarketEvents(selected),
+      ]);
+    }
+
+    async function loadSnapshotForSelection(item) {
+      try {
+        return await api(`/api/snapshot?symbol=${encodeURIComponent(item.symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}`);
+      } catch {
+        return item;
+      }
     }
 
     function renderSnapshot(item) {
@@ -975,7 +1428,7 @@
       const change = item.change_percent ?? 0;
       const delta = document.getElementById("priceDelta");
       delta.textContent = `${formatSigned(change)}%`;
-      delta.className = "delta numeric " + (change >= 0 ? "up" : "down");
+      delta.className = "delta numeric " + (change > 0 ? "up" : change < 0 ? "down" : "flat");
 
       const metrics = [
         ["开盘", money(item.open_price)],
@@ -984,48 +1437,209 @@
         ["成交量", integerNumber(item.latest_volume)],
         ["昨收", money(item.previous_close)],
         ["总市值", compactMoney(item.market_cap)],
-        ["平均成交额", compactMoney(item.avg_dollar_volume)],
-        ["市盈率 PE(TTM)", ratio(item.trailing_pe)],
-        ["预期市盈率", ratio(item.forward_pe)],
+        ["成交额", compactMoney(item.avg_dollar_volume)],
+        ["PE(TTM)", ratio(item.trailing_pe)],
+        ["Forward PE", ratio(item.forward_pe)],
         ["交易所", item.exchange_zh || item.exchange || "-"],
         ["币种", item.currency || "-"],
-        ["下次财报", item.next_earnings_date || "-"],
+        ["财报", item.next_earnings_date || "-"],
       ];
 
       const grid = document.getElementById("metricGrid");
       grid.innerHTML = metrics.map(([label, value]) => `
-        <div class="metric-row">
-          <div class="metric-label">${label}</div>
-          <div class="metric-value numeric">${value}</div>
+        <div class="metric-cell">
+          <div class="metric-label">${escapeHtml(label)}</div>
+          <div class="metric-value numeric">${escapeHtml(value)}</div>
+        </div>
+      `).join("");
+
+      renderTradingIndicators(item);
+      renderEventPanels(item);
+      renderQuality(item);
+    }
+
+    function renderEventPanels(item) {
+      const marketEvents = state.marketEvents.length
+        ? state.marketEvents.slice(0, 8).map(event => [
+            formatEventDate(event.event_time),
+            event.title,
+            event.detail || `${event.source || "-"} · ${event.category || "-"}`,
+            event.importance || "medium",
+          ])
+        : [
+            ["待接入", "FOMC / 美联储议息", "利率决议、点阵图和主席发布会会影响指数、成长股与美元利率预期。", "high"],
+            ["待接入", "通胀数据", "CPI / PCE 会影响降息预期和长端利率。", "high"],
+            ["待接入", "非农就业", "就业和工资数据会影响风险偏好与美债收益率。", "medium"],
+            ["待接入", "财报季 / 大型科技财报", "关注指数权重股财报对 QQQ / SPY 的带动。", "medium"],
+          ];
+      renderEvents("marketEventList", marketEvents);
+
+      const symbolEvents = [];
+      if (item.next_earnings_date) {
+        symbolEvents.push([item.next_earnings_date, "下一次财报", `${item.symbol} 已有财报日期字段，交易前需要检查波动风险。`, "high"]);
+      } else {
+        symbolEvents.push(["待接入", "下一次财报", "当前快照没有财报日期，后续接入事件源后补齐。", "medium"]);
+      }
+      symbolEvents.push(["待接入", "分红 / 拆股 / 重大公告", "后续接入公司事件源，展示分红、拆股、公告和监管文件。", "medium"]);
+      symbolEvents.push([formatDateTime(item.as_of), "快照更新时间", `价格、估值和事件字段来自当前 ${item.symbol} 快照。`, ""]);
+      renderEvents("symbolEventList", symbolEvents);
+    }
+
+    async function loadMarketEvents(item) {
+      try {
+        const data = await api("/api/events/market");
+        state.marketEvents = (data.events || [])
+          .filter(event => new Date(event.event_time).getTime() >= Date.now() - 1000 * 60 * 60 * 24 * 7)
+          .sort((left, right) => new Date(left.event_time) - new Date(right.event_time));
+      } catch {
+        state.marketEvents = [];
+      }
+      if (item && state.activeItem && item.symbol === state.activeItem.symbol) {
+        renderEventPanels(item);
+      }
+    }
+
+    function renderEvents(targetId, events) {
+      document.getElementById(targetId).innerHTML = events.map(([date, title, detail, severity]) => `
+        <div class="event-row">
+          <div class="event-date numeric">${escapeHtml(date || "-")}</div>
+          <div class="event-main">
+            <strong>${escapeHtml(title)}</strong>
+            <span>${escapeHtml(detail)}</span>
+          </div>
+          <div class="event-tag ${escapeHtml(severity || "")}">${eventSeverityLabel(severity)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderTradingIndicators(item) {
+      const indicators = item.indicators || {};
+      if (!hasUsableIndicators(indicators)) {
+        document.getElementById("indicatorMeta").textContent = "本地指标不可用";
+        document.getElementById("indicatorGrid").innerHTML = `
+          <div class="indicator-empty">
+            <strong>本地历史数据不足或过期</strong>
+            当前快照没有可用技术指标。请先更新该标的的 processed bars；至少需要 20 根日线才能显示基础指标，50/200 日均线需要更长历史。
+          </div>
+        `;
+        return;
+      }
+      const close = toNumber(item.latest_close);
+      const sma20 = toNumber(indicators.sma_20);
+      const sma50 = toNumber(indicators.sma_50);
+      const sma200 = toNumber(indicators.sma_200);
+      const rsi14 = toNumber(indicators.rsi_14);
+      const macd = toNumber(indicators.macd);
+      const macdSignal = toNumber(indicators.macd_signal);
+      const macdHistogram = toNumber(indicators.macd_histogram);
+      const atr14 = toNumber(indicators.atr_14);
+      const volumeRatio = toNumber(indicators.volume_ratio_20);
+      const roc10 = toNumber(indicators.roc_10);
+
+      const rows = [
+        ["SMA20", priceNumber(sma20), relationNote(close, sma20, "价格"), relationClass(close, sma20)],
+        ["SMA50", priceNumber(sma50), relationNote(close, sma50, "价格"), relationClass(close, sma50)],
+        ["SMA200", priceNumber(sma200), trendStackNote(sma20, sma50, sma200), trendStackClass(sma20, sma50, sma200)],
+        ["RSI14", plainNumber(rsi14), rsiNote(rsi14), rsiClass(rsi14)],
+        ["MACD", plainNumber(macd), macdNote(macd, macdSignal), relationClass(macd, macdSignal)],
+        ["MACD Hist", plainNumber(macdHistogram), histogramNote(macdHistogram), zeroClass(macdHistogram)],
+        ["ATR14", priceNumber(atr14), atrNote(atr14, close), "flat"],
+        ["量比20", plainNumber(volumeRatio), volumeRatioNote(volumeRatio), volumeRatioClass(volumeRatio)],
+        ["ROC10", percentNumber(roc10), rocNote(roc10), zeroClass(roc10)],
+        ["布林上轨", priceNumber(indicators.bbands_upper), "压力参考", "flat"],
+        ["布林中轨", priceNumber(indicators.bbands_middle), "均值参考", "flat"],
+        ["布林下轨", priceNumber(indicators.bbands_lower), "支撑参考", "flat"],
+      ];
+
+      const meta = indicators.indicators_as_of
+        ? `本地指标 ${formatDateTime(indicators.indicators_as_of)}`
+        : "本地指标不可用";
+      document.getElementById("indicatorMeta").textContent = meta;
+      document.getElementById("indicatorGrid").innerHTML = rows.map(([name, value, note, className]) => `
+        <div class="indicator-cell">
+          <div class="indicator-name">
+            <span>${escapeHtml(name)}</span>
+            <span class="${escapeHtml(className)}">●</span>
+          </div>
+          <div class="indicator-value numeric ${escapeHtml(className)}">${escapeHtml(value)}</div>
+          <div class="indicator-note">${escapeHtml(note)}</div>
+        </div>
+      `).join("");
+    }
+
+    function hasUsableIndicators(indicators) {
+      return [
+        indicators.sma_20,
+        indicators.sma_50,
+        indicators.sma_200,
+        indicators.rsi_14,
+        indicators.macd,
+        indicators.atr_14,
+        indicators.volume_ratio_20,
+        indicators.bbands_middle,
+      ].some(value => toNumber(value) !== null);
+    }
+
+    function renderQuality(item) {
+      const rows = [
+        ["状态", item.screening_status || "unknown"],
+        ["快照时间", formatDateTime(item.as_of)],
+        ["本地指标", item.indicators?.indicators_as_of ? formatDateTime(item.indicators.indicators_as_of) : "-"],
+        ["原因", (item.screening_reasons || []).slice(0, 2).join("；") || "暂无额外提示"],
+      ];
+      document.getElementById("qualityList").innerHTML = rows.map(([label, value]) => `
+        <div class="quality-row">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
         </div>
       `).join("");
     }
 
     async function loadChart(symbol, period) {
-      const data = await api(`/api/history?symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`);
-      drawChart(data.points || []);
+      try {
+        const data = await api(`/api/history?symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`);
+        drawChart(data.points || []);
+      } catch (error) {
+        drawChart([]);
+        document.getElementById("chartMid").textContent = `图表加载失败：${error.message || error}`;
+      }
     }
 
     async function loadAnalysis(symbol) {
-      const data = await api(`/api/analysis?symbol=${encodeURIComponent(symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}`);
-      renderAnalysis(data);
+      try {
+        const data = await api(`/api/analysis?symbol=${encodeURIComponent(symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}`);
+        renderAnalysis(data);
+      } catch (error) {
+        renderAnalysis({
+          risk_level: "unknown",
+          recommendation: "review",
+          summary: `分析接口暂不可用：${error.message || error}`,
+          key_points: [],
+          warnings: ["请先检查本地服务日志或数据源状态。"],
+        });
+      }
     }
 
     function renderAnalysis(data) {
       const risk = document.getElementById("analysisRisk");
       risk.className = `risk-chip ${data.risk_level || "medium"}`;
-      risk.textContent = `风险等级：${riskLabel(data.risk_level)} | 建议：${recommendationLabel(data.recommendation)}`;
+      risk.textContent = `风险等级：${riskLabel(data.risk_level)}`;
+
+      const action = document.getElementById("decisionAction");
+      const actionClass = recommendationClass(data.recommendation);
+      action.className = `action-pill ${actionClass}`;
+      action.textContent = recommendationLabel(data.recommendation);
 
       document.getElementById("analysisSummary").textContent = data.summary || "暂无分析结果。";
 
       const points = document.getElementById("analysisPoints");
       points.innerHTML = (data.key_points || []).length
-        ? data.key_points.map(item => `<li>${item}</li>`).join("")
+        ? data.key_points.map(item => `<li>${escapeHtml(item)}</li>`).join("")
         : "<li>暂无关键点。</li>";
 
       const warnings = document.getElementById("analysisWarnings");
       warnings.innerHTML = (data.warnings || []).length
-        ? data.warnings.map(item => `<li>${item}</li>`).join("")
+        ? data.warnings.map(item => `<li>${escapeHtml(item)}</li>`).join("")
         : "<li>当前没有额外风险提示。</li>";
     }
 
@@ -1036,20 +1650,29 @@
       if (!points.length) {
         state.candleSeries.setData([]);
         state.volumeSeries.setData([]);
+        state.chartBarsByTime = new Map();
+        state.latestChartBar = null;
+        renderChartReadout(null);
         document.getElementById("chartLow").textContent = "低点 -";
         document.getElementById("chartMid").textContent = "中位 -";
         document.getElementById("chartHigh").textContent = "高点 -";
         return;
       }
 
-      const candleData = points
+      const sortedPoints = [...points]
+        .filter(point => point.timestamp)
+        .sort((left, right) => new Date(left.timestamp) - new Date(right.timestamp));
+
+      const validCandlePoints = sortedPoints
         .filter(point =>
           point.timestamp &&
           point.open != null &&
           point.high != null &&
           point.low != null &&
           point.close != null
-        )
+        );
+
+      const candleData = validCandlePoints
         .map(point => ({
           time: toChartTime(point.timestamp),
           open: Number(point.open),
@@ -1058,13 +1681,28 @@
           close: Number(point.close),
         }));
 
-      const volumeData = points
+      const volumeData = sortedPoints
         .filter(point => point.timestamp && point.volume != null && point.close != null && point.open != null)
         .map(point => ({
           time: toChartTime(point.timestamp),
           value: Number(point.volume),
-          color: Number(point.close) >= Number(point.open) ? "rgba(24, 196, 113, 0.45)" : "rgba(255, 79, 100, 0.45)",
+          color: Number(point.close) >= Number(point.open) ? "#215d45" : "#68333b",
         }));
+
+      const bars = candleData.map((bar, index) => {
+        const source = validCandlePoints[index] || {};
+        const previous = candleData[index - 1] || null;
+        const previousClose = previous ? previous.close : Number(source.previous_close ?? source.close ?? bar.open);
+        return {
+          ...bar,
+          key: chartTimeKey(bar.time),
+          timestamp: source.timestamp,
+          volume: toNumber(source.volume),
+          previousClose,
+        };
+      });
+      state.chartBarsByTime = new Map(bars.map(bar => [bar.key, bar]));
+      state.latestChartBar = bars[bars.length - 1] || null;
 
       const closes = candleData.map(point => point.close).filter(n => !Number.isNaN(n));
       const min = Math.min(...closes);
@@ -1074,10 +1712,45 @@
       state.candleSeries.setData(candleData);
       state.volumeSeries.setData(volumeData);
       state.chart.timeScale().fitContent();
+      renderChartReadout(state.latestChartBar);
 
       document.getElementById("chartLow").textContent = `低点 ${money(min)}`;
       document.getElementById("chartMid").textContent = `中位 ${money(mid)}`;
       document.getElementById("chartHigh").textContent = `高点 ${money(max)}`;
+    }
+
+    function renderChartReadout(bar) {
+      const ids = ["readoutDate", "readoutOpen", "readoutClose", "readoutHigh", "readoutLow", "readoutChange", "readoutChangePct", "readoutVolume"];
+      if (!bar) {
+        ids.forEach(id => {
+          const node = document.getElementById(id);
+          if (node) node.textContent = "-";
+        });
+        return;
+      }
+
+      const change = bar.close - bar.previousClose;
+      const changePct = bar.previousClose ? (change / bar.previousClose) * 100 : null;
+      const className = change > 0 ? "up" : change < 0 ? "down" : "flat";
+      const values = {
+        readoutDate: formatChartDate(bar.time),
+        readoutOpen: money(bar.open),
+        readoutClose: money(bar.close),
+        readoutHigh: money(bar.high),
+        readoutLow: money(bar.low),
+        readoutChange: signedMoney(change),
+        readoutChangePct: changePct === null ? "-" : `${formatSigned(changePct)}%`,
+        readoutVolume: compactShares(bar.volume),
+      };
+
+      Object.entries(values).forEach(([id, value]) => {
+        const node = document.getElementById(id);
+        if (!node) return;
+        node.textContent = value;
+        node.classList.toggle("up", id === "readoutChange" || id === "readoutChangePct" ? className === "up" : false);
+        node.classList.toggle("down", id === "readoutChange" || id === "readoutChangePct" ? className === "down" : false);
+        node.classList.toggle("flat", id === "readoutChange" || id === "readoutChangePct" ? className === "flat" : false);
+      });
     }
 
     function initChart() {
@@ -1088,33 +1761,33 @@
 
       state.chart = LightweightCharts.createChart(host, {
         layout: {
-          background: { color: "#0d1118" },
-          textColor: "#7f8aa1",
+          background: { color: "#0c0d0f" },
+          textColor: "#858d98",
           attributionLogo: false,
         },
         grid: {
-          vertLines: { color: "rgba(255,255,255,0.05)" },
-          horzLines: { color: "rgba(255,255,255,0.06)" },
+          vertLines: { color: "#171a1f" },
+          horzLines: { color: "#1d2026" },
         },
         crosshair: {
           mode: LightweightCharts.CrosshairMode.Normal,
           vertLine: {
-            color: "rgba(138, 177, 255, 0.35)",
+            color: "#347d78",
             width: 1,
-            labelBackgroundColor: "#2d6dff",
+            labelBackgroundColor: "#1b625d",
           },
           horzLine: {
-            color: "rgba(138, 177, 255, 0.35)",
+            color: "#347d78",
             width: 1,
-            labelBackgroundColor: "#2d6dff",
+            labelBackgroundColor: "#1b625d",
           },
         },
         rightPriceScale: {
-          borderColor: "rgba(255,255,255,0.08)",
-          scaleMargins: { top: 0.08, bottom: 0.26 },
+          borderColor: "#24272c",
+          scaleMargins: { top: 0.08, bottom: 0.28 },
         },
         timeScale: {
-          borderColor: "rgba(255,255,255,0.08)",
+          borderColor: "#24272c",
           timeVisible: false,
           secondsVisible: false,
           rightOffset: 0,
@@ -1136,11 +1809,11 @@
       });
 
       state.candleSeries = state.chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: "#18c471",
-        downColor: "#ff4f64",
+        upColor: "#26c281",
+        downColor: "#ef5b69",
         borderVisible: false,
-        wickUpColor: "#18c471",
-        wickDownColor: "#ff4f64",
+        wickUpColor: "#26c281",
+        wickDownColor: "#ef5b69",
         priceLineVisible: false,
       });
 
@@ -1156,6 +1829,15 @@
         },
       });
 
+      state.chart.subscribeCrosshairMove(param => {
+        if (!param || !param.time) {
+          renderChartReadout(state.latestChartBar);
+          return;
+        }
+        const bar = state.chartBarsByTime.get(chartTimeKey(param.time));
+        renderChartReadout(bar || state.latestChartBar);
+      });
+
       const resize = () => {
         state.chart.applyOptions({
           width: host.clientWidth,
@@ -1169,42 +1851,36 @@
 
     function bindSplitters() {
       attachHorizontalResize("splitterLeft", {
-        variable: "--watchlist-width",
-        min: 280,
-        max: 420,
+        variable: "--watch-width",
+        min: 260,
+        max: 430,
       });
       attachHorizontalResize("splitterRight", {
         variable: "--context-width",
-        min: 280,
-        max: 520,
+        min: 300,
+        maxRatio: 0.4,
         inverse: true,
       });
     }
 
     function attachHorizontalResize(elementId, options) {
       const splitter = document.getElementById(elementId);
-      const shell = document.querySelector(".shell");
-      if (!splitter || !shell) return;
+      const root = document.documentElement;
+      if (!splitter) return;
 
       splitter.addEventListener("mousedown", event => {
         event.preventDefault();
         splitter.classList.add("dragging");
         const startX = event.clientX;
-        const initial = parseFloat(getComputedStyle(shell).getPropertyValue(options.variable)) || 0;
+        const initial = parseFloat(getComputedStyle(root).getPropertyValue(options.variable)) || 0;
 
         const onMove = moveEvent => {
           const delta = moveEvent.clientX - startX;
           const next = options.inverse ? initial - delta : initial + delta;
-          const clamped = Math.min(options.max, Math.max(options.min, next));
-          shell.style.setProperty(options.variable, `${clamped}px`);
-          if (state.chart) {
-            requestAnimationFrame(() => {
-              state.chart.applyOptions({
-                width: document.getElementById("chartContainer").clientWidth,
-                height: document.getElementById("chartContainer").clientHeight,
-              });
-            });
-          }
+          const max = options.maxRatio ? Math.floor(window.innerWidth * options.maxRatio) : options.max;
+          const clamped = Math.min(max, Math.max(options.min, next));
+          root.style.setProperty(options.variable, `${clamped}px`);
+          resizeChart();
         };
 
         const onUp = () => {
@@ -1215,6 +1891,17 @@
 
         window.addEventListener("mousemove", onMove);
         window.addEventListener("mouseup", onUp);
+      });
+    }
+
+    function resizeChart() {
+      if (!state.chart) return;
+      const host = document.getElementById("chartContainer");
+      requestAnimationFrame(() => {
+        state.chart.applyOptions({
+          width: host.clientWidth,
+          height: host.clientHeight,
+        });
       });
     }
 
@@ -1247,10 +1934,10 @@
           host.innerHTML = data.results.map(item => `
             <div class="search-item">
               <div class="search-meta">
-                <strong>${item.symbol}</strong>
-                <span>${item.name_zh || item.name || "-"} · ${item.exchange || "-"}</span>
+                <strong>${escapeHtml(item.symbol)}</strong>
+                <span>${escapeHtml(item.name_zh || item.name || "-")} · ${escapeHtml(item.exchange || "-")}</span>
               </div>
-              <button class="add-btn" data-symbol="${item.symbol}">加入</button>
+              <button class="add-btn" data-symbol="${escapeHtml(item.symbol)}">加入</button>
             </div>
           `).join("");
           host.classList.toggle("show", data.results.length > 0);
@@ -1290,9 +1977,17 @@
       document.getElementById("companyMeta").textContent = "从搜索框加入股票后，这里会显示行情与走势图。";
       document.getElementById("priceBig").textContent = "-";
       document.getElementById("priceDelta").textContent = "-";
-      document.getElementById("metricGrid").innerHTML = '<div class="empty">搜索并添加代码后，这里会显示当前行情、估值和事件信息。</div>';
+      document.getElementById("metricGrid").innerHTML = '<div class="metric-cell"><div class="metric-label">状态</div><div class="metric-value">等待标的</div></div>';
+      document.getElementById("indicatorMeta").textContent = "本地指标 --";
+      document.getElementById("indicatorGrid").innerHTML = '<div class="indicator-cell"><div class="indicator-name"><span>状态</span><span class="flat">●</span></div><div class="indicator-value">等待标的</div><div class="indicator-note">添加股票后显示技术指标。</div></div>';
+      document.getElementById("marketEventList").innerHTML = "";
+      document.getElementById("symbolEventList").innerHTML = "";
+      document.getElementById("qualityList").innerHTML = '<p class="empty">暂无快照。</p>';
       if (state.candleSeries) state.candleSeries.setData([]);
       if (state.volumeSeries) state.volumeSeries.setData([]);
+      state.chartBarsByTime = new Map();
+      state.latestChartBar = null;
+      renderChartReadout(null);
       document.getElementById("chartLow").textContent = "低点 -";
       document.getElementById("chartMid").textContent = "中位 -";
       document.getElementById("chartHigh").textContent = "高点 -";
@@ -1347,6 +2042,26 @@
       }).format(Number(value));
     }
 
+    function signedMoney(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      const number = Number(value);
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(Math.abs(number));
+      return `${number >= 0 ? "+" : "-"}${formatted}`;
+    }
+
+    function compactShares(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return new Intl.NumberFormat("zh-CN", {
+        notation: "compact",
+        maximumFractionDigits: 2,
+      }).format(Number(value));
+    }
+
     function integerNumber(value) {
       if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
       return Number(value).toLocaleString("zh-CN", { maximumFractionDigits: 0 });
@@ -1355,6 +2070,107 @@
     function ratio(value) {
       if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
       return Number(value).toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function toNumber(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function plainNumber(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return Number(value).toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function priceNumber(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function percentNumber(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      const number = Number(value);
+      return `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
+    }
+
+    function relationClass(left, right) {
+      if (left === null || right === null) return "flat";
+      return left > right ? "up" : left < right ? "down" : "flat";
+    }
+
+    function zeroClass(value) {
+      if (value === null) return "flat";
+      return value > 0 ? "up" : value < 0 ? "down" : "flat";
+    }
+
+    function relationNote(left, right, label) {
+      if (left === null || right === null) return "数据不足";
+      const spread = ((left - right) / right) * 100;
+      return `${label}${spread >= 0 ? "高于" : "低于"} ${Math.abs(spread).toFixed(2)}%`;
+    }
+
+    function trendStackNote(sma20, sma50, sma200) {
+      if (sma20 === null || sma50 === null || sma200 === null) return "数据不足";
+      if (sma20 > sma50 && sma50 > sma200) return "多头排列";
+      if (sma20 < sma50 && sma50 < sma200) return "空头排列";
+      return "均线交错";
+    }
+
+    function trendStackClass(sma20, sma50, sma200) {
+      if (sma20 === null || sma50 === null || sma200 === null) return "flat";
+      if (sma20 > sma50 && sma50 > sma200) return "up";
+      if (sma20 < sma50 && sma50 < sma200) return "down";
+      return "flat";
+    }
+
+    function rsiNote(value) {
+      if (value === null) return "数据不足";
+      if (value >= 70) return "偏热";
+      if (value <= 30) return "偏冷";
+      return "中性区间";
+    }
+
+    function rsiClass(value) {
+      if (value === null) return "flat";
+      if (value >= 70) return "down";
+      if (value <= 30) return "up";
+      return "flat";
+    }
+
+    function macdNote(macd, signal) {
+      if (macd === null || signal === null) return "数据不足";
+      return macd > signal ? "MACD 在 Signal 上方" : macd < signal ? "MACD 在 Signal 下方" : "MACD 与 Signal 接近";
+    }
+
+    function histogramNote(value) {
+      if (value === null) return "数据不足";
+      return value > 0 ? "动能为正" : value < 0 ? "动能为负" : "动能中性";
+    }
+
+    function atrNote(atr, close) {
+      if (atr === null || close === null) return "数据不足";
+      return `约为价格 ${(atr / close * 100).toFixed(2)}%`;
+    }
+
+    function volumeRatioNote(value) {
+      if (value === null) return "数据不足";
+      if (value >= 2) return "显著放量";
+      if (value >= 1.2) return "温和放量";
+      if (value <= 0.7) return "缩量";
+      return "接近均量";
+    }
+
+    function volumeRatioClass(value) {
+      if (value === null) return "flat";
+      if (value >= 1.2) return "up";
+      if (value <= 0.7) return "down";
+      return "flat";
+    }
+
+    function rocNote(value) {
+      if (value === null) return "数据不足";
+      return value > 0 ? "10 日动量向上" : value < 0 ? "10 日动量向下" : "10 日动量中性";
     }
 
     function formatSigned(value) {
@@ -1370,13 +2186,11 @@
       return zhDateTime.format(date);
     }
 
-    function readableSource(value) {
-      const sourceMap = {
-        quantplatform_curated: "QuantPlatform 预设",
-        frontend_local_storage: "本地自选",
-        nasdaq100_snapshot_2026_04_24: "纳斯达克100快照",
-      };
-      return sourceMap[value] || value || "-";
+    function formatEventDate(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return `${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
     }
 
     function riskLabel(value) {
@@ -1399,6 +2213,24 @@
       return map[value] || "继续观察";
     }
 
+    function recommendationClass(value) {
+      const map = {
+        buy_watch: "buy",
+        watch: "watch",
+        avoid: "avoid",
+        review: "review",
+      };
+      return map[value] || "watch";
+    }
+
+    function eventSeverityLabel(value) {
+      const map = {
+        high: "高",
+        medium: "中",
+      };
+      return map[value] || "信息";
+    }
+
     function toChartTime(value) {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return undefined;
@@ -1409,8 +2241,36 @@
       };
     }
 
+    function chartTimeKey(value) {
+      if (!value) return "";
+      if (typeof value === "string") return value;
+      if (typeof value === "number") {
+        return new Date(value * 1000).toISOString().slice(0, 10);
+      }
+      const year = String(value.year).padStart(4, "0");
+      const month = String(value.month).padStart(2, "0");
+      const day = String(value.day).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatChartDate(value) {
+      const key = chartTimeKey(value);
+      if (!key) return "-";
+      const [year, month, day] = key.split("-");
+      return `${year}.${month}.${day}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     init().catch(error => {
-      document.body.innerHTML = `<div class="empty" style="margin: 20px;">交易终端初始化失败：${error}</div>`;
+      document.body.innerHTML = `<div class="empty" style="margin: 20px;">交易终端初始化失败：${escapeHtml(error)}</div>`;
     });
   </script>
 </body>

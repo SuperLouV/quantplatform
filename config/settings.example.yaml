@@ -7,6 +7,10 @@ data:
   timezone: America/New_York
   fred_api_key: ""
   user_agent: quant-platform/0.1
+  request_min_interval_seconds: 0.5
+  request_max_retries: 2
+  request_backoff_seconds: 1.0
+  request_timeout_seconds: 15.0
 
 storage:
   raw_dir: data/raw

@@ -25,10 +25,19 @@ Codex 接手入口：
 - 已完成第一版券商式个股界面，当前前台范围收敛为 `默认列表 + 自选列表`
 - 已完成中文 UI 文案、中文池子名称和常用公司/行业中文映射
 - 已完成终端式四栏 UI 骨架：图标导航、股票列表、主工作区、右侧分析区
-- 已将主图区比例收敛为更紧凑的终端布局，避免走势图过大影响工作台信息密度
+- 已将 UI 视觉方向从玻璃拟态调整为更专业的纯色研究终端风格
+- 已将主图区比例收敛为更紧凑的终端布局，中间区域新增交易指标矩阵，避免走势图过大影响信息密度
 - 已支持左右分栏伸缩，便于后续扩展右侧新闻和 AI 分析面板
 - 已完成第一版简单建议引擎，基于历史价格与当前快照输出趋势、风险和动作建议
-- 下一步重点是策略规格、数据层保护、技术指标、信号检测、风控建议和每日报告
+- 已完成第一版日线波段策略规格文档
+- 已为 `yfinance` 客户端接入配置化限频、重试、backoff 和 timeout 保护
+- 已新增基础数据质量检查，批量快照会输出数据质量摘要
+- 已完成第一版技术指标计算层，可从本地 processed parquet 输出完整序列和最新指标
+- 已将技术指标接入批量快照，并对本地 bars 与快照时间做一致性检查
+- 已完成第一版规则信号检测，可识别 MACD、RSI、布林带、放量突破、均线交叉和均线排列信号
+- 已接入全市场重大事件日历，当前来源包括 Fed FOMC、Census 经济指标日历和 FRED release calendar
+- 已增加本地操作日志，市场事件更新会写入 `data/logs/market_events_YYYYMMDD.jsonl`
+- 下一步重点是信号接入报告/快照、风控建议、每日报告和最小回测
 
 ## 当前主流程
 
@@ -84,6 +93,7 @@ flowchart TD
 
 - [docs/architecture/stock-screening-design.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/stock-screening-design.md)
 - [docs/architecture/product-objects.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/product-objects.md)
+- [docs/strategy/strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/strategy-v1.md)
 
 Codex 新会话请先阅读：
 
@@ -98,6 +108,9 @@ Codex 新会话请先阅读：
 - 更新单个标的历史日线：`PYTHONPATH=src python3 scripts/update_yfinance_history.py AAPL --start 2025-01-01 --end 2025-01-15`
 - 按配置构建股票池快照：`PYTHONPATH=src python3 scripts/build_universe.py`
 - 批量更新股票池最新快照：`PYTHONPATH=src python3 scripts/update_pool_snapshots.py`
+- 计算单个标的本地技术指标：`PYTHONPATH=src python3 scripts/compute_indicators.py AAPL`
+- 检测单个标的本地规则信号：`PYTHONPATH=src python3 scripts/detect_signals.py AAPL`
+- 更新全市场重大事件日历：`PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 
 下一阶段计划入口：

@@ -10,3 +10,5 @@ __pycache__/
 data/system/state.db
 data/cache/
 data/raw/
+data/logs/
+config/*.local.yaml

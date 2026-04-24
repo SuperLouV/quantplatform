@@ -10,15 +10,40 @@ import pandas as pd
 import yfinance as yf
 
 from quant_platform.clients.base import BaseDataClient
+from quant_platform.clients.protection import ProviderRequestGuard, ProviderRequestPolicy
+from quant_platform.config import DataConfig
 from quant_platform.core.models import Bar, DataRequest, Security, TradingCalendarEvent
 
 
 class YFinanceClient(BaseDataClient):
     provider_name = "yfinance"
 
+    def __init__(self, policy: ProviderRequestPolicy | None = None) -> None:
+        self.policy = policy or ProviderRequestPolicy()
+        self.guard = ProviderRequestGuard(self.policy)
+
+    @classmethod
+    def from_data_config(cls, config: DataConfig) -> "YFinanceClient":
+        return cls(
+            ProviderRequestPolicy(
+                min_interval_seconds=config.request_min_interval_seconds,
+                max_retries=config.request_max_retries,
+                backoff_seconds=config.request_backoff_seconds,
+                timeout_seconds=config.request_timeout_seconds,
+            )
+        )
+
     def fetch_bars(self, request: DataRequest) -> list[Bar]:
+        return self.guard.call(
+            f"fetch_bars({request.symbol})",
+            lambda: self._fetch_bars(request),
+        )
+
+    def _fetch_bars(self, request: DataRequest) -> list[Bar]:
         ticker = yf.Ticker(request.symbol)
-        history = ticker.history(
+        history = _ticker_history(
+            ticker,
+            timeout=self.policy.timeout_seconds,
             start=_coerce_history_date(request.start),
             end=_coerce_history_date(request.end),
             interval=request.interval,
@@ -49,6 +74,12 @@ class YFinanceClient(BaseDataClient):
         return bars
 
     def fetch_security(self, symbol: str) -> Security | None:
+        return self.guard.call(
+            f"fetch_security({symbol})",
+            lambda: self._fetch_security(symbol),
+        )
+
+    def _fetch_security(self, symbol: str) -> Security | None:
         ticker = yf.Ticker(symbol)
         info = ticker.info or {}
         if not info:
@@ -65,6 +96,12 @@ class YFinanceClient(BaseDataClient):
         )
 
     def fetch_events(self, symbol: str) -> list[TradingCalendarEvent]:
+        return self.guard.call(
+            f"fetch_events({symbol})",
+            lambda: self._fetch_events(symbol),
+        )
+
+    def _fetch_events(self, symbol: str) -> list[TradingCalendarEvent]:
         ticker = yf.Ticker(symbol)
         events: list[TradingCalendarEvent] = []
 
@@ -105,9 +142,22 @@ class YFinanceClient(BaseDataClient):
         ]
 
     def fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
+        return self.guard.call(
+            f"fetch_quote_snapshot({symbol})",
+            lambda: self._fetch_quote_snapshot(symbol),
+        )
+
+    def _fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
         ticker = yf.Ticker(symbol)
         fast_info = dict(ticker.fast_info)
-        history = ticker.history(period="5d", interval="1d", auto_adjust=False, actions=False)
+        history = _ticker_history(
+            ticker,
+            timeout=self.policy.timeout_seconds,
+            period="5d",
+            interval="1d",
+            auto_adjust=False,
+            actions=False,
+        )
         info = ticker.info or {}
 
         latest_row = history.iloc[-1] if not history.empty else None
@@ -153,8 +203,21 @@ class YFinanceClient(BaseDataClient):
         }
 
     def fetch_chart_history(self, symbol: str, period: str = "6mo", interval: str = "1d") -> list[dict[str, Any]]:
+        return self.guard.call(
+            f"fetch_chart_history({symbol})",
+            lambda: self._fetch_chart_history(symbol, period=period, interval=interval),
+        )
+
+    def _fetch_chart_history(self, symbol: str, period: str = "6mo", interval: str = "1d") -> list[dict[str, Any]]:
         ticker = yf.Ticker(symbol)
-        history = ticker.history(period=period, interval=interval, auto_adjust=False, actions=False)
+        history = _ticker_history(
+            ticker,
+            timeout=self.policy.timeout_seconds,
+            period=period,
+            interval=interval,
+            auto_adjust=False,
+            actions=False,
+        )
         if history.empty:
             return []
 
@@ -178,11 +241,13 @@ class YFinanceClient(BaseDataClient):
         if not query.strip():
             return []
 
-        try:
-            search = yf.Search(query, max_results=limit)
-        except TypeError:
-            search = yf.Search(query)
+        return self.guard.call(
+            f"search_symbols({query})",
+            lambda: self._search_symbols(query, limit),
+        )
 
+    def _search_symbols(self, query: str, limit: int = 8) -> list[dict[str, Any]]:
+        search = _search(query, limit)
         results: list[dict[str, Any]] = []
         for item in (search.quotes or [])[:limit]:
             symbol = item.get("symbol")
@@ -197,6 +262,20 @@ class YFinanceClient(BaseDataClient):
                 }
             )
         return results
+
+
+def _ticker_history(ticker: Any, *, timeout: float, **kwargs: Any) -> pd.DataFrame:
+    try:
+        return ticker.history(timeout=timeout, **kwargs)
+    except TypeError:
+        return ticker.history(**kwargs)
+
+
+def _search(query: str, limit: int) -> Any:
+    try:
+        return yf.Search(query, max_results=limit)
+    except TypeError:
+        return yf.Search(query)
 
 
 def _coerce_history_date(value: date | datetime | None) -> str | None:

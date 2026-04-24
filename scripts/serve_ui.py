@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from datetime import date
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -60,6 +61,11 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 pool_id = query.get("pool_id", [""])[0] or None
                 self._respond_json(UI_SERVICE.analysis(symbol, pool_id=pool_id))
                 return
+            if parsed.path == "/api/events/market":
+                start = _optional_date(query.get("from", [""])[0])
+                end = _optional_date(query.get("to", [""])[0])
+                self._respond_json(UI_SERVICE.market_event_calendar(start=start, end=end))
+                return
             self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -71,6 +77,12 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
         self.wfile.write(encoded)
+
+
+def _optional_date(value: str) -> date | None:
+    if not value:
+        return None
+    return date.fromisoformat(value)
 
 
 def main() -> None:

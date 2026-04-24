@@ -31,7 +31,7 @@ class YFinanceHistoryUpdater:
         artifacts = bootstrap_local_state(settings)
         self.layout: DataLayout = artifacts.layout
         self.state_store: SQLiteStateStore = artifacts.state_store
-        self.client = YFinanceClient()
+        self.client = YFinanceClient.from_data_config(settings.data)
 
     def update_symbol(
         self,
