@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from random import random
 from dataclasses import dataclass
 from typing import Callable, TypeVar
 
@@ -43,7 +44,8 @@ class ProviderRequestGuard:
                 last_error = exc
                 if attempt >= attempts:
                     break
-                time.sleep(self.policy.backoff_seconds * attempt)
+                jitter = 1 + random() * 0.5
+                time.sleep(self.policy.backoff_seconds * attempt * jitter)
 
         raise ProviderRequestError(
             f"{operation} failed after {attempts} attempt(s): {last_error}"

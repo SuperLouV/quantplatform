@@ -18,12 +18,15 @@
       --faint: #5f6773;
       --accent: #50d6c9;
       --accent-2: #7aa8ff;
-      --green: #26c281;
-      --red: #ef5b69;
+      --green: #00e08a;
+      --red: #ff3b30;
       --amber: #e7b75f;
       --purple: #b59cff;
       --watch-width: 312px;
+      --watch-min-width: 190px;
       --context-width: 372px;
+      --chart-height: 360px;
+      --trade-height: 220px;
       --radius: 8px;
       --mono: "SFMono-Regular", "Roboto Mono", Consolas, monospace;
       --sans: "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -42,7 +45,7 @@
     }
 
     body {
-      overflow: hidden;
+      overflow: auto;
     }
 
     button,
@@ -57,7 +60,8 @@
     }
 
     .terminal {
-      min-height: 100svh;
+      height: 100svh;
+      min-height: 0;
       display: grid;
       grid-template-rows: 48px minmax(0, 1fr);
       background: #090a0b;
@@ -160,6 +164,7 @@
       min-height: 0;
       display: grid;
       grid-template-columns: var(--watch-width) 8px minmax(0, 1fr) 8px var(--context-width);
+      overflow: hidden;
     }
 
     .watch,
@@ -170,6 +175,7 @@
     }
 
     .watch {
+      container: watch / inline-size;
       display: grid;
       grid-template-rows: auto auto auto minmax(0, 1fr);
       border-right: 1px solid var(--line);
@@ -178,8 +184,9 @@
 
     .workspace {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      overflow: hidden;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: auto;
+      overscroll-behavior: contain;
     }
 
     .context {
@@ -375,7 +382,7 @@
       min-height: 72px;
       padding: 11px 14px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) minmax(68px, auto);
       gap: 10px;
       border-bottom: 1px solid #202329;
       cursor: pointer;
@@ -434,12 +441,48 @@
       display: block;
       font-size: 13px;
       font-weight: 520;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .stock-price span {
       display: block;
       margin-top: 6px;
       font-size: 12px;
+    }
+
+    @container watch (max-width: 230px) {
+      .section-head {
+        padding: 12px 10px 10px;
+      }
+
+      .section-title h1 {
+        font-size: 15px;
+      }
+
+      .pool-tabs,
+      .search-box {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .stock-item {
+        min-height: 64px;
+        padding: 10px;
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .stock-price {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        text-align: left;
+      }
+
+      .stock-price span {
+        margin-top: 0;
+      }
     }
 
     .up { color: var(--green); }
@@ -454,6 +497,10 @@
       padding: 14px 18px 13px;
       border-bottom: 1px solid var(--line);
       background: #111315;
+    }
+
+    .quote-main {
+      min-width: 0;
     }
 
     .symbol-line {
@@ -482,6 +529,37 @@
       font-size: 12px;
     }
 
+    .quote-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      max-width: 100%;
+    }
+
+    .quote-stat {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0d0e10;
+      white-space: nowrap;
+    }
+
+    .quote-stat-label {
+      color: var(--faint);
+      font-size: 10px;
+    }
+
+    .quote-stat-value {
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 590;
+    }
+
     .price-block {
       text-align: right;
       white-space: nowrap;
@@ -499,11 +577,34 @@
       font-weight: 560;
     }
 
+    .refresh-btn {
+      min-height: 28px;
+      margin-top: 10px;
+      padding: 0 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #17191d;
+      color: var(--soft);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .refresh-btn:hover {
+      border-color: #3d8f88;
+      color: var(--text);
+    }
+
+    .refresh-btn:disabled {
+      cursor: progress;
+      color: var(--faint);
+      border-color: var(--line);
+    }
+
     .workspace-body {
       min-height: 0;
       display: grid;
-      grid-template-rows: minmax(220px, 42%) auto auto;
-      overflow: hidden;
+      grid-template-rows: var(--chart-height) 8px var(--trade-height);
+      overflow: visible;
     }
 
     .chart-section {
@@ -525,6 +626,42 @@
     .chart-head h2 {
       font-size: 14px;
       font-weight: 580;
+    }
+
+    .chart-head-spacer {
+      min-width: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chart-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .indicator-switch {
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0b0c0e;
+    }
+
+    .indicator-btn {
+      min-width: 52px;
+      height: 28px;
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .indicator-btn.active {
+      background: #18342d;
+      color: #bcf3d5;
     }
 
     .chart-readout {
@@ -583,22 +720,65 @@
     .chart-wrap {
       min-height: 0;
       position: relative;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) 112px;
       background: var(--surface-3);
       overflow: hidden;
     }
 
-    #chartContainer {
+    .chart-wrap.rsi-hidden {
+      grid-template-rows: minmax(0, 1fr) 0;
+    }
+
+    #chartContainer,
+    #rsiContainer {
       width: 100%;
       height: 100%;
-      min-height: 220px;
+      min-height: 0;
+    }
+
+    #rsiContainer {
+      border-top: 1px solid var(--line);
+      background: #0c0d0f;
+      overflow: hidden;
+    }
+
+    .chart-wrap.rsi-hidden #rsiContainer {
+      border-top: 0;
+      visibility: hidden;
     }
 
     .trade-panel {
-      min-height: 152px;
+      min-height: 0;
       display: grid;
-      grid-template-rows: auto auto;
+      grid-template-rows: auto minmax(0, 1fr);
       border-bottom: 1px solid var(--line);
       background: #101113;
+      overflow: auto;
+    }
+
+    .vertical-splitter {
+      cursor: row-resize;
+      position: relative;
+      background: #0c0d0f;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .vertical-splitter::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 54px;
+      height: 2px;
+      border-radius: 999px;
+      background: #3a3f48;
+      transform: translate(-50%, -50%);
+    }
+
+    .vertical-splitter:hover,
+    .vertical-splitter.dragging {
+      background: #122320;
     }
 
     .trade-head {
@@ -629,7 +809,7 @@
     }
 
     .indicator-cell {
-      min-height: 68px;
+      min-height: 94px;
       padding: 11px 14px;
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
@@ -638,9 +818,84 @@
     .indicator-name {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 8px;
       color: var(--muted);
       font-size: 11px;
+    }
+
+    .indicator-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .info-dot {
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #3a3f48;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1;
+      cursor: help;
+      flex: 0 0 auto;
+    }
+
+    .info-dot:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .metric-tooltip {
+      position: fixed;
+      z-index: 50;
+      max-width: 280px;
+      padding: 9px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #1b1d21;
+      color: var(--soft);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      font-size: 12px;
+      line-height: 1.55;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    .metric-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .indicator-state {
+      min-height: 22px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 7px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .indicator-state.up {
+      color: #bcf3d5;
+      border-color: #285943;
+      background: #102019;
+    }
+
+    .indicator-state.down {
+      color: #ffc5cb;
+      border-color: #63333a;
+      background: #241316;
     }
 
     .indicator-value {
@@ -655,10 +910,14 @@
       margin-top: 5px;
       color: var(--faint);
       font-size: 11px;
-      line-height: 1.3;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.45;
+    }
+
+    .indicator-explain {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .indicator-empty {
@@ -677,50 +936,6 @@
       color: var(--soft);
       font-size: 14px;
       font-weight: 600;
-    }
-
-    .metrics-strip {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(108px, 1fr));
-      border-top: 1px solid var(--line);
-      background: #0d0e10;
-      overflow-x: auto;
-    }
-
-    .metric-cell {
-      min-height: 70px;
-      padding: 12px 14px;
-      border-right: 1px solid var(--line);
-    }
-
-    .metric-cell:last-child {
-      border-right: 0;
-    }
-
-    .metric-label {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .metric-value {
-      margin-top: 8px;
-      color: var(--text);
-      font-size: 16px;
-      font-weight: 560;
-      white-space: nowrap;
-    }
-
-    .chart-footer {
-      min-height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 0 16px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 12px;
-      background: #0b0c0e;
     }
 
     .context-head {
@@ -747,6 +962,7 @@
     .context-scroll {
       min-height: 0;
       overflow: auto;
+      overscroll-behavior: contain;
     }
 
     .context-section {
@@ -983,10 +1199,6 @@
         --context-width: 340px;
       }
 
-      .metrics-strip {
-        grid-template-columns: repeat(4, minmax(112px, 1fr));
-      }
-
       .indicator-grid {
         grid-template-columns: repeat(3, minmax(122px, 1fr));
       }
@@ -1002,6 +1214,7 @@
       }
 
       .terminal {
+        height: auto;
         min-height: 100vh;
       }
 
@@ -1036,10 +1249,11 @@
 
       .workspace {
         min-height: 720px;
+        overflow: visible;
       }
 
       .workspace-body {
-        grid-template-rows: 300px auto auto;
+        grid-template-rows: 300px 8px 220px;
       }
 
       .quote {
@@ -1058,10 +1272,6 @@
 
       .symbol-big {
         font-size: 40px;
-      }
-
-      .metrics-strip {
-        grid-template-columns: repeat(2, minmax(132px, 1fr));
       }
 
       .indicator-grid {
@@ -1122,32 +1332,75 @@
 
       <main class="workspace">
         <section class="quote">
-          <div>
+          <div class="quote-main">
             <p class="label" id="symbolEyebrow">--</p>
             <div class="symbol-line">
               <h2 class="symbol-big" id="symbolBig">--</h2>
               <p class="company" id="companyName">加载中</p>
             </div>
             <p class="meta" id="companyMeta">-</p>
+            <div class="quote-stats" id="quoteStats">
+              <div class="quote-stat">
+                <span class="quote-stat-label">状态</span>
+                <span class="quote-stat-value numeric" id="liveStatus">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">最新</span>
+                <span class="quote-stat-value numeric" id="livePrice">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">盘前/盘后</span>
+                <span class="quote-stat-value numeric" id="liveExtendedPrice">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">开盘</span>
+                <span class="quote-stat-value numeric" id="liveOpen">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">昨收</span>
+                <span class="quote-stat-value numeric" id="livePrevClose">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">最高</span>
+                <span class="quote-stat-value numeric" id="liveHigh">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">最低</span>
+                <span class="quote-stat-value numeric" id="liveLow">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">成交量</span>
+                <span class="quote-stat-value numeric" id="liveVolume">-</span>
+              </div>
+              <div class="quote-stat">
+                <span class="quote-stat-label">市值</span>
+                <span class="quote-stat-value numeric" id="liveMarketCap">-</span>
+              </div>
+            </div>
           </div>
           <div class="price-block">
             <div class="price-big numeric" id="priceBig">-</div>
             <div class="delta numeric" id="priceDelta">-</div>
+            <button class="refresh-btn" id="refreshSnapshot" type="button">刷新当前股票</button>
           </div>
         </section>
 
         <section class="workspace-body">
           <div class="chart-section">
             <div class="chart-head">
-              <div>
-                <p class="label">Price Action</p>
-                <h2 id="poolTitle">加载中</h2>
-              </div>
-              <div class="range-switch" id="rangeSwitch">
-                <button class="range-btn active" data-period="1mo">1M</button>
-                <button class="range-btn" data-period="3mo">3M</button>
-                <button class="range-btn" data-period="6mo">6M</button>
-                <button class="range-btn" data-period="1y">1Y</button>
+              <div class="chart-head-spacer" id="chartMeta">历史游标显示所选交易日</div>
+              <div class="chart-controls">
+                <div class="indicator-switch" id="indicatorSwitch" aria-label="图表指标">
+                  <button class="indicator-btn active" data-indicator="rsi6">RSI6</button>
+                  <button class="indicator-btn active" data-indicator="rsi12">RSI12</button>
+                  <button class="indicator-btn active" data-indicator="rsi24">RSI24</button>
+                </div>
+                <div class="range-switch" id="rangeSwitch">
+                  <button class="range-btn active" data-period="1mo">1M</button>
+                  <button class="range-btn" data-period="3mo">3M</button>
+                  <button class="range-btn" data-period="6mo">6M</button>
+                  <button class="range-btn" data-period="1y">1Y</button>
+                </div>
               </div>
             </div>
             <div class="chart-readout" id="chartReadout">
@@ -1186,8 +1439,11 @@
             </div>
             <div class="chart-wrap">
               <div id="chartContainer"></div>
+              <div id="rsiContainer"></div>
             </div>
           </div>
+
+          <div class="vertical-splitter" id="splitterTrade" aria-hidden="true"></div>
 
           <div class="trade-panel">
             <div class="trade-head">
@@ -1198,15 +1454,6 @@
               <div class="trade-meta numeric" id="indicatorMeta">本地指标 --</div>
             </div>
             <div class="indicator-grid" id="indicatorGrid"></div>
-          </div>
-
-          <div>
-            <div class="chart-footer">
-              <span id="chartLow" class="numeric">低点 -</span>
-              <span id="chartMid" class="numeric">中位 -</span>
-              <span id="chartHigh" class="numeric">高点 -</span>
-            </div>
-            <div class="metrics-strip" id="metricGrid"></div>
           </div>
         </section>
       </main>
@@ -1265,6 +1512,7 @@
       </aside>
     </div>
   </div>
+  <div class="metric-tooltip" id="metricTooltip" role="tooltip"></div>
 
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <script>
@@ -1277,9 +1525,18 @@
       chart: null,
       candleSeries: null,
       volumeSeries: null,
+      rsiChart: null,
+      rsiSeries: {},
+      rsiSeriesData: {},
+      chartIndicators: {
+        rsi6: true,
+        rsi12: true,
+        rsi24: true,
+      },
       chartBarsByTime: new Map(),
       latestChartBar: null,
       marketEvents: [],
+      chartResizeObserver: null,
     };
 
     const zhDateTime = new Intl.DateTimeFormat("zh-CN", {
@@ -1295,6 +1552,9 @@
       await loadPools();
       bindSearch();
       bindRanges();
+      bindRefresh();
+      bindIndicatorSwitch();
+      bindMetricTooltips();
       bindSplitters();
       await selectPool(state.activePoolId);
     }
@@ -1337,7 +1597,7 @@
         payload = await api(`/api/pool?pool_id=${encodeURIComponent(poolId)}`);
       }
 
-      document.getElementById("poolTitle").textContent = `${payload.pool.name_zh || payload.pool.name} · ${payload.pool.symbol_count} 个标的`;
+      document.getElementById("chartMeta").textContent = "历史游标显示所选交易日";
       document.getElementById("poolCount").textContent = `${payload.pool.symbol_count || 0}`;
       document.getElementById("syncMeta").textContent = `更新 ${formatDateTime(payload.generated_at)}`;
 
@@ -1418,44 +1678,80 @@
       }
     }
 
+    async function refreshActiveSnapshot() {
+      if (!state.activeItem) return;
+      const button = document.getElementById("refreshSnapshot");
+      const symbol = state.activeItem.symbol;
+      button.disabled = true;
+      button.textContent = "刷新中";
+      try {
+        const refreshed = await api(`/api/snapshot?symbol=${encodeURIComponent(symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}&force_refresh=1`);
+        state.activeItem = refreshed;
+        renderSnapshot(refreshed);
+        await Promise.all([
+          loadChart(refreshed.symbol, state.currentPeriod),
+          loadAnalysis(refreshed.symbol),
+          loadMarketEvents(refreshed),
+        ]);
+      } catch (error) {
+        button.textContent = "刷新失败";
+        setTimeout(() => {
+          button.textContent = "刷新当前股票";
+        }, 1800);
+        throw error;
+      } finally {
+        button.disabled = false;
+        if (button.textContent === "刷新中") {
+          button.textContent = "刷新当前股票";
+        }
+      }
+    }
+
     function renderSnapshot(item) {
+      document.getElementById("chartMeta").textContent = `${item.symbol} · ${rangeLabel(state.currentPeriod)} 历史游标`;
       document.getElementById("symbolEyebrow").textContent = item.symbol;
       document.getElementById("symbolBig").textContent = item.symbol;
       document.getElementById("companyName").textContent = item.company_name_zh || item.company_name || item.symbol;
       document.getElementById("companyMeta").textContent = `${item.sector_zh || item.sector || "-"} / ${item.industry_zh || item.industry || "-"}`;
-      document.getElementById("priceBig").textContent = money(item.latest_close);
 
-      const change = item.change_percent ?? 0;
+      const displayPrice = realtimeDisplayPrice(item);
+      const previousClose = toNumber(item.previous_close);
+      const change = displayPrice !== null && previousClose ? ((displayPrice - previousClose) / previousClose) * 100 : item.change_percent ?? 0;
+      document.getElementById("priceBig").textContent = money(displayPrice ?? item.latest_close);
+
       const delta = document.getElementById("priceDelta");
       delta.textContent = `${formatSigned(change)}%`;
       delta.className = "delta numeric " + (change > 0 ? "up" : change < 0 ? "down" : "flat");
 
-      const metrics = [
-        ["开盘", money(item.open_price)],
-        ["最高", money(item.high_price)],
-        ["最低", money(item.low_price)],
-        ["成交量", integerNumber(item.latest_volume)],
-        ["昨收", money(item.previous_close)],
-        ["总市值", compactMoney(item.market_cap)],
-        ["成交额", compactMoney(item.avg_dollar_volume)],
-        ["PE(TTM)", ratio(item.trailing_pe)],
-        ["Forward PE", ratio(item.forward_pe)],
-        ["交易所", item.exchange_zh || item.exchange || "-"],
-        ["币种", item.currency || "-"],
-        ["财报", item.next_earnings_date || "-"],
-      ];
-
-      const grid = document.getElementById("metricGrid");
-      grid.innerHTML = metrics.map(([label, value]) => `
-        <div class="metric-cell">
-          <div class="metric-label">${escapeHtml(label)}</div>
-          <div class="metric-value numeric">${escapeHtml(value)}</div>
-        </div>
-      `).join("");
-
+      renderLiveQuoteStats(item);
       renderTradingIndicators(item);
       renderEventPanels(item);
       renderQuality(item);
+    }
+
+    function renderLiveQuoteStats(item) {
+      const displayPrice = realtimeDisplayPrice(item);
+      const previousClose = toNumber(item.previous_close);
+      const change = displayPrice !== null && previousClose ? displayPrice - previousClose : null;
+      const changePct = change !== null && previousClose ? (change / previousClose) * 100 : null;
+      const extended = extendedDisplayPrice(item);
+      const extendedLabel = extended?.label || "盘前/盘后";
+      const status = marketStateLabel(item.market_state);
+
+      setNodeText("liveStatus", status);
+      setTrendText("livePrice", money(displayPrice ?? item.latest_close), change);
+      setNodeText("liveExtendedPrice", extended ? `${extendedLabel} ${money(extended.price)}` : "-");
+      setNodeText("liveOpen", money(item.open_price));
+      setNodeText("livePrevClose", money(item.previous_close));
+      setNodeText("liveHigh", money(item.high_price));
+      setNodeText("liveLow", money(item.low_price));
+      setNodeText("liveVolume", compactShares(item.latest_volume));
+      setNodeText("liveMarketCap", compactMoney(item.market_cap));
+
+      const deltaNode = document.getElementById("priceDelta");
+      if (changePct !== null) {
+        deltaNode.textContent = `${signedMoney(change)} · ${formatSigned(changePct)}%`;
+      }
     }
 
     function renderEventPanels(item) {
@@ -1528,7 +1824,10 @@
       const sma20 = toNumber(indicators.sma_20);
       const sma50 = toNumber(indicators.sma_50);
       const sma200 = toNumber(indicators.sma_200);
+      const rsi6 = toNumber(indicators.rsi_6);
+      const rsi12 = toNumber(indicators.rsi_12);
       const rsi14 = toNumber(indicators.rsi_14);
+      const rsi24 = toNumber(indicators.rsi_24);
       const macd = toNumber(indicators.macd);
       const macdSignal = toNumber(indicators.macd_signal);
       const macdHistogram = toNumber(indicators.macd_histogram);
@@ -1537,34 +1836,168 @@
       const roc10 = toNumber(indicators.roc_10);
 
       const rows = [
-        ["SMA20", priceNumber(sma20), relationNote(close, sma20, "价格"), relationClass(close, sma20)],
-        ["SMA50", priceNumber(sma50), relationNote(close, sma50, "价格"), relationClass(close, sma50)],
-        ["SMA200", priceNumber(sma200), trendStackNote(sma20, sma50, sma200), trendStackClass(sma20, sma50, sma200)],
-        ["RSI14", plainNumber(rsi14), rsiNote(rsi14), rsiClass(rsi14)],
-        ["MACD", plainNumber(macd), macdNote(macd, macdSignal), relationClass(macd, macdSignal)],
-        ["MACD Hist", plainNumber(macdHistogram), histogramNote(macdHistogram), zeroClass(macdHistogram)],
-        ["ATR14", priceNumber(atr14), atrNote(atr14, close), "flat"],
-        ["量比20", plainNumber(volumeRatio), volumeRatioNote(volumeRatio), volumeRatioClass(volumeRatio)],
-        ["ROC10", percentNumber(roc10), rocNote(roc10), zeroClass(roc10)],
-        ["布林上轨", priceNumber(indicators.bbands_upper), "压力参考", "flat"],
-        ["布林中轨", priceNumber(indicators.bbands_middle), "均值参考", "flat"],
-        ["布林下轨", priceNumber(indicators.bbands_lower), "支撑参考", "flat"],
+        indicatorRow("SMA20", priceNumber(sma20), movingAverageState(close, sma20), relationNote(close, sma20, "价格"), "短期趋势线。价格在其上方通常说明短线偏强，下方说明短线转弱。"),
+        indicatorRow("SMA50", priceNumber(sma50), movingAverageState(close, sma50), relationNote(close, sma50, "价格"), "中期趋势线。适合判断趋势是否还在中期强势区。"),
+        indicatorRow("SMA200", priceNumber(sma200), trendStackState(sma20, sma50, sma200), trendStackNote(sma20, sma50, sma200), "长期趋势线。SMA20 > SMA50 > SMA200 表示短中长期均线多头排列。"),
+        indicatorRow("RSI6", plainNumber(rsi6), rsiState(rsi6), rsiNote(rsi6), "短线 RSI。反应最快，适合观察短线是否过热或超跌。"),
+        indicatorRow("RSI12", plainNumber(rsi12), rsiState(rsi12), rsiNote(rsi12), "中短线 RSI。比 RSI6 更平滑，适合确认短线动量。"),
+        indicatorRow("RSI14", plainNumber(rsi14), rsiState(rsi14), rsiNote(rsi14), "通用 RSI。常用于系统规则和主判断，噪音比 RSI6 更少。"),
+        indicatorRow("RSI24", plainNumber(rsi24), rsiState(rsi24), rsiNote(rsi24), "中线 RSI。反应更慢，适合观察中线动量背景。"),
+        indicatorRow("MACD", plainNumber(macd), macdState(macd, macdSignal), macdNote(macd, macdSignal), "趋势动能指标。MACD 在 Signal 上方通常偏多，下方偏弱。"),
+        indicatorRow("MACD Hist", plainNumber(macdHistogram), zeroState(macdHistogram), histogramNote(macdHistogram), "MACD 柱体。柱体为正说明动能偏正，为负说明动能偏弱。"),
+        indicatorRow("ATR14", priceNumber(atr14), "波动", atrNote(atr14, close), "平均真实波幅。用来估算止损距离和短期波动大小。"),
+        indicatorRow("量比20", plainNumber(volumeRatio), volumeRatioState(volumeRatio), volumeRatioNote(volumeRatio), "当前成交量与 20 日均量的比例。大于 1 表示放量，小于 1 表示缩量。"),
+        indicatorRow("ROC10", percentNumber(roc10), zeroState(roc10), rocNote(roc10), "10 日价格变化率。正值代表近 10 日上涨，负值代表近 10 日下跌。"),
+        indicatorRow("布林上轨", priceNumber(indicators.bbands_upper), "压力", "价格接近上轨，代表靠近短期波动上沿。", "布林带上沿。常作为短期压力或过热参考。"),
+        indicatorRow("布林中轨", priceNumber(indicators.bbands_middle), "均值", "20 日均线附近，代表短期均值区域。", "布林带中轨，通常等同 20 日均线。"),
+        indicatorRow("布林下轨", priceNumber(indicators.bbands_lower), "支撑", "价格接近下轨，代表靠近短期波动下沿。", "布林带下沿。常作为短期支撑或超跌参考。"),
       ];
 
       const meta = indicators.indicators_as_of
         ? `本地指标 ${formatDateTime(indicators.indicators_as_of)}`
         : "本地指标不可用";
       document.getElementById("indicatorMeta").textContent = meta;
-      document.getElementById("indicatorGrid").innerHTML = rows.map(([name, value, note, className]) => `
+      document.getElementById("indicatorGrid").innerHTML = rows.map(row => `
         <div class="indicator-cell">
           <div class="indicator-name">
-            <span>${escapeHtml(name)}</span>
-            <span class="${escapeHtml(className)}">●</span>
+            <span class="indicator-title">
+              <span>${escapeHtml(row.name)}</span>
+              <span class="info-dot" tabindex="0" aria-label="${escapeHtml(row.tooltip)}" data-tooltip="${escapeHtml(row.tooltip)}">i</span>
+            </span>
+            <span class="indicator-state ${escapeHtml(row.className)}">${escapeHtml(row.state)}</span>
           </div>
-          <div class="indicator-value numeric ${escapeHtml(className)}">${escapeHtml(value)}</div>
-          <div class="indicator-note">${escapeHtml(note)}</div>
+          <div class="indicator-value numeric ${escapeHtml(row.className)}">${escapeHtml(row.value)}</div>
+          <div class="indicator-explain">${escapeHtml(row.explain)}</div>
+          <div class="indicator-note">${escapeHtml(row.note)}</div>
         </div>
       `).join("");
+    }
+
+    function indicatorRow(name, value, state, note, tooltip) {
+      const className = stateClass(state);
+      return {
+        name,
+        value,
+        state,
+        note,
+        tooltip,
+        className,
+        explain: indicatorPlainMeaning(name, state),
+      };
+    }
+
+    function movingAverageState(close, average) {
+      if (close === null || average === null) return "数据不足";
+      if (close > average) return "价格在上";
+      if (close < average) return "价格在下";
+      return "贴近均线";
+    }
+
+    function trendStackState(sma20, sma50, sma200) {
+      if (sma20 === null || sma50 === null || sma200 === null) return "数据不足";
+      if (sma20 > sma50 && sma50 > sma200) return "多头排列";
+      if (sma20 < sma50 && sma50 < sma200) return "空头排列";
+      return "均线交错";
+    }
+
+    function rsiState(value) {
+      if (value === null) return "数据不足";
+      if (value >= 70) return "偏热";
+      if (value <= 30) return "偏冷";
+      return "中性";
+    }
+
+    function macdState(macd, signal) {
+      if (macd === null || signal === null) return "数据不足";
+      if (macd > signal) return "偏多";
+      if (macd < signal) return "偏弱";
+      return "中性";
+    }
+
+    function zeroState(value) {
+      if (value === null) return "数据不足";
+      if (value > 0) return "偏多";
+      if (value < 0) return "偏弱";
+      return "中性";
+    }
+
+    function volumeRatioState(value) {
+      if (value === null) return "数据不足";
+      if (value >= 2) return "显著放量";
+      if (value >= 1.2) return "放量";
+      if (value <= 0.7) return "缩量";
+      return "接近均量";
+    }
+
+    function stateClass(value) {
+      if (["价格在上", "多头排列", "偏多", "显著放量", "放量"].includes(value)) return "up";
+      if (["价格在下", "空头排列", "偏弱", "缩量", "偏热"].includes(value)) return "down";
+      return "flat";
+    }
+
+    function indicatorPlainMeaning(name, state) {
+      const explanations = {
+        SMA20: {
+          "价格在上": "短线价格强于 20 日均价。",
+          "价格在下": "短线价格弱于 20 日均价。",
+          "贴近均线": "价格贴近短期均值。",
+        },
+        SMA50: {
+          "价格在上": "价格仍在中期趋势线上方。",
+          "价格在下": "价格跌到中期趋势线下方。",
+          "贴近均线": "价格贴近中期均值。",
+        },
+        SMA200: {
+          "多头排列": "短期均线在中期和长期均线上方。",
+          "空头排列": "短期均线在中期和长期均线下方。",
+          "均线交错": "趋势没有形成清晰排列。",
+        },
+        RSI6: {
+          "偏热": "短线动量过热，追高风险提高。",
+          "偏冷": "短线动量超跌，可能出现反弹。",
+          "中性": "短线动量处在常规区间。",
+        },
+        RSI12: {
+          "偏热": "中短线动量偏热。",
+          "偏冷": "中短线动量偏冷。",
+          "中性": "中短线动量处在常规区间。",
+        },
+        RSI14: {
+          "偏热": "上涨动量较热，追高风险提高。",
+          "偏冷": "下跌动量较重，可能接近超卖区。",
+          "中性": "动量处在常规区间。",
+        },
+        RSI24: {
+          "偏热": "中线动量偏热。",
+          "偏冷": "中线动量偏冷。",
+          "中性": "中线动量处在常规区间。",
+        },
+        MACD: {
+          "偏多": "趋势动能站在信号线上方。",
+          "偏弱": "趋势动能落在信号线下方。",
+          "中性": "MACD 与信号线接近。",
+        },
+        "MACD Hist": {
+          "偏多": "柱体为正，动能偏正。",
+          "偏弱": "柱体为负，动能偏弱。",
+          "中性": "柱体接近零轴。",
+        },
+        ATR14: {
+          "波动": "用于估算近期价格摆动幅度。",
+        },
+        "量比20": {
+          "显著放量": "成交量明显高于 20 日均量。",
+          "放量": "成交量高于 20 日均量。",
+          "缩量": "成交量低于 20 日均量。",
+          "接近均量": "成交量接近 20 日均量。",
+        },
+        ROC10: {
+          "偏多": "近 10 日价格变化为正。",
+          "偏弱": "近 10 日价格变化为负。",
+          "中性": "近 10 日变化接近零。",
+        },
+      };
+      return explanations[name]?.[state] || "作为辅助指标参考，不单独构成交易结论。";
     }
 
     function hasUsableIndicators(indicators) {
@@ -1572,7 +2005,10 @@
         indicators.sma_20,
         indicators.sma_50,
         indicators.sma_200,
+        indicators.rsi_6,
+        indicators.rsi_12,
         indicators.rsi_14,
+        indicators.rsi_24,
         indicators.macd,
         indicators.atr_14,
         indicators.volume_ratio_20,
@@ -1601,7 +2037,7 @@
         drawChart(data.points || []);
       } catch (error) {
         drawChart([]);
-        document.getElementById("chartMid").textContent = `图表加载失败：${error.message || error}`;
+        document.getElementById("chartMeta").textContent = `图表加载失败：${error.message || error}`;
       }
     }
 
@@ -1650,12 +2086,11 @@
       if (!points.length) {
         state.candleSeries.setData([]);
         state.volumeSeries.setData([]);
+        state.rsiSeriesData = {};
+        updateChartIndicatorSeries();
         state.chartBarsByTime = new Map();
         state.latestChartBar = null;
         renderChartReadout(null);
-        document.getElementById("chartLow").textContent = "低点 -";
-        document.getElementById("chartMid").textContent = "中位 -";
-        document.getElementById("chartHigh").textContent = "高点 -";
         return;
       }
 
@@ -1686,7 +2121,7 @@
         .map(point => ({
           time: toChartTime(point.timestamp),
           value: Number(point.volume),
-          color: Number(point.close) >= Number(point.open) ? "#215d45" : "#68333b",
+          color: Number(point.close) >= Number(point.open) ? "#00e08a" : "#ff3b30",
         }));
 
       const bars = candleData.map((bar, index) => {
@@ -1703,20 +2138,63 @@
       });
       state.chartBarsByTime = new Map(bars.map(bar => [bar.key, bar]));
       state.latestChartBar = bars[bars.length - 1] || null;
-
-      const closes = candleData.map(point => point.close).filter(n => !Number.isNaN(n));
-      const min = Math.min(...closes);
-      const max = Math.max(...closes);
-      const mid = (min + max) / 2;
+      state.rsiSeriesData = buildRsiSeriesData(candleData);
 
       state.candleSeries.setData(candleData);
       state.volumeSeries.setData(volumeData);
+      updateChartIndicatorSeries();
       state.chart.timeScale().fitContent();
+      if (state.rsiChart) {
+        state.rsiChart.timeScale().fitContent();
+      }
       renderChartReadout(state.latestChartBar);
+    }
 
-      document.getElementById("chartLow").textContent = `低点 ${money(min)}`;
-      document.getElementById("chartMid").textContent = `中位 ${money(mid)}`;
-      document.getElementById("chartHigh").textContent = `高点 ${money(max)}`;
+    function buildRsiSeriesData(candleData) {
+      return {
+        rsi6: computeRsiSeries(candleData, 6),
+        rsi12: computeRsiSeries(candleData, 12),
+        rsi24: computeRsiSeries(candleData, 24),
+      };
+    }
+
+    function computeRsiSeries(candleData, window) {
+      if (!candleData.length) return [];
+      const result = [];
+      let avgGain = null;
+      let avgLoss = null;
+      let gainSum = 0;
+      let lossSum = 0;
+
+      for (let index = 1; index < candleData.length; index += 1) {
+        const change = candleData[index].close - candleData[index - 1].close;
+        const gain = Math.max(change, 0);
+        const loss = Math.max(-change, 0);
+
+        if (index <= window) {
+          gainSum += gain;
+          lossSum += loss;
+          if (index < window) continue;
+          avgGain = gainSum / window;
+          avgLoss = lossSum / window;
+        } else {
+          avgGain = ((avgGain * (window - 1)) + gain) / window;
+          avgLoss = ((avgLoss * (window - 1)) + loss) / window;
+        }
+
+        let value = 50;
+        if (avgLoss === 0 && avgGain > 0) {
+          value = 100;
+        } else if (avgLoss !== 0) {
+          const rs = avgGain / avgLoss;
+          value = 100 - (100 / (1 + rs));
+        }
+        result.push({
+          time: candleData[index].time,
+          value: Number(value.toFixed(2)),
+        });
+      }
+      return result;
     }
 
     function renderChartReadout(bar) {
@@ -1753,8 +2231,22 @@
       });
     }
 
+    function updateChartIndicatorSeries() {
+      Object.entries(state.rsiSeries || {}).forEach(([key, series]) => {
+        const data = state.chartIndicators[key] ? (state.rsiSeriesData[key] || []) : [];
+        series.setData(data);
+      });
+      const hasActiveRsi = ["rsi6", "rsi12", "rsi24"].some(key => state.chartIndicators[key]);
+      const wrap = document.querySelector(".chart-wrap");
+      if (wrap) {
+        wrap.classList.toggle("rsi-hidden", !hasActiveRsi);
+      }
+      resizeChart();
+    }
+
     function initChart() {
       const host = document.getElementById("chartContainer");
+      const rsiHost = document.getElementById("rsiContainer");
       if (!host || !window.LightweightCharts) {
         return;
       }
@@ -1809,11 +2301,11 @@
       });
 
       state.candleSeries = state.chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: "#26c281",
-        downColor: "#ef5b69",
+        upColor: "#00e08a",
+        downColor: "#ff3b30",
         borderVisible: false,
-        wickUpColor: "#26c281",
-        wickDownColor: "#ef5b69",
+        wickUpColor: "#00e08a",
+        wickDownColor: "#ff3b30",
         priceLineVisible: false,
       });
 
@@ -1829,6 +2321,55 @@
         },
       });
 
+      if (rsiHost) {
+        state.rsiChart = LightweightCharts.createChart(rsiHost, {
+          layout: {
+            background: { color: "#0c0d0f" },
+            textColor: "#858d98",
+            attributionLogo: false,
+          },
+          grid: {
+            vertLines: { color: "#171a1f" },
+            horzLines: { color: "#1d2026" },
+          },
+          rightPriceScale: {
+            borderColor: "#24272c",
+            scaleMargins: { top: 0.12, bottom: 0.12 },
+          },
+          timeScale: {
+            borderColor: "#24272c",
+            timeVisible: false,
+            secondsVisible: false,
+            rightOffset: 0,
+            fixLeftEdge: true,
+            fixRightEdge: true,
+            lockVisibleTimeRangeOnResize: true,
+          },
+          handleScroll: false,
+          handleScale: false,
+        });
+        state.rsiSeries = {
+          rsi6: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
+            color: "#f7c948",
+            lineWidth: 1,
+            priceLineVisible: false,
+            lastValueVisible: true,
+          }),
+          rsi12: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
+            color: "#7aa8ff",
+            lineWidth: 1,
+            priceLineVisible: false,
+            lastValueVisible: true,
+          }),
+          rsi24: state.rsiChart.addSeries(LightweightCharts.LineSeries, {
+            color: "#f06ab3",
+            lineWidth: 1,
+            priceLineVisible: false,
+            lastValueVisible: true,
+          }),
+        };
+      }
+
       state.chart.subscribeCrosshairMove(param => {
         if (!param || !param.time) {
           renderChartReadout(state.latestChartBar);
@@ -1843,16 +2384,29 @@
           width: host.clientWidth,
           height: host.clientHeight,
         });
+        if (state.rsiChart && rsiHost) {
+          state.rsiChart.applyOptions({
+            width: rsiHost.clientWidth,
+            height: rsiHost.clientHeight,
+          });
+        }
       };
 
       resize();
       window.addEventListener("resize", resize);
+      if (window.ResizeObserver) {
+        state.chartResizeObserver = new ResizeObserver(resize);
+        state.chartResizeObserver.observe(host);
+        if (rsiHost) {
+          state.chartResizeObserver.observe(rsiHost);
+        }
+      }
     }
 
     function bindSplitters() {
       attachHorizontalResize("splitterLeft", {
         variable: "--watch-width",
-        min: 260,
+        min: 190,
         max: 430,
       });
       attachHorizontalResize("splitterRight", {
@@ -1861,6 +2415,7 @@
         maxRatio: 0.4,
         inverse: true,
       });
+      attachVerticalTradeResize();
     }
 
     function attachHorizontalResize(elementId, options) {
@@ -1894,14 +2449,53 @@
       });
     }
 
+    function attachVerticalTradeResize() {
+      const splitter = document.getElementById("splitterTrade");
+      const root = document.documentElement;
+      if (!splitter) return;
+
+      splitter.addEventListener("mousedown", event => {
+        event.preventDefault();
+        splitter.classList.add("dragging");
+        const startY = event.clientY;
+        const initialChart = parseFloat(getComputedStyle(root).getPropertyValue("--chart-height")) || 360;
+        const initialTrade = parseFloat(getComputedStyle(root).getPropertyValue("--trade-height")) || 220;
+
+        const onMove = moveEvent => {
+          const delta = moveEvent.clientY - startY;
+          const nextChart = clamp(initialChart + delta, 240, 520);
+          const nextTrade = clamp(initialTrade - delta, 140, 460);
+          root.style.setProperty("--chart-height", `${nextChart}px`);
+          root.style.setProperty("--trade-height", `${nextTrade}px`);
+          resizeChart();
+        };
+
+        const onUp = () => {
+          splitter.classList.remove("dragging");
+          window.removeEventListener("mousemove", onMove);
+          window.removeEventListener("mouseup", onUp);
+        };
+
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
+      });
+    }
+
     function resizeChart() {
       if (!state.chart) return;
       const host = document.getElementById("chartContainer");
+      const rsiHost = document.getElementById("rsiContainer");
       requestAnimationFrame(() => {
         state.chart.applyOptions({
           width: host.clientWidth,
           height: host.clientHeight,
         });
+        if (state.rsiChart && rsiHost) {
+          state.rsiChart.applyOptions({
+            width: rsiHost.clientWidth,
+            height: rsiHost.clientHeight,
+          });
+        }
       });
     }
 
@@ -1912,8 +2506,96 @@
         state.currentPeriod = button.dataset.period;
         document.querySelectorAll(".range-btn").forEach(el => el.classList.remove("active"));
         button.classList.add("active");
+        document.getElementById("chartMeta").textContent = `${state.activeItem.symbol} · ${rangeLabel(state.currentPeriod)} 历史游标`;
         await loadChart(state.activeItem.symbol, state.currentPeriod);
       });
+    }
+
+    function bindRefresh() {
+      document.getElementById("refreshSnapshot").addEventListener("click", () => {
+        refreshActiveSnapshot().catch(error => {
+          document.getElementById("chartMeta").textContent = `刷新失败：${error.message || error}`;
+        });
+      });
+    }
+
+    function bindIndicatorSwitch() {
+      document.getElementById("indicatorSwitch").addEventListener("click", event => {
+        const button = event.target.closest(".indicator-btn");
+        if (!button) return;
+        const key = button.dataset.indicator;
+        state.chartIndicators[key] = !state.chartIndicators[key];
+        button.classList.toggle("active", state.chartIndicators[key]);
+        updateChartIndicatorSeries();
+      });
+    }
+
+    function bindMetricTooltips() {
+      const tooltip = document.getElementById("metricTooltip");
+      let activeTarget = null;
+
+      const show = target => {
+        const text = target?.dataset?.tooltip;
+        if (!text) return;
+        activeTarget = target;
+        tooltip.textContent = text;
+        tooltip.classList.add("show");
+        positionMetricTooltip(target);
+      };
+
+      const hide = target => {
+        if (target && activeTarget !== target) return;
+        activeTarget = null;
+        tooltip.classList.remove("show");
+      };
+
+      document.addEventListener("mouseover", event => {
+        const target = event.target.closest(".info-dot");
+        if (target) show(target);
+      });
+
+      document.addEventListener("mousemove", event => {
+        if (!activeTarget || !event.target.closest(".info-dot")) return;
+        positionMetricTooltip(activeTarget);
+      });
+
+      document.addEventListener("mouseout", event => {
+        const target = event.target.closest(".info-dot");
+        if (!target || target.contains(event.relatedTarget)) return;
+        hide(target);
+      });
+
+      document.addEventListener("focusin", event => {
+        const target = event.target.closest(".info-dot");
+        if (target) show(target);
+      });
+
+      document.addEventListener("focusout", event => {
+        const target = event.target.closest(".info-dot");
+        if (target) hide(target);
+      });
+
+      window.addEventListener("scroll", () => {
+        if (activeTarget) positionMetricTooltip(activeTarget);
+      }, true);
+      window.addEventListener("resize", () => {
+        if (activeTarget) positionMetricTooltip(activeTarget);
+      });
+    }
+
+    function positionMetricTooltip(target) {
+      const tooltip = document.getElementById("metricTooltip");
+      const rect = target.getBoundingClientRect();
+      const margin = 10;
+      const width = tooltip.offsetWidth || 260;
+      const height = tooltip.offsetHeight || 56;
+      const left = clamp(rect.left + rect.width / 2 - width / 2, margin, window.innerWidth - width - margin);
+      const below = rect.bottom + 8;
+      const top = below + height + margin > window.innerHeight
+        ? Math.max(margin, rect.top - height - 8)
+        : below;
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
     }
 
     function bindSearch() {
@@ -1977,7 +2659,8 @@
       document.getElementById("companyMeta").textContent = "从搜索框加入股票后，这里会显示行情与走势图。";
       document.getElementById("priceBig").textContent = "-";
       document.getElementById("priceDelta").textContent = "-";
-      document.getElementById("metricGrid").innerHTML = '<div class="metric-cell"><div class="metric-label">状态</div><div class="metric-value">等待标的</div></div>';
+      document.getElementById("chartMeta").textContent = "历史游标显示所选交易日";
+      ["liveStatus", "livePrice", "liveExtendedPrice", "liveOpen", "livePrevClose", "liveHigh", "liveLow", "liveVolume", "liveMarketCap"].forEach(id => setNodeText(id, "-"));
       document.getElementById("indicatorMeta").textContent = "本地指标 --";
       document.getElementById("indicatorGrid").innerHTML = '<div class="indicator-cell"><div class="indicator-name"><span>状态</span><span class="flat">●</span></div><div class="indicator-value">等待标的</div><div class="indicator-note">添加股票后显示技术指标。</div></div>';
       document.getElementById("marketEventList").innerHTML = "";
@@ -1985,12 +2668,11 @@
       document.getElementById("qualityList").innerHTML = '<p class="empty">暂无快照。</p>';
       if (state.candleSeries) state.candleSeries.setData([]);
       if (state.volumeSeries) state.volumeSeries.setData([]);
+      state.rsiSeriesData = {};
+      updateChartIndicatorSeries();
       state.chartBarsByTime = new Map();
       state.latestChartBar = null;
       renderChartReadout(null);
-      document.getElementById("chartLow").textContent = "低点 -";
-      document.getElementById("chartMid").textContent = "中位 -";
-      document.getElementById("chartHigh").textContent = "高点 -";
       renderAnalysis({
         risk_level: "medium",
         recommendation: "watch",
@@ -2094,6 +2776,58 @@
       return `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
     }
 
+    function realtimeDisplayPrice(item) {
+      const stateValue = String(item.market_state || "").toUpperCase();
+      const preMarket = toNumber(item.pre_market_price);
+      const postMarket = toNumber(item.post_market_price);
+      const current = toNumber(item.current_price) ?? toNumber(item.regular_market_price);
+      if (["PRE", "PREPRE"].includes(stateValue) && preMarket !== null) return preMarket;
+      if (["POST", "POSTPOST"].includes(stateValue) && postMarket !== null) return postMarket;
+      return current ?? toNumber(item.latest_close);
+    }
+
+    function extendedDisplayPrice(item) {
+      const stateValue = String(item.market_state || "").toUpperCase();
+      const preMarket = toNumber(item.pre_market_price);
+      const postMarket = toNumber(item.post_market_price);
+      if (["PRE", "PREPRE"].includes(stateValue) && preMarket !== null) {
+        return { label: "盘前", price: preMarket };
+      }
+      if (["POST", "POSTPOST"].includes(stateValue) && postMarket !== null) {
+        return { label: "盘后", price: postMarket };
+      }
+      if (preMarket !== null) return { label: "盘前", price: preMarket };
+      if (postMarket !== null) return { label: "盘后", price: postMarket };
+      return null;
+    }
+
+    function marketStateLabel(value) {
+      const normalized = String(value || "").toUpperCase();
+      const labels = {
+        PRE: "盘前",
+        PREPRE: "盘前",
+        REGULAR: "盘中",
+        POST: "盘后",
+        POSTPOST: "盘后",
+        CLOSED: "已收盘",
+      };
+      return labels[normalized] || "快照";
+    }
+
+    function setNodeText(id, value) {
+      const node = document.getElementById(id);
+      if (node) node.textContent = value;
+    }
+
+    function setTrendText(id, value, change) {
+      const node = document.getElementById(id);
+      if (!node) return;
+      node.textContent = value;
+      node.classList.toggle("up", change > 0);
+      node.classList.toggle("down", change < 0);
+      node.classList.toggle("flat", change === null || change === 0);
+    }
+
     function relationClass(left, right) {
       if (left === null || right === null) return "flat";
       return left > right ? "up" : left < right ? "down" : "flat";
@@ -2173,6 +2907,10 @@
       return value > 0 ? "10 日动量向上" : value < 0 ? "10 日动量向下" : "10 日动量中性";
     }
 
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
     function formatSigned(value) {
       if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
       const n = Number(value);
@@ -2229,6 +2967,16 @@
         medium: "中",
       };
       return map[value] || "信息";
+    }
+
+    function rangeLabel(value) {
+      const map = {
+        "1mo": "1M",
+        "3mo": "3M",
+        "6mo": "6M",
+        "1y": "1Y",
+      };
+      return map[value] || value || "-";
     }
 
     function toChartTime(value) {

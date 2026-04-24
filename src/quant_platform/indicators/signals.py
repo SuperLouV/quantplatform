@@ -9,7 +9,7 @@ from typing import Any
 
 import pandas as pd
 
-from quant_platform.core.signal_models import Signal, SignalSummary
+from quant_platform.core.signal_models import Signal, SignalDirection, SignalSummary
 
 
 @dataclass(slots=True)
@@ -20,7 +20,7 @@ class SignalDetector:
         if len(indicator_frame.index) < 2:
             return SignalSummary.from_signals(symbol, None, [])
 
-        frame = indicator_frame.sort_values("timestamp") if "timestamp" in indicator_frame.columns else indicator_frame
+        frame = _prepare_signal_frame(indicator_frame)
         previous = frame.iloc[-2]
         current = frame.iloc[-1]
         triggered_at = _row_timestamp(current)
@@ -31,6 +31,8 @@ class SignalDetector:
         self._detect_rsi(symbol, previous, current, triggered_at, price, signals)
         self._detect_bollinger_reclaim(symbol, previous, current, triggered_at, price, signals)
         self._detect_volume_breakout(symbol, previous, current, triggered_at, price, signals)
+        self._detect_price_break_sma20(symbol, previous, current, triggered_at, price, signals)
+        self._detect_volume_breakdown(symbol, previous, current, triggered_at, price, signals)
         self._detect_sma_cross(symbol, previous, current, triggered_at, price, signals)
         self._detect_trend_alignment(symbol, current, triggered_at, price, signals)
 
@@ -102,6 +104,65 @@ class SignalDetector:
                     price,
                     "价格触及或跌破布林下轨后重新收回下轨上方。",
                     {"close": curr_close, "bbands_lower": curr_lower},
+                )
+            )
+
+    def _detect_price_break_sma20(
+        self,
+        symbol: str,
+        previous: pd.Series,
+        current: pd.Series,
+        triggered_at: datetime,
+        price: float | None,
+        signals: list[Signal],
+    ) -> None:
+        prev_close = _value(previous, "close")
+        prev_sma20 = _value(previous, "sma_20")
+        curr_close = _value(current, "close")
+        curr_sma20 = _value(current, "sma_20")
+        if not _all_numbers(prev_close, prev_sma20, curr_close, curr_sma20):
+            return
+        if prev_close >= prev_sma20 and curr_close < curr_sma20:
+            signals.append(
+                _signal(
+                    symbol,
+                    "price_break_below_sma20",
+                    "short",
+                    3,
+                    triggered_at,
+                    price,
+                    "价格从 SMA20 上方跌破 SMA20。",
+                    {"close": curr_close, "sma_20": curr_sma20},
+                )
+            )
+
+    def _detect_volume_breakdown(
+        self,
+        symbol: str,
+        previous: pd.Series,
+        current: pd.Series,
+        triggered_at: datetime,
+        price: float | None,
+        signals: list[Signal],
+    ) -> None:
+        prev_close = _value(previous, "close")
+        prev_sma20 = _value(previous, "sma_20")
+        curr_close = _value(current, "close")
+        curr_sma20 = _value(current, "sma_20")
+        volume_ratio = _value(current, "volume_ratio_20")
+        if not _all_numbers(prev_close, prev_sma20, curr_close, curr_sma20, volume_ratio):
+            return
+        if volume_ratio >= 2 and prev_close >= prev_sma20 and curr_close < curr_sma20:
+            signals.append(
+                _signal(
+                    symbol,
+                    "volume_breakdown_sma20",
+                    "short",
+                    5,
+                    triggered_at,
+                    price,
+                    "成交量超过 20 日均量 2 倍并跌破 SMA20。",
+                    {"close": curr_close, "sma_20": curr_sma20, "volume_ratio_20": volume_ratio},
                 )
             )
 
@@ -179,7 +240,7 @@ class SignalDetector:
 def _signal(
     symbol: str,
     signal_type: str,
-    direction: str,
+    direction: SignalDirection,
     strength: int,
     triggered_at: datetime,
     price: float | None,
@@ -189,7 +250,7 @@ def _signal(
     return Signal(
         symbol=symbol,
         signal_type=signal_type,
-        direction=direction,  # type: ignore[arg-type]
+        direction=direction,
         strength=strength,
         triggered_at=triggered_at,
         price=price,
@@ -198,9 +259,20 @@ def _signal(
     )
 
 
+def _prepare_signal_frame(indicator_frame: pd.DataFrame) -> pd.DataFrame:
+    frame = indicator_frame.copy()
+    if "timestamp" in frame.columns:
+        return frame.sort_values("timestamp")
+    if isinstance(frame.index, pd.DatetimeIndex):
+        frame = frame.reset_index()
+        frame = frame.rename(columns={frame.columns[0]: "timestamp"})
+        return frame.sort_values("timestamp")
+    raise ValueError("Signal detection requires a timestamp column or DatetimeIndex.")
+
+
 def _row_timestamp(row: pd.Series) -> datetime:
     if "timestamp" not in row:
-        return datetime.now(tz=UTC)
+        raise ValueError("Signal row is missing timestamp.")
     timestamp = pd.Timestamp(row["timestamp"])
     if timestamp.tzinfo is None:
         timestamp = timestamp.tz_localize(UTC)

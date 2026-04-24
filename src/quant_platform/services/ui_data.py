@@ -70,9 +70,15 @@ class UIDataService:
             "snapshots": [localize_snapshot_payload(snapshot) for snapshot in snapshots],
         }
 
-    def load_or_fetch_snapshot(self, symbol: str, *, pool_id: str | None = None) -> dict[str, object]:
+    def load_or_fetch_snapshot(
+        self,
+        symbol: str,
+        *,
+        pool_id: str | None = None,
+        force_refresh: bool = False,
+    ) -> dict[str, object]:
         path = self.artifacts.layout.stock_snapshot_path(symbol, "json")
-        if path.exists():
+        if path.exists() and not force_refresh:
             payload = json.loads(path.read_text(encoding="utf-8"))
             if pool_id and pool_id not in payload.get("pool_ids", []):
                 payload["pool_ids"] = list(dict.fromkeys([*payload.get("pool_ids", []), pool_id]))
@@ -80,8 +86,13 @@ class UIDataService:
             path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
             return localize_snapshot_payload(payload)
 
+        pool_ids = [pool_id] if pool_id else []
+        if path.exists():
+            existing = json.loads(path.read_text(encoding="utf-8"))
+            pool_ids = list(dict.fromkeys([*existing.get("pool_ids", []), *pool_ids]))
+
         quote = self.client.fetch_quote_snapshot(symbol)
-        snapshot = self.snapshot_batch.create_snapshot_from_quote(symbol, pool_ids=[pool_id] if pool_id else [], quote=quote)
+        snapshot = self.snapshot_batch.create_snapshot_from_quote(symbol, pool_ids=pool_ids, quote=quote)
         self.snapshot_batch.attach_local_indicators(snapshot)
         self.snapshot_batch.write_snapshot(snapshot)
         return localize_snapshot_payload(self.snapshot_batch.serialize_snapshot(snapshot))

@@ -19,6 +19,7 @@ class IndicatorEngine:
     sma_windows: tuple[int, ...] = (5, 10, 20, 50, 200)
     ema_spans: tuple[int, ...] = (12, 26)
     rsi_window: int = 14
+    rsi_windows: tuple[int, ...] = (6, 12, 14, 24)
     roc_window: int = 10
     bbands_window: int = 20
     bbands_std: float = 2.0
@@ -51,9 +52,13 @@ class IndicatorEngine:
         result["macd_histogram"] = macd_result.histogram
         indicator_columns.extend(["macd", "macd_signal", "macd_histogram"])
 
-        result[f"rsi_{self.rsi_window}"] = rsi(close, self.rsi_window)
+        for window in tuple(dict.fromkeys([*self.rsi_windows, self.rsi_window])):
+            column = f"rsi_{window}"
+            result[column] = rsi(close, window)
+            indicator_columns.append(column)
+
         result[f"roc_{self.roc_window}"] = roc(close, self.roc_window)
-        indicator_columns.extend([f"rsi_{self.rsi_window}", f"roc_{self.roc_window}"])
+        indicator_columns.append(f"roc_{self.roc_window}")
 
         bbands = bollinger_bands(close, self.bbands_window, self.bbands_std)
         result["bbands_upper"] = bbands.upper

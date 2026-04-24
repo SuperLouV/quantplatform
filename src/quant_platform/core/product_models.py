@@ -41,6 +41,11 @@ class StockSnapshot:
     high_price: float | None = None
     low_price: float | None = None
     latest_close: float | None = None
+    current_price: float | None = None
+    regular_market_price: float | None = None
+    pre_market_price: float | None = None
+    post_market_price: float | None = None
+    market_state: str | None = None
     previous_close: float | None = None
     change_percent: float | None = None
     latest_volume: float | None = None

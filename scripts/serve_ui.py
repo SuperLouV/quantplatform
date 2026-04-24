@@ -48,7 +48,8 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             if parsed.path == "/api/snapshot":
                 symbol = query.get("symbol", [""])[0].upper()
                 pool_id = query.get("pool_id", [""])[0] or None
-                self._respond_json(UI_SERVICE.load_or_fetch_snapshot(symbol, pool_id=pool_id))
+                force_refresh = query.get("force_refresh", ["0"])[0].lower() in {"1", "true", "yes"}
+                self._respond_json(UI_SERVICE.load_or_fetch_snapshot(symbol, pool_id=pool_id, force_refresh=force_refresh))
                 return
             if parsed.path == "/api/history":
                 symbol = query.get("symbol", [""])[0].upper()
@@ -86,7 +87,7 @@ def _optional_date(value: str) -> date | None:
 
 
 def main() -> None:
-    port = 8000
+    port = int(os.environ.get("QP_UI_PORT") or (sys.argv[1] if len(sys.argv) > 1 else "8000"))
     os.chdir(PROJECT_ROOT)
     with ThreadingHTTPServer(("", port), QuantPlatformHandler) as httpd:
         print(f"serving={PROJECT_ROOT}")

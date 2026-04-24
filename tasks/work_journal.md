@@ -91,3 +91,14 @@
 - 将 FRED API key 放入本地 `.env`，并让配置加载器读取 `FRED_API_KEY`，避免把密钥写入可提交配置
 - 新增 `data/logs/market_events_YYYYMMDD.jsonl` 操作日志，记录事件更新的 `info/error`、provider 计数和失败原因
 - 新增 `docs/operations/data-api-limits.md`，记录 FRED key 要求、429 限流、2 requests/sec 节流约束和当前项目处理原则
+- 调整 UI 布局滚动行为，左右拖拽改变列宽后，中间工作区和右侧工作栏可以各自纵向滚动，并用 `ResizeObserver` 保持图表自适配
+- 增强 K 线红绿配色对比度，并为交易指标区增加上下拖拽分隔条，可调整图表和指标矩阵的高度分配
+- 参考桌面 `QUANTPLATFORM_REVIEW.md`，选择性修复信号层基础问题：新增价格跌破 SMA20 和放量跌破 SMA20 卖出信号，去掉 `direction` type ignore，timestamp 缺失时不再用当前时间伪造
+- 修复成交量比率除零风险，并为 provider 重试 backoff 增加 0-50% jitter
+- 将实时/最新快照信息移到股票名称下方的小属性行，历史游标读数保留在图表上方，底部重复行情属性移除
+- 快照模型和 yfinance 客户端新增 `current_price/regular_market_price/pre_market_price/post_market_price/market_state` 字段，前端可优先展示盘前/盘后或盘中实时快照
+- 优化交易指标矩阵展示：指标状态改为中文标签，每个指标增加 info tooltip 和一句通俗解释，降低 SMA/RSI/MACD 等指标理解成本
+- 本地 UI 服务脚本支持端口参数，例如 `python3 scripts/serve_ui.py 8001`，避免 8000 被旧进程占用时无法启动
+- 新增单标的强制刷新：`/api/snapshot?symbol=TSM&force_refresh=1` 会绕过本地缓存重新抓取并写回该股票快照，前端当前股票也增加“刷新当前股票”按钮
+- 移除图表下方低点/中位/高点汇总行，交易指标 info 改为鼠标悬停显示的浮层 tooltip，避免被滚动容器裁剪
+- 指标引擎新增 RSI6/RSI12/RSI24 输出，前端交易指标区同步展示 RSI6/12/14/24；K 线下方新增 RSI 子图，并提供 RSI6/RSI12/RSI24 手动开关

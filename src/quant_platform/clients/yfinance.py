@@ -173,9 +173,21 @@ class YFinanceClient(BaseDataClient):
             if latest_row is not None
             else _optional_float(fast_info.get("lastPrice")) or _optional_float(info.get("currentPrice"))
         )
+        current_price = (
+            _optional_float(info.get("currentPrice"))
+            or _optional_float(info.get("regularMarketPrice"))
+            or _optional_float(fast_info.get("lastPrice"))
+            or latest_close
+        )
+        regular_market_price = (
+            _optional_float(info.get("regularMarketPrice"))
+            or _optional_float(fast_info.get("lastPrice"))
+            or latest_close
+        )
         change_percent = None
-        if latest_close is not None and previous_close not in (None, 0):
-            change_percent = ((latest_close - previous_close) / previous_close) * 100
+        change_base = current_price if current_price is not None else latest_close
+        if change_base is not None and previous_close not in (None, 0):
+            change_percent = ((change_base - previous_close) / previous_close) * 100
 
         earnings_date = _extract_calendar_date(ticker.calendar)
 
@@ -190,6 +202,11 @@ class YFinanceClient(BaseDataClient):
             "high_price": _optional_float(latest_row["High"]) if latest_row is not None else _optional_float(fast_info.get("dayHigh")),
             "low_price": _optional_float(latest_row["Low"]) if latest_row is not None else _optional_float(fast_info.get("dayLow")),
             "latest_close": latest_close,
+            "current_price": current_price,
+            "regular_market_price": regular_market_price,
+            "pre_market_price": _optional_float(info.get("preMarketPrice")),
+            "post_market_price": _optional_float(info.get("postMarketPrice")),
+            "market_state": info.get("marketState"),
             "previous_close": previous_close,
             "change_percent": change_percent,
             "latest_volume": _optional_float(latest_row["Volume"]) if latest_row is not None else _optional_float(fast_info.get("lastVolume")),
