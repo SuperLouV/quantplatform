@@ -25,6 +25,9 @@ class DataConfig:
     request_max_retries: int = 2
     request_backoff_seconds: float = 1.0
     request_timeout_seconds: float = 15.0
+    yfinance_history_repair: bool = True
+    yfinance_history_prepost: bool = False
+    yfinance_initial_history_years: int = 2
 
 
 @dataclass(slots=True)
@@ -39,10 +42,21 @@ class StorageConfig:
 
 
 @dataclass(slots=True)
+class SchedulerConfig:
+    enabled: bool = True
+    daily_refresh_time_beijing: str = "06:30"
+    daily_refresh_pool: str = "data/reference/system/stock_pools/preset/default_core.json"
+    daily_refresh_workers: int = 8
+    daily_refresh_update_events: bool = True
+    poll_interval_seconds: int = 60
+
+
+@dataclass(slots=True)
 class Settings:
     app: AppConfig
     data: DataConfig
     storage: StorageConfig
+    scheduler: SchedulerConfig
 
 
 def load_mapping_file(path: str | Path) -> dict[str, Any]:
@@ -119,6 +133,7 @@ def load_settings(path: str | Path) -> Settings:
     app = data.get("app", {})
     market_data = data.get("data", {})
     storage = data.get("storage", {})
+    scheduler = data.get("scheduler", {})
     base_dir = config_path.parent.parent
 
     return Settings(
@@ -135,6 +150,12 @@ def load_settings(path: str | Path) -> Settings:
             request_max_retries=int(market_data.get("request_max_retries", 2)),
             request_backoff_seconds=float(market_data.get("request_backoff_seconds", 1.0)),
             request_timeout_seconds=float(market_data.get("request_timeout_seconds", 15.0)),
+            yfinance_history_repair=bool(market_data.get("yfinance_history_repair", True)),
+            yfinance_history_prepost=bool(market_data.get("yfinance_history_prepost", False)),
+            yfinance_initial_history_years=int(
+                os.environ.get("QP_YFINANCE_INITIAL_HISTORY_YEARS")
+                or market_data.get("yfinance_initial_history_years", 2)
+            ),
         ),
         storage=StorageConfig(
             raw_dir=(base_dir / storage.get("raw_dir", "data/raw")).resolve(),
@@ -144,6 +165,25 @@ def load_settings(path: str | Path) -> Settings:
             state_db=(base_dir / storage.get("state_db", "data/system/state.db")).resolve(),
             raw_format=storage.get("raw_format", "json"),
             processed_format=storage.get("processed_format", "parquet"),
+        ),
+        scheduler=SchedulerConfig(
+            enabled=_env_bool("QP_SCHEDULER_ENABLED", bool(scheduler.get("enabled", True))),
+            daily_refresh_time_beijing=os.environ.get("QP_DAILY_REFRESH_TIME_BEIJING")
+            or scheduler.get("daily_refresh_time_beijing", "06:30"),
+            daily_refresh_pool=os.environ.get("QP_DAILY_REFRESH_POOL")
+            or scheduler.get("daily_refresh_pool", "data/reference/system/stock_pools/preset/default_core.json"),
+            daily_refresh_workers=int(
+                os.environ.get("QP_DAILY_REFRESH_WORKERS")
+                or scheduler.get("daily_refresh_workers", 8)
+            ),
+            daily_refresh_update_events=_env_bool(
+                "QP_DAILY_REFRESH_UPDATE_EVENTS",
+                bool(scheduler.get("daily_refresh_update_events", True)),
+            ),
+            poll_interval_seconds=int(
+                os.environ.get("QP_SCHEDULER_POLL_INTERVAL_SECONDS")
+                or scheduler.get("poll_interval_seconds", 60)
+            ),
         ),
     )
 
@@ -160,3 +200,10 @@ def _load_local_env(path: Path) -> None:
         if not key or key in os.environ:
             continue
         os.environ[key] = value.strip().strip('"').strip("'")
+
+
+def _env_bool(key: str, default: bool) -> bool:
+    value = os.environ.get(key)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}

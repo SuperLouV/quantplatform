@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from quant_platform.config import Settings
+from quant_platform.time_utils import now_beijing
 
 
 class OperationLogger:
@@ -20,17 +22,22 @@ class OperationLogger:
         self._write("error", action, fields)
 
     def _write(self, level: str, action: str, fields: dict[str, Any]) -> None:
-        now = datetime.now(tz=UTC)
+        now = now_beijing()
         path = self.root / f"{self.namespace}_{now.strftime('%Y%m%d')}.jsonl"
         path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "timestamp": now.isoformat(),
+            "timezone": "Asia/Shanghai",
             "level": level,
             "action": action,
             **_sanitize(fields),
         }
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, ensure_ascii=False, default=str) + "\n")
+
+
+def operation_log_root(settings: Settings) -> Path:
+    return settings.storage.processed_dir.parent / "logs"
 
 
 def _sanitize(value: Any) -> Any:

@@ -36,7 +36,14 @@ Codex 接手入口：
 - 已将技术指标接入批量快照，并对本地 bars 与快照时间做一致性检查
 - 已完成第一版规则信号检测，可识别 MACD、RSI、布林带、放量突破、均线交叉和均线排列信号
 - 已接入全市场重大事件日历，当前来源包括 Fed FOMC、Census 经济指标日历和 FRED release calendar
-- 已增加本地操作日志，市场事件更新会写入 `data/logs/market_events_YYYYMMDD.jsonl`
+- 已增加本地操作日志，市场事件、UI 数据请求和股票快照刷新会写入 `data/logs/*.jsonl`
+- 已新增单标的快照自动新鲜度检查：选中股票时若缓存缺少或落后 `latest_history_date_us`，会自动刷新，并用最新日线覆盖快照 OHLCV，保证收盘后尽量显示最新收盘信息
+- 已修复左侧股票列表与单股快照不同步的问题：选中股票自动刷新或手动刷新后，当前列表会同步使用最新快照价格、涨跌幅和行情交易日
+- 已新增 macOS `launchd` 盘后刷新安装脚本，可通过 `make schedule-install` 安装每天北京时间 06:30 的自动刷新任务
+- 已新增 UI 服务内置盘后刷新调度器：`make ui` 启动后会在后台按北京时间 06:30 执行每日刷新，可通过 `/api/scheduler` 查看状态
+- 已在右侧数据状态区展示定时任务状态、计划时间、最近一次全量刷新交易日和历史数据成功/失败数量
+- 已加固 `yfinance` 历史请求：默认启用 `repair=True`，并预留 `prepost` 配置；批量请求最小间隔调整为 1 秒
+- 已将新标的首次历史更新改为显式回填窗口，默认回填 2 年日线；已有足够历史后继续按 cursor 增量更新
 - 下一步重点是信号接入报告/快照、风控建议、每日报告和最小回测
 
 ## 当前主流程
@@ -56,7 +63,7 @@ Codex 接手入口：
 - 支持通过搜索把股票手动加入 `自选列表`
 - 每只股票都提供独立图形界面和当前快照指标
 - 右侧分析区已接入第一版系统判断，会展示风险等级、关键点和风险提示
-- 复杂列表和更多资产分类后续再逐步放开
+- 股票推荐范围先聚焦 `NASDAQ 100`、`S&P 500`、高热度股票和用户自定义列表，复杂列表和全市场扫描后续再逐步放开
 
 ## 流程图
 
@@ -112,6 +119,20 @@ Codex 新会话请先阅读：
 - 检测单个标的本地规则信号：`PYTHONPATH=src python3 scripts/detect_signals.py AAPL`
 - 更新全市场重大事件日历：`PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
+- 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`
+- 收盘后刷新默认股票池：`make daily-refresh`
+- 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
+- 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`
+- UI 服务内置调度器状态：`curl http://127.0.0.1:8000/api/scheduler`
+- 安装盘后自动刷新：`make schedule-install`
+- 查看盘后自动刷新状态：`make schedule-status`
+- 卸载盘后自动刷新：`make schedule-uninstall`
+
+本地日志说明：
+
+- 操作日志目录：`data/logs/`
+- 日志格式说明：[docs/operations/operation-logs.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/operations/operation-logs.md)
+- 盘后定时刷新说明：[docs/operations/daily-refresh-schedule.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/operations/daily-refresh-schedule.md)
 
 下一阶段计划入口：
 

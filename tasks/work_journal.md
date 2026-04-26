@@ -103,3 +103,20 @@
 - 移除图表下方低点/中位/高点汇总行，交易指标 info 改为鼠标悬停显示的浮层 tooltip，避免被滚动容器裁剪
 - 指标引擎新增 RSI6/RSI12/RSI24 输出，前端交易指标区同步展示 RSI6/12/14/24；K 线下方新增 RSI 子图，并提供 RSI6/RSI12/RSI24 手动开关
 - 将 RSI 开关重做为统一的图表指标工具栏，使用琥珀、蓝、紫三色曲线，避免和 K 线红绿配色混淆，并为后续更多叠加指标保留同一套 toggle 样式
+- 扩展本地 JSONL 操作日志：UI 快照/历史/分析、股票池批量刷新、单标的历史 K 线更新、指标写入或跳过原因都会写入 `data/logs/`，并新增 `docs/operations/operation-logs.md`
+- 新增单标的快照新鲜度检查：选中股票时检查 `latest_history_date_us`，落后最近美股交易日则自动刷新；手动“刷新当前股票”继续强制绕过缓存
+- 单标的快照刷新会用最新 5 日日线覆盖 OHLCV，并记录 `latest_history_date_us`、`snapshot_refreshed_at_beijing` 和 `market_timezone`，保证收盘后尽量展示最新收盘信息
+- 新增每日收盘刷新入口 `scripts/run_daily_refresh.py` 和 `make daily-refresh`，批量更新默认股票池历史数据、快照和市场事件，并输出本地 summary
+- 修复 UI 左侧股票列表同步问题：单只股票自动刷新或手动强制刷新后，会把最新 snapshot 写回当前列表并重新渲染价格、涨跌幅和行情交易日；刷新过程中对应行显示“更新中”
+- 加固 yfinance 历史请求：默认 `repair=True`，预留 `prepost` 配置，批量请求最小间隔调整为 1 秒
+- 新增 macOS launchd 管理脚本 `scripts/install_daily_refresh_launchd.py`，Makefile 增加 `schedule-install/status/uninstall/plist`，用于每天北京时间 06:30 自动执行盘后刷新
+- 新增 `docs/operations/daily-refresh-schedule.md` 记录盘后刷新安装、查看和卸载方式
+- 新增 UI 服务内置调度器 `DailyRefreshScheduler`：`make ui` 启动后按配置在北京时间 06:30 触发每日刷新，提供 `/api/scheduler` 查看状态，并写入 `server_scheduler_YYYYMMDD.jsonl`
+- 扩展 `/api/scheduler` 返回最近一次 daily refresh summary，并在 UI 右侧数据状态区展示定时任务状态、计划时间、全量刷新交易日和历史更新成功/失败数
+- 修复首页长时间加载问题：股票池列表接口只读本地快照缓存，不再为每个列表项联网补指标；yfinance `repair=True` 在本机缺少 `scipy` 时自动降级，避免历史请求反复失败
+- 优化股票切换体验：点击列表项后立即用缓存快照渲染主面板和选中态，K 线、分析、事件和调度状态异步加载；增加请求序号避免快速切换时旧请求覆盖当前股票
+- 完成默认池 daily refresh 重跑验证：10 个标的历史 K 线均更新到 `cursor=2026-04-24`；将历史更新结果扩展为 `success/empty/error`，避免 cursor 未达目标日期时误判为成功
+- 明确后续选股范围：先聚焦 `NASDAQ 100`、`S&P 500`、高热度股票和用户自定义列表，暂不做全美全市场扫描
+- 将 SEC 13F、FINRA short interest / short sale volume、volume profile / 筹码分布放入后续策略增强数据源计划
+- 新增 `yfinance_initial_history_years` 配置，默认 2 年；新标的首次扫描或本地历史过短时从目标交易日回填 2 年日线，避免技术指标和后续信号基于不足历史计算
+- Makefile 的 `daily-refresh` 和 `pool-refresh` 支持 `POOL=...` 覆盖，并新增 `daily-refresh-nasdaq100` / `pool-refresh-nasdaq100`，用于先聚焦 NASDAQ 100 和自定义股票池

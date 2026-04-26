@@ -46,6 +46,9 @@ class StockSnapshot:
     pre_market_price: float | None = None
     post_market_price: float | None = None
     market_state: str | None = None
+    latest_history_date_us: str | None = None
+    snapshot_refreshed_at_beijing: str | None = None
+    market_timezone: str | None = None
     previous_close: float | None = None
     change_percent: float | None = None
     latest_volume: float | None = None

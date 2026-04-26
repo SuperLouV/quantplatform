@@ -398,6 +398,10 @@
       box-shadow: inset 2px 0 0 var(--accent);
     }
 
+    .stock-item.refreshing {
+      background: #171b20;
+    }
+
     .stock-main {
       min-width: 0;
     }
@@ -432,6 +436,16 @@
       text-overflow: ellipsis;
     }
 
+    .stock-date {
+      margin-top: 5px;
+      color: var(--faint);
+      font-size: 10px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .stock-price {
       text-align: right;
       align-self: center;
@@ -449,6 +463,10 @@
       display: block;
       margin-top: 6px;
       font-size: 12px;
+    }
+
+    .stock-refreshing {
+      color: var(--blue);
     }
 
     @container watch (max-width: 230px) {
@@ -482,6 +500,10 @@
 
       .stock-price span {
         margin-top: 0;
+      }
+
+      .stock-date {
+        margin-top: 4px;
       }
     }
 
@@ -1580,6 +1602,10 @@
       chartBarsByTime: new Map(),
       latestChartBar: null,
       marketEvents: [],
+      schedulerStatus: null,
+      visibleSnapshots: [],
+      refreshingSymbols: new Set(),
+      selectionRequestId: 0,
       chartResizeObserver: null,
     };
 
@@ -1651,7 +1677,8 @@
       document.getElementById("poolCount").textContent = `${payload.pool.symbol_count || 0}`;
       document.getElementById("syncMeta").textContent = `更新 ${formatDateTime(payload.generated_at)}`;
 
-      renderStockList(payload.snapshots);
+      state.visibleSnapshots = payload.snapshots || [];
+      renderStockList(state.visibleSnapshots);
       const target = payload.snapshots[0] || null;
       if (target) {
         await setActiveItem(target);
@@ -1679,14 +1706,19 @@
       };
     }
 
-    function renderStockList(items) {
+    function renderStockList(items, activeSymbol = state.activeItem?.symbol) {
       const host = document.getElementById("stockList");
       host.innerHTML = "";
       items.forEach((item, index) => {
-        const change = item.change_percent ?? 0;
+        const displayPrice = realtimeDisplayPrice(item) ?? item.latest_close;
+        const previousClose = toNumber(item.previous_close);
+        const change = displayPrice !== null && previousClose ? ((displayPrice - previousClose) / previousClose) * 100 : item.change_percent ?? 0;
         const changeClass = change > 0 ? "up" : change < 0 ? "down" : "flat";
         const node = document.createElement("div");
-        node.className = "stock-item" + (index === 0 ? " active" : "");
+        const isActive = activeSymbol ? item.symbol === activeSymbol : index === 0;
+        const isRefreshing = state.refreshingSymbols.has(item.symbol);
+        const dataDate = stockListDataDate(item);
+        node.className = "stock-item" + (isActive ? " active" : "") + (isRefreshing ? " refreshing" : "");
         node.innerHTML = `
           <div class="stock-main">
             <div class="stock-symbol">
@@ -1694,10 +1726,11 @@
               <span>${escapeHtml(item.exchange_zh || item.exchange || "-")}</span>
             </div>
             <div class="stock-name">${escapeHtml(item.company_name_zh || item.company_name || "-")}</div>
+            <div class="stock-date numeric">${escapeHtml(dataDate)}</div>
           </div>
           <div class="stock-price">
-            <strong class="numeric">${money(item.latest_close)}</strong>
-            <span class="numeric ${changeClass}">${formatSigned(change)}%</span>
+            <strong class="numeric">${money(displayPrice)}</strong>
+            <span class="numeric ${isRefreshing ? "stock-refreshing" : changeClass}">${isRefreshing ? "更新中" : `${formatSigned(change)}%`}</span>
           </div>
         `;
         node.onclick = async () => {
@@ -1710,20 +1743,32 @@
     }
 
     async function setActiveItem(item) {
+      const requestId = ++state.selectionRequestId;
+      state.activeItem = item;
+      renderStockList(state.visibleSnapshots, item.symbol);
+      renderSnapshot(item);
+      renderChartLoading(item.symbol);
+      renderAnalysisLoading(item.symbol);
+      loadSchedulerStatus();
+
+      setStockRefreshing(item.symbol, true);
       const selected = await loadSnapshotForSelection(item);
+      if (requestId !== state.selectionRequestId) return;
+      setStockRefreshing(item.symbol, false);
       state.activeItem = selected;
+      updateVisibleSnapshot(selected);
       renderSnapshot(selected);
-      await Promise.all([
-        loadChart(selected.symbol, state.currentPeriod),
-        loadAnalysis(selected.symbol),
-        loadMarketEvents(selected),
-      ]);
+      loadChart(selected.symbol, state.currentPeriod, requestId);
+      loadAnalysis(selected.symbol, requestId);
+      loadMarketEvents(selected);
+      loadSchedulerStatus();
     }
 
     async function loadSnapshotForSelection(item) {
       try {
         return await api(`/api/snapshot?symbol=${encodeURIComponent(item.symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}`);
       } catch {
+        setStockRefreshing(item.symbol, false);
         return item;
       }
     }
@@ -1734,13 +1779,15 @@
       const symbol = state.activeItem.symbol;
       button.disabled = true;
       button.textContent = "刷新中";
+      setStockRefreshing(symbol, true);
       try {
         const refreshed = await api(`/api/snapshot?symbol=${encodeURIComponent(symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}&force_refresh=1`);
         state.activeItem = refreshed;
+        updateVisibleSnapshot(refreshed);
         renderSnapshot(refreshed);
         await Promise.all([
-          loadChart(refreshed.symbol, state.currentPeriod),
-          loadAnalysis(refreshed.symbol),
+          loadChart(refreshed.symbol, state.currentPeriod, state.selectionRequestId),
+          loadAnalysis(refreshed.symbol, state.selectionRequestId),
           loadMarketEvents(refreshed),
         ]);
       } catch (error) {
@@ -1750,11 +1797,40 @@
         }, 1800);
         throw error;
       } finally {
+        setStockRefreshing(symbol, false);
         button.disabled = false;
         if (button.textContent === "刷新中") {
           button.textContent = "刷新当前股票";
         }
       }
+    }
+
+    function updateVisibleSnapshot(snapshot) {
+      if (!snapshot?.symbol) return;
+      const index = state.visibleSnapshots.findIndex(item => item.symbol === snapshot.symbol);
+      if (index >= 0) {
+        state.visibleSnapshots.splice(index, 1, snapshot);
+      } else {
+        state.visibleSnapshots.unshift(snapshot);
+      }
+      renderStockList(state.visibleSnapshots, snapshot.symbol);
+    }
+
+    function setStockRefreshing(symbol, refreshing) {
+      if (!symbol) return;
+      if (refreshing) {
+        state.refreshingSymbols.add(symbol);
+      } else {
+        state.refreshingSymbols.delete(symbol);
+      }
+      renderStockList(state.visibleSnapshots, symbol);
+    }
+
+    function stockListDataDate(item) {
+      if (item.latest_history_date_us) return `${item.latest_history_date_us} 美东`;
+      if (item.snapshot_refreshed_at_beijing) return `${formatDateTime(item.snapshot_refreshed_at_beijing)} 北京`;
+      if (item.as_of) return `${formatDateTime(item.as_of)} 快照`;
+      return "日期 -";
     }
 
     function renderSnapshot(item) {
@@ -1786,8 +1862,9 @@
       const extended = extendedDisplayPrice(item);
       const extendedLabel = extended?.label || "盘前/盘后";
       const status = marketStateLabel(item.market_state);
+      const marketDateLabel = item.latest_history_date_us ? `${item.latest_history_date_us} 美东` : "";
 
-      setNodeText("liveStatus", status);
+      setNodeText("liveStatus", marketDateLabel ? `${status} · ${marketDateLabel}` : status);
       setTrendText("livePrice", money(displayPrice ?? item.latest_close), change);
       setNodeText("liveExtendedPrice", extended ? `${extendedLabel} ${money(extended.price)}` : "-");
       setNodeText("liveOpen", money(item.open_price));
@@ -1826,6 +1903,9 @@
         symbolEvents.push(["待接入", "下一次财报", "当前快照没有财报日期，后续接入事件源后补齐。", "medium"]);
       }
       symbolEvents.push(["待接入", "分红 / 拆股 / 重大公告", "后续接入公司事件源，展示分红、拆股、公告和监管文件。", "medium"]);
+      if (item.latest_history_date_us) {
+        symbolEvents.push([item.latest_history_date_us, "行情交易日", `OHLCV 来自 ${item.latest_history_date_us} 美股交易日。`, ""]);
+      }
       symbolEvents.push([formatDateTime(item.as_of), "快照更新时间", `价格、估值和事件字段来自当前 ${item.symbol} 快照。`, ""]);
       renderEvents("symbolEventList", symbolEvents);
     }
@@ -2065,10 +2145,51 @@
       ].some(value => toNumber(value) !== null);
     }
 
+    async function loadSchedulerStatus() {
+      try {
+        state.schedulerStatus = await api("/api/scheduler");
+      } catch {
+        state.schedulerStatus = null;
+      }
+      if (state.activeItem) {
+        renderQuality(state.activeItem);
+      }
+    }
+
+    function renderChartLoading(symbol) {
+      document.getElementById("chartMeta").textContent = `${symbol} · ${rangeLabel(state.currentPeriod)} 图表加载中`;
+      drawChart([]);
+    }
+
+    function renderAnalysisLoading(symbol) {
+      renderAnalysis({
+        risk_level: "medium",
+        recommendation: "watch",
+        summary: `${symbol} 分析加载中。`,
+        key_points: [],
+        warnings: [],
+      });
+    }
+
     function renderQuality(item) {
+      const scheduler = state.schedulerStatus;
+      const latestSummary = scheduler?.latest_summary;
+      const schedulerState = scheduler?.state || {};
+      const historyOk = latestSummary?.history_success ?? 0;
+      const historyEmpty = latestSummary?.history_empty ?? 0;
+      const historyError = latestSummary?.history_error ?? 0;
+      const refreshResult = latestSummary
+        ? `${latestSummary.market_date_us || "-"} 美东 · 历史 ${historyOk}/${historyOk + historyEmpty + historyError} · 空 ${historyEmpty} · 错 ${historyError}`
+        : "暂无全量刷新记录";
       const rows = [
         ["状态", item.screening_status || "unknown"],
         ["快照时间", formatDateTime(item.as_of)],
+        ["行情交易日", item.latest_history_date_us ? `${item.latest_history_date_us} 美东` : "-"],
+        ["刷新时间", item.snapshot_refreshed_at_beijing ? `${formatDateTime(item.snapshot_refreshed_at_beijing)} 北京` : "-"],
+        ["定时任务", scheduler ? `${scheduler.enabled ? "开启" : "关闭"} · ${scheduler.thread_alive ? "运行中" : "未运行"}` : "未连接"],
+        ["计划时间", scheduler?.daily_refresh_time_beijing ? `${scheduler.daily_refresh_time_beijing} 北京` : "-"],
+        ["全量刷新", refreshResult],
+        ["最近结果", schedulerState.last_status ? `${schedulerState.last_status}${schedulerState.last_finished_at_beijing ? ` · ${formatDateTime(schedulerState.last_finished_at_beijing)}` : ""}` : "-"],
         ["本地指标", item.indicators?.indicators_as_of ? formatDateTime(item.indicators.indicators_as_of) : "-"],
         ["原因", (item.screening_reasons || []).slice(0, 2).join("；") || "暂无额外提示"],
       ];
@@ -2080,21 +2201,25 @@
       `).join("");
     }
 
-    async function loadChart(symbol, period) {
+    async function loadChart(symbol, period, requestId = state.selectionRequestId) {
       try {
         const data = await api(`/api/history?symbol=${encodeURIComponent(symbol)}&period=${encodeURIComponent(period)}`);
+        if (requestId !== state.selectionRequestId || symbol !== state.activeItem?.symbol) return;
         drawChart(data.points || []);
       } catch (error) {
+        if (requestId !== state.selectionRequestId || symbol !== state.activeItem?.symbol) return;
         drawChart([]);
         document.getElementById("chartMeta").textContent = `图表加载失败：${error.message || error}`;
       }
     }
 
-    async function loadAnalysis(symbol) {
+    async function loadAnalysis(symbol, requestId = state.selectionRequestId) {
       try {
         const data = await api(`/api/analysis?symbol=${encodeURIComponent(symbol)}&pool_id=${encodeURIComponent(state.activePoolId)}`);
+        if (requestId !== state.selectionRequestId || symbol !== state.activeItem?.symbol) return;
         renderAnalysis(data);
       } catch (error) {
+        if (requestId !== state.selectionRequestId || symbol !== state.activeItem?.symbol) return;
         renderAnalysis({
           risk_level: "unknown",
           recommendation: "review",
@@ -2569,7 +2694,7 @@
         document.querySelectorAll(".range-btn").forEach(el => el.classList.remove("active"));
         button.classList.add("active");
         document.getElementById("chartMeta").textContent = `${state.activeItem.symbol} · ${rangeLabel(state.currentPeriod)} 历史游标`;
-        await loadChart(state.activeItem.symbol, state.currentPeriod);
+        await loadChart(state.activeItem.symbol, state.currentPeriod, state.selectionRequestId);
       });
     }
 

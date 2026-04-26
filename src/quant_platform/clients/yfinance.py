@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from datetime import UTC, date, datetime
+from importlib.util import find_spec
 from typing import Any
 
 import pandas as pd
@@ -13,13 +14,22 @@ from quant_platform.clients.base import BaseDataClient
 from quant_platform.clients.protection import ProviderRequestGuard, ProviderRequestPolicy
 from quant_platform.config import DataConfig
 from quant_platform.core.models import Bar, DataRequest, Security, TradingCalendarEvent
+from quant_platform.time_utils import iso_beijing, to_us_eastern
 
 
 class YFinanceClient(BaseDataClient):
     provider_name = "yfinance"
 
-    def __init__(self, policy: ProviderRequestPolicy | None = None) -> None:
+    def __init__(
+        self,
+        policy: ProviderRequestPolicy | None = None,
+        *,
+        history_repair: bool = True,
+        history_prepost: bool = False,
+    ) -> None:
         self.policy = policy or ProviderRequestPolicy()
+        self.history_repair = history_repair and find_spec("scipy") is not None
+        self.history_prepost = history_prepost
         self.guard = ProviderRequestGuard(self.policy)
 
     @classmethod
@@ -30,7 +40,9 @@ class YFinanceClient(BaseDataClient):
                 max_retries=config.request_max_retries,
                 backoff_seconds=config.request_backoff_seconds,
                 timeout_seconds=config.request_timeout_seconds,
-            )
+            ),
+            history_repair=config.yfinance_history_repair,
+            history_prepost=config.yfinance_history_prepost,
         )
 
     def fetch_bars(self, request: DataRequest) -> list[Bar]:
@@ -49,6 +61,8 @@ class YFinanceClient(BaseDataClient):
             interval=request.interval,
             auto_adjust=request.adjusted,
             actions=False,
+            repair=self.history_repair,
+            prepost=self.history_prepost,
         )
         if history.empty:
             return []
@@ -149,7 +163,7 @@ class YFinanceClient(BaseDataClient):
 
     def _fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
         ticker = yf.Ticker(symbol)
-        fast_info = dict(ticker.fast_info)
+        fast_info = _safe_dict(lambda: ticker.fast_info)
         history = _ticker_history(
             ticker,
             timeout=self.policy.timeout_seconds,
@@ -157,11 +171,14 @@ class YFinanceClient(BaseDataClient):
             interval="1d",
             auto_adjust=False,
             actions=False,
+            repair=self.history_repair,
+            prepost=self.history_prepost,
         )
-        info = ticker.info or {}
+        info = _safe_dict(lambda: ticker.info)
 
         latest_row = history.iloc[-1] if not history.empty else None
         previous_row = history.iloc[-2] if len(history.index) > 1 else None
+        latest_history_date_us = _history_market_date_us(history.index[-1]) if latest_row is not None else None
 
         previous_close = (
             _optional_float(previous_row["Close"])
@@ -189,7 +206,7 @@ class YFinanceClient(BaseDataClient):
         if change_base is not None and previous_close not in (None, 0):
             change_percent = ((change_base - previous_close) / previous_close) * 100
 
-        earnings_date = _extract_calendar_date(ticker.calendar)
+        earnings_date = _extract_calendar_date(_safe_value(lambda: ticker.calendar))
 
         return {
             "symbol": symbol,
@@ -207,6 +224,9 @@ class YFinanceClient(BaseDataClient):
             "pre_market_price": _optional_float(info.get("preMarketPrice")),
             "post_market_price": _optional_float(info.get("postMarketPrice")),
             "market_state": info.get("marketState"),
+            "latest_history_date_us": latest_history_date_us,
+            "snapshot_refreshed_at_beijing": iso_beijing(),
+            "market_timezone": "America/New_York",
             "previous_close": previous_close,
             "change_percent": change_percent,
             "latest_volume": _optional_float(latest_row["Volume"]) if latest_row is not None else _optional_float(fast_info.get("lastVolume")),
@@ -234,6 +254,8 @@ class YFinanceClient(BaseDataClient):
             interval=interval,
             auto_adjust=False,
             actions=False,
+            repair=self.history_repair,
+            prepost=self.history_prepost,
         )
         if history.empty:
             return []
@@ -295,6 +317,21 @@ def _search(query: str, limit: int) -> Any:
         return yf.Search(query)
 
 
+def _safe_dict(loader: Any) -> dict[str, Any]:
+    try:
+        value = loader()
+        return dict(value or {})
+    except Exception:  # noqa: BLE001 - yfinance metadata helpers can fail while price history still works.
+        return {}
+
+
+def _safe_value(loader: Any) -> Any | None:
+    try:
+        return loader()
+    except Exception:  # noqa: BLE001 - yfinance optional metadata can fail independently of prices.
+        return None
+
+
 def _coerce_history_date(value: date | datetime | None) -> str | None:
     if value is None:
         return None
@@ -310,6 +347,10 @@ def _normalize_timestamp(value: Any) -> datetime:
     else:
         ts = ts.tz_convert(UTC)
     return ts.to_pydatetime()
+
+
+def _history_market_date_us(value: Any) -> str:
+    return to_us_eastern(_normalize_timestamp(value)).date().isoformat()
 
 
 def _to_float(value: Any) -> float:

@@ -17,10 +17,11 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from quant_platform.config import load_settings
-from quant_platform.services import UIDataService
+from quant_platform.services import DailyRefreshScheduler, UIDataService
 
 SETTINGS = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
 UI_SERVICE = UIDataService(SETTINGS)
+SCHEDULER = DailyRefreshScheduler(SETTINGS, project_root=PROJECT_ROOT)
 
 
 class QuantPlatformHandler(SimpleHTTPRequestHandler):
@@ -67,6 +68,9 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 end = _optional_date(query.get("to", [""])[0])
                 self._respond_json(UI_SERVICE.market_event_calendar(start=start, end=end))
                 return
+            if parsed.path == "/api/scheduler":
+                self._respond_json(SCHEDULER.status())
+                return
             self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -90,9 +94,14 @@ def main() -> None:
     port = int(os.environ.get("QP_UI_PORT") or (sys.argv[1] if len(sys.argv) > 1 else "8000"))
     os.chdir(PROJECT_ROOT)
     with ThreadingHTTPServer(("", port), QuantPlatformHandler) as httpd:
+        SCHEDULER.start()
         print(f"serving={PROJECT_ROOT}")
         print(f"url=http://127.0.0.1:{port}/ui/index.html")
-        httpd.serve_forever()
+        print(f"scheduler={json.dumps(SCHEDULER.status(), ensure_ascii=False)}")
+        try:
+            httpd.serve_forever()
+        finally:
+            SCHEDULER.stop()
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from quant_platform.clients import CensusCalendarClient, FedCalendarClient, Fred
 from quant_platform.config import Settings
 from quant_platform.core.market_events import MarketEvent
 from quant_platform.services.bootstrap import bootstrap_local_state
-from quant_platform.services.operation_log import OperationLogger
+from quant_platform.services.operation_log import OperationLogger, operation_log_root
 
 
 @dataclass(slots=True)
@@ -28,7 +28,7 @@ class MarketEventService:
         self.fed = FedCalendarClient.from_data_config(settings.data)
         self.census = CensusCalendarClient.from_data_config(settings.data)
         self.fred = FredClient.from_data_config(settings.data)
-        self.logger = OperationLogger(settings.storage.processed_dir.parent / "logs", "market_events")
+        self.logger = OperationLogger(operation_log_root(settings), "market_events")
 
     def load_events(self, *, start: date | None = None, end: date | None = None) -> list[dict[str, object]]:
         path = self.events_path()
