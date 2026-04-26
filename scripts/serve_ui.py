@@ -63,6 +63,10 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 pool_id = query.get("pool_id", [""])[0] or None
                 self._respond_json(UI_SERVICE.analysis(symbol, pool_id=pool_id))
                 return
+            if parsed.path == "/api/scanner":
+                pool_id = query.get("pool_id", ["default_core"])[0] or "default_core"
+                self._respond_json(UI_SERVICE.scanner(pool_id))
+                return
             if parsed.path == "/api/events/market":
                 start = _optional_date(query.get("from", [""])[0])
                 end = _optional_date(query.get("to", [""])[0])

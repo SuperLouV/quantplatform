@@ -120,3 +120,4 @@
 - 将 SEC 13F、FINRA short interest / short sale volume、volume profile / 筹码分布放入后续策略增强数据源计划
 - 新增 `yfinance_initial_history_years` 配置，默认 2 年；新标的首次扫描或本地历史过短时从目标交易日回填 2 年日线，避免技术指标和后续信号基于不足历史计算
 - Makefile 的 `daily-refresh` 和 `pool-refresh` 支持 `POOL=...` 覆盖，并新增 `daily-refresh-nasdaq100` / `pool-refresh-nasdaq100`，用于先聚焦 NASDAQ 100 和自定义股票池
+- 新增候选池扫描 MVP：后端 `/api/scanner?pool_id=...` 从本地 snapshot 汇总候选动作、分数、趋势、RSI、MACD、成交量、风险和数据状态；前端顶栏新增“个股/扫描”切换，扫描页展示候选表和单股扫描理由

@@ -153,6 +153,32 @@
       font-size: 12px;
     }
 
+    .view-switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #090a0b;
+    }
+
+    .view-btn {
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .view-btn.active {
+      color: var(--text);
+      background: #1b1e23;
+      border-color: var(--line);
+    }
+
     .status-dot {
       width: 7px;
       height: 7px;
@@ -183,10 +209,26 @@
     }
 
     .workspace {
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
       overflow: auto;
       overscroll-behavior: contain;
+    }
+
+    .workspace-view {
+      min-height: 100%;
+      display: none;
+    }
+
+    .workspace-view.active {
+      display: grid;
+    }
+
+    .stock-workspace {
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .scanner-workspace {
+      grid-template-rows: auto minmax(0, 1fr);
+      background: #101113;
     }
 
     .context {
@@ -821,6 +863,223 @@
       overflow: auto;
     }
 
+    .scanner-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #111315;
+    }
+
+    .scanner-title h2 {
+      margin-top: 4px;
+      font-size: 22px;
+      line-height: 1.1;
+      font-weight: 680;
+    }
+
+    .scanner-title p:last-child {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .scanner-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(86px, 1fr));
+      gap: 6px;
+      min-width: min(470px, 52%);
+    }
+
+    .scanner-kpi {
+      min-height: 54px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0d0e10;
+    }
+
+    .scanner-kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .scanner-kpi strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .scanner-body {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 34%);
+      overflow: hidden;
+    }
+
+    .scanner-table-wrap {
+      min-width: 0;
+      overflow: auto;
+    }
+
+    .scanner-table {
+      width: 100%;
+      min-width: 940px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .scanner-table th,
+    .scanner-table td {
+      height: 48px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .scanner-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #0d0e10;
+      color: var(--faint);
+      font-size: 10px;
+      font-weight: 560;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .scanner-row {
+      cursor: pointer;
+      transition: background 120ms ease;
+    }
+
+    .scanner-row:hover,
+    .scanner-row.active {
+      background: #17191d;
+    }
+
+    .scanner-row.active {
+      box-shadow: inset 2px 0 0 var(--accent);
+    }
+
+    .scanner-symbol strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .scanner-symbol span {
+      display: block;
+      max-width: 160px;
+      margin-top: 4px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .scan-pill {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--muted);
+      background: #0d0e10;
+    }
+
+    .scan-pill.buy,
+    .scan-pill.low,
+    .scan-pill.up {
+      color: #bcf3d5;
+      border-color: #285943;
+      background: #102019;
+    }
+
+    .scan-pill.avoid,
+    .scan-pill.high,
+    .scan-pill.down {
+      color: #ffc5cb;
+      border-color: #63333a;
+      background: #241316;
+    }
+
+    .scan-pill.medium,
+    .scan-pill.hot {
+      color: #f2d58a;
+      border-color: #5a4d2b;
+      background: #211c10;
+    }
+
+    .scanner-detail {
+      min-width: 0;
+      border-left: 1px solid var(--line);
+      background: #0d0e10;
+      overflow: auto;
+    }
+
+    .scanner-detail-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .scanner-detail-section h3 {
+      margin-top: 4px;
+      font-size: 17px;
+      font-weight: 650;
+    }
+
+    .scanner-detail-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .scanner-reasons {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .scanner-reasons li {
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .scanner-reasons li:last-child {
+      border-bottom: 0;
+    }
+
+    .scanner-open {
+      width: 100%;
+      min-height: 34px;
+      margin-top: 14px;
+      border: 1px solid #2e716c;
+      border-radius: 6px;
+      background: #10211f;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .scanner-empty {
+      padding: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
     .vertical-splitter {
       cursor: row-resize;
       position: relative;
@@ -1327,6 +1586,26 @@
       .price-block {
         text-align: left;
       }
+
+      .scanner-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .scanner-summary {
+        min-width: 0;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .scanner-body {
+        grid-template-columns: 1fr;
+        overflow: visible;
+      }
+
+      .scanner-detail {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
     }
 
     @media (max-width: 680px) {
@@ -1350,6 +1629,14 @@
         gap: 14px;
         overflow-x: auto;
       }
+
+      .top-context {
+        justify-content: space-between;
+      }
+
+      .scanner-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
@@ -1367,6 +1654,10 @@
         <div class="tape-item"><strong>Risk</strong><span>PDT aware later</span></div>
       </div>
       <div class="top-context">
+        <div class="view-switch" id="viewSwitch" aria-label="页面切换">
+          <button class="view-btn active" type="button" data-view="stock">个股</button>
+          <button class="view-btn" type="button" data-view="scanner">扫描</button>
+        </div>
         <span class="status-dot" aria-hidden="true"></span>
         <span id="syncMeta" class="numeric">加载中</span>
       </div>
@@ -1395,6 +1686,7 @@
       <div class="splitter splitter-left" id="splitterLeft" aria-hidden="true"></div>
 
       <main class="workspace">
+        <div class="workspace-view stock-workspace active" id="stockWorkspace">
         <section class="quote">
           <div class="quote-main">
             <div class="symbol-line">
@@ -1522,6 +1814,50 @@
             <div class="indicator-grid" id="indicatorGrid"></div>
           </div>
         </section>
+        </div>
+
+        <section class="workspace-view scanner-workspace" id="scannerWorkspace">
+          <div class="scanner-head">
+            <div class="scanner-title">
+              <p class="label">Market Scanner</p>
+              <h2>候选池扫描</h2>
+              <p id="scannerMeta">基于当前股票池、本地指标和数据状态生成。</p>
+            </div>
+            <div class="scanner-summary" id="scannerSummary">
+              <div class="scanner-kpi"><span>Total</span><strong class="numeric">--</strong></div>
+              <div class="scanner-kpi"><span>Buy</span><strong class="numeric">--</strong></div>
+              <div class="scanner-kpi"><span>Watch</span><strong class="numeric">--</strong></div>
+              <div class="scanner-kpi"><span>Risk</span><strong class="numeric">--</strong></div>
+            </div>
+          </div>
+
+          <div class="scanner-body">
+            <div class="scanner-table-wrap">
+              <table class="scanner-table">
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Score</th>
+                    <th>Price</th>
+                    <th>Trend</th>
+                    <th>RSI</th>
+                    <th>MACD</th>
+                    <th>Volume</th>
+                    <th>Risk</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="scannerRows">
+                  <tr><td colspan="10" class="scanner-empty">等待扫描结果。</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <aside class="scanner-detail" id="scannerDetail">
+              <div class="scanner-empty">选择候选股票后，这里会显示信号理由和数据状态。</div>
+            </aside>
+          </div>
+        </section>
       </main>
 
       <div class="splitter splitter-right" id="splitterRight" aria-hidden="true"></div>
@@ -1586,6 +1922,9 @@
       pools: [],
       activePoolId: "default_core",
       activeItem: null,
+      activeView: "stock",
+      scannerPayload: null,
+      scannerSelection: null,
       currentPeriod: "1mo",
       customList: loadCustomList(),
       chart: null,
@@ -1627,6 +1966,7 @@
       initChart();
       await loadPools();
       bindSearch();
+      bindViewSwitch();
       bindRanges();
       bindRefresh();
       bindIndicatorSwitch();
@@ -1662,6 +2002,29 @@
       });
     }
 
+    function bindViewSwitch() {
+      document.getElementById("viewSwitch").addEventListener("click", event => {
+        const button = event.target.closest(".view-btn");
+        if (!button) return;
+        setView(button.dataset.view);
+      });
+    }
+
+    async function setView(view, refresh = true) {
+      state.activeView = view;
+      document.querySelectorAll(".view-btn").forEach(button => {
+        button.classList.toggle("active", button.dataset.view === view);
+      });
+      document.getElementById("stockWorkspace").classList.toggle("active", view === "stock");
+      document.getElementById("scannerWorkspace").classList.toggle("active", view === "scanner");
+      if (view === "scanner" && refresh) {
+        await loadScanner();
+      }
+      if (view === "stock") {
+        setTimeout(() => resizeChart(), 0);
+      }
+    }
+
     async function selectPool(poolId) {
       state.activePoolId = poolId;
       renderPools();
@@ -1680,10 +2043,16 @@
       state.visibleSnapshots = payload.snapshots || [];
       renderStockList(state.visibleSnapshots);
       const target = payload.snapshots[0] || null;
-      if (target) {
+      if (target && state.activeView === "stock") {
         await setActiveItem(target);
+      } else if (target) {
+        state.activeItem = target;
+        renderStockList(state.visibleSnapshots, target.symbol);
       } else {
         renderEmpty();
+      }
+      if (state.activeView === "scanner") {
+        await loadScanner();
       }
     }
 
@@ -1734,12 +2103,111 @@
           </div>
         `;
         node.onclick = async () => {
+          await setView("stock", false);
           document.querySelectorAll(".stock-item").forEach(el => el.classList.remove("active"));
           node.classList.add("active");
           await setActiveItem(item);
         };
         host.appendChild(node);
       });
+    }
+
+    async function loadScanner() {
+      const rows = document.getElementById("scannerRows");
+      const detail = document.getElementById("scannerDetail");
+      if (state.activePoolId === "custom_manual") {
+        rows.innerHTML = '<tr><td colspan="10" class="scanner-empty">自选列表扫描后续会接入。当前请先使用默认核心池或 NASDAQ 100。</td></tr>';
+        detail.innerHTML = '<div class="scanner-empty">自选列表目前只用于个股工作台展示。</div>';
+        renderScannerSummary(null);
+        return;
+      }
+      rows.innerHTML = '<tr><td colspan="10" class="scanner-empty">正在读取本地快照和指标。</td></tr>';
+      detail.innerHTML = '<div class="scanner-empty">扫描完成后选择候选股票。</div>';
+      try {
+        const payload = await api(`/api/scanner?pool_id=${encodeURIComponent(state.activePoolId)}`);
+        state.scannerPayload = payload;
+        state.scannerSelection = payload.candidates?.[0] || null;
+        renderScanner(payload);
+      } catch (error) {
+        rows.innerHTML = `<tr><td colspan="10" class="scanner-empty">扫描失败：${escapeHtml(error.message || String(error))}</td></tr>`;
+        detail.innerHTML = '<div class="scanner-empty">请先确认本地服务和股票池数据可用。</div>';
+      }
+    }
+
+    function renderScanner(payload) {
+      renderScannerSummary(payload);
+      const candidates = payload.candidates || [];
+      document.getElementById("scannerMeta").textContent = `${payload.pool?.name_zh || payload.pool?.name || payload.pool?.pool_id || state.activePoolId} · ${formatDateTime(payload.generated_at)}`;
+      const rows = document.getElementById("scannerRows");
+      if (!candidates.length) {
+        rows.innerHTML = '<tr><td colspan="10" class="scanner-empty">当前股票池没有可展示的扫描结果。</td></tr>';
+        renderScannerDetail(null);
+        return;
+      }
+      rows.innerHTML = candidates.map((item, index) => `
+        <tr class="scanner-row ${item.symbol === state.scannerSelection?.symbol ? "active" : ""}" data-symbol="${escapeHtml(item.symbol || "")}">
+          <td class="scanner-symbol"><strong>${escapeHtml(item.symbol || "-")}</strong><span>${escapeHtml(item.company_name || "-")}</span></td>
+          <td><span class="scan-pill ${scanActionClass(item.action)}">${escapeHtml(item.action || "-")}</span></td>
+          <td class="numeric">${escapeHtml(String(item.score ?? "-"))}</td>
+          <td class="numeric">${money(item.price)}</td>
+          <td><span class="scan-pill ${scanStateClass(item.trend_state)}">${escapeHtml(item.trend_state || "-")}</span></td>
+          <td><span class="scan-pill ${scanStateClass(item.rsi_state)}">${escapeHtml(item.rsi_state || "-")}</span></td>
+          <td><span class="scan-pill ${scanStateClass(item.macd_state)}">${escapeHtml(item.macd_state || "-")}</span></td>
+          <td><span class="scan-pill ${scanStateClass(item.volume_state)}">${escapeHtml(item.volume_state || "-")}</span></td>
+          <td><span class="scan-pill ${riskClass(item.risk_level)}">${escapeHtml(item.risk_level || "-")}</span></td>
+          <td class="numeric">${escapeHtml(item.latest_history_date_us || "-")}</td>
+        </tr>
+      `).join("");
+      rows.querySelectorAll(".scanner-row").forEach(row => {
+        row.onclick = () => {
+          const symbol = row.dataset.symbol;
+          state.scannerSelection = candidates.find(item => item.symbol === symbol) || null;
+          renderScanner(payload);
+        };
+      });
+      renderScannerDetail(state.scannerSelection || candidates[0]);
+    }
+
+    function renderScannerSummary(payload) {
+      const summary = payload?.summary || {};
+      document.getElementById("scannerSummary").innerHTML = [
+        ["Total", summary.total ?? "--"],
+        ["Buy", summary.candidate_buy ?? "--"],
+        ["Watch", summary.watch ?? "--"],
+        ["Risk", (summary.risk_avoid ?? 0) + (summary.insufficient_data ?? 0) || "--"],
+      ].map(([label, value]) => `
+        <div class="scanner-kpi"><span>${escapeHtml(label)}</span><strong class="numeric">${escapeHtml(String(value))}</strong></div>
+      `).join("");
+    }
+
+    function renderScannerDetail(item) {
+      const host = document.getElementById("scannerDetail");
+      if (!item) {
+        host.innerHTML = '<div class="scanner-empty">选择候选股票后，这里会显示信号理由和数据状态。</div>';
+        return;
+      }
+      const reasons = (item.reasons || []).map(reason => `<li>${escapeHtml(reason)}</li>`).join("");
+      host.innerHTML = `
+        <div class="scanner-detail-section">
+          <p class="label">Selected Candidate</p>
+          <h3>${escapeHtml(item.symbol || "-")} · ${escapeHtml(item.action || "-")}</h3>
+          <div class="scanner-detail-meta">
+            ${escapeHtml(item.company_name || "-")}<br>
+            分数 <span class="numeric">${escapeHtml(String(item.score ?? "-"))}</span> · 风险 ${escapeHtml(item.risk_level || "-")} · 数据 ${escapeHtml(item.data_quality || "-")}
+          </div>
+          <button class="scanner-open" type="button" id="openScannerSymbol">打开个股工作台</button>
+        </div>
+        <div class="scanner-detail-section">
+          <p class="label">Reasons</p>
+          <h3>扫描理由</h3>
+          <ul class="scanner-reasons">${reasons || "<li>暂无理由。</li>"}</ul>
+        </div>
+      `;
+      document.getElementById("openScannerSymbol").onclick = async () => {
+        const snapshot = state.visibleSnapshots.find(snapshot => snapshot.symbol === item.symbol) || { symbol: item.symbol };
+        await setView("stock", false);
+        await setActiveItem(snapshot);
+      };
     }
 
     async function setActiveItem(item) {
@@ -2998,6 +3466,26 @@
         CLOSED: "已收盘",
       };
       return labels[normalized] || "快照";
+    }
+
+    function scanActionClass(value) {
+      if (value === "候选买入") return "buy";
+      if (value === "风险回避" || value === "数据不足") return "avoid";
+      return "";
+    }
+
+    function scanStateClass(value) {
+      if (["多头排列", "偏强", "健康", "修复", "偏多"].includes(value)) return "up";
+      if (["明显放量", "温和放量", "过热", "偏热"].includes(value)) return "hot";
+      if (["转弱", "偏弱", "数据不足"].includes(value)) return "down";
+      return "";
+    }
+
+    function riskClass(value) {
+      if (value === "低") return "low";
+      if (value === "中") return "medium";
+      if (value === "高") return "high";
+      return "";
     }
 
     function setNodeText(id, value) {
