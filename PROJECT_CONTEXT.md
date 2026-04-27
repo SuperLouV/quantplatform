@@ -1,6 +1,6 @@
 # Project Context
 
-最后更新：2026-04-24
+最后更新：2026-04-27
 
 ## 项目定位
 
@@ -61,22 +61,27 @@
 当前已接入：
 
 - `yfinance`
+- FRED release calendar
+- Fed FOMC 日历
+- Census 经济指标日历
 
 当前已规划但未正式接入：
 
 - `IBKR`
-- `FRED`
-- `SEC`
+- `SEC EDGAR / 13F`
+- `FINRA`
+- `Polygon.io`
+- `Finnhub`
+- `Twelve Data`
+- `Alpha Vantage`
+- 舆情监控源：X/Twitter、Reddit、StockTwits、新闻
 
 数据层现状：
 
 - 已有基础快照、历史数据、原始层与处理层
-- 还缺更完整的数据工程能力：
-  - 速率限制
-  - 重试机制
-  - 超时处理
-  - 失败保护
-  - provider 降级
+- 已有速率限制、重试、超时、失败保护和本地操作日志
+- 已有美股交易日历和最近已完成交易日判断
+- 还缺 provider 降级和更可靠的生产级行情源
 
 ## 当前策略方向
 
@@ -86,27 +91,26 @@
 
 - 第一版先做简单策略，不追求复杂
 - 更适合低频、日线、趋势/波段型研究
-- 先构建：
-  - 规则化买点
-  - 规则化卖点
-  - 风险等级
-  - 回测闭环
+- 当前 `trend_momentum_v1` 是 Scanner 策略，只用于生成候选观察列表
+- Trading 策略必须等风控和回测验证后再推进
 
-当前最可能的第一版策略骨架：
+当前 Scanner 策略骨架：
 
-- 趋势
-- 动量
-- 简单止损
+- 截面动量排名
+- 趋势确认
+- RSI 健康度
+- 成交量参与
+- 数据质量和事件风险降级
 
 ## 当前最重要的问题
 
 当前核心优先级是：
 
 1. 策略定义
-2. 数据层工程化
-3. 技术指标与规则信号
-4. 风控建议与每日报告
-5. 回测框架
+2. 风控建议
+3. 每日报告
+4. 回测框架
+5. provider fallback 和后续数据源
 6. IBKR / LongPort 执行层预留
 
 当前不要被这些事情分散：
@@ -120,10 +124,10 @@
 
 新开窗口时，优先阅读：
 
-1. `README.md`
-2. `PROJECT_CONTEXT.md`
-3. `HANDOFF.md`
-4. `tasks/plan.md`
-5. `tasks/work_journal.md`
+1. `AGENTS.md`
+2. `PROJECT_MEMORY.md`
+3. `tasks/plan.md`
+4. `HANDOFF.md`
+5. `README.md`
 
 目标是先恢复产品背景、当前阶段和下一步，再继续编码。

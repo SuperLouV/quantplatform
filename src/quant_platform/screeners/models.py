@@ -55,6 +55,7 @@ class ScanSignal:
 
 @dataclass(slots=True)
 class ScanCandidate:
+    strategy_id: str
     symbol: str
     company_name: str | None
     price: float | None
@@ -69,6 +70,9 @@ class ScanCandidate:
     macd_state: str
     volume_state: str
     data_quality: str
+    momentum_rank_pct: float | None = None
+    confidence: int | None = None
+    market_regime: str | None = None
     signals: list[ScanSignal] = field(default_factory=list)
 
     @property

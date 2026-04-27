@@ -124,3 +124,10 @@
 - 将扫描规则从 `UIDataService` 抽离为 `MarketScanner`，并新增 `ScanSignal / ScanCandidate / ScanSummary / ScanResult` 模型，扫描结果保留结构化 signal 信息，方便后续日报、回测和策略代码复用
 - 修正 daily refresh 目标日期：自动刷新改用最近已完成的美股交易日，美东当天 17:30 前不再把当前日作为收盘日，避免 yfinance 在盘中或数据未落地时返回 `possibly delisted; no price data found`
 - 新增本地美股交易日历 `market_calendar/us_market.py`，覆盖常见 NYSE/Nasdaq 节假日、Good Friday、Juneteenth 和半日交易；`time_utils` 的最近交易日判断改为使用该日历
+- 阅读桌面 `SCANNER_STRATEGY_V1.md` 的外部建议，判断其方向适合用于“选股扫描器”而不是直接作为买卖交易策略
+- 新增 `docs/strategy/scanner-strategy-v1.md`，明确 Scanner Strategy V1 的定位、截面动量公式、当前输出字段和暂缓项
+- 扩展指标引擎，新增跳过最近 5 日的 20/60/120 日收益、RSI14 五日变化、60 日成交量 z-score 和 SMA50/ATR 归一化趋势距离
+- 将 `MarketScanner` 升级为 `trend_momentum_v1`，新增池内截面动量百分位、候选信心字段和结构化策略 ID，旧快照缺少新指标时会降级为“未排名”
+- 扫描接口新增本地指标兜底：当旧快照缺少 Strategy V1 字段时，从本地 processed parquet 计算指标后再扫描，不触发联网请求
+- 参考桌面 `CLAUDE.md`，新增 `PROJECT_MEMORY.md` 作为 Codex 长期项目记忆和自我约束文档，并更新 `AGENTS.md` 的新窗口阅读顺序
+- 更新 `tasks/plan.md`、`tasks/roadmap.md`、`tasks/backlog.md`、`HANDOFF.md` 和 `PROJECT_CONTEXT.md`，将动态开发计划、未来 API 接入和未实现功能同步到仓库文档

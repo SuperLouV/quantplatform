@@ -24,6 +24,15 @@ from quant_platform.services.stock_snapshot_batch import StockSnapshotBatchServi
 from quant_platform.screeners import MarketScanner
 from quant_platform.time_utils import iso_beijing, latest_expected_us_market_data_date, to_us_eastern
 
+SCANNER_REQUIRED_INDICATORS = {
+    "ret_20d_skip5",
+    "ret_60d_skip5",
+    "ret_120d_skip5",
+    "rsi_14_delta_5d",
+    "volume_zscore_60",
+    "trend_distance_sma50_atr14",
+}
+
 
 class UIDataService:
     def __init__(self, settings: Settings) -> None:
@@ -204,7 +213,11 @@ class UIDataService:
         self.logger.info("ui.scanner.start", pool_id=pool_id)
         try:
             dashboard = self.load_pool_dashboard(pool_id)
-            snapshots = [snapshot for snapshot in dashboard.get("snapshots", []) if isinstance(snapshot, dict)]
+            snapshots = [
+                self._attach_local_scanner_indicators(snapshot)
+                for snapshot in dashboard.get("snapshots", [])
+                if isinstance(snapshot, dict)
+            ]
             result = self.market_scanner.scan_snapshots(snapshots)
 
             payload = {
@@ -243,6 +256,37 @@ class UIDataService:
         except Exception as exc:
             self.logger.error("ui.market_events.load.error", start=start, end=end, error=str(exc))
             raise
+
+    def _attach_local_scanner_indicators(self, payload: dict[str, object]) -> dict[str, object]:
+        symbol = str(payload.get("symbol") or "")
+        indicators = payload.get("indicators") if isinstance(payload.get("indicators"), dict) else {}
+        if not symbol or not isinstance(indicators, dict):
+            return payload
+        if all(indicators.get(key) is not None for key in SCANNER_REQUIRED_INDICATORS):
+            return payload
+
+        path = self.artifacts.layout.processed_symbol_path(self.client.provider_name, "bars", symbol)
+        if not path.exists():
+            self.logger.info("ui.scanner.indicators.skipped", symbol=symbol, reason="missing_bars", path=str(path))
+            return payload
+
+        try:
+            computation = self.indicator_engine.compute_from_parquet(path)
+        except Exception as exc:  # noqa: BLE001 - scanner should degrade when local data is malformed.
+            self.logger.error("ui.scanner.indicators.error", symbol=symbol, path=str(path), error=str(exc))
+            return payload
+
+        payload["indicators"] = {
+            **indicators,
+            **computation.latest,
+        }
+        self.logger.info(
+            "ui.scanner.indicators.success",
+            symbol=symbol,
+            path=str(path),
+            columns=len(computation.latest),
+        )
+        return payload
 
     def _find_pool_path(self, pool_id: str) -> Path | None:
         base = self.artifacts.layout.storage.reference_dir / "system" / "stock_pools"

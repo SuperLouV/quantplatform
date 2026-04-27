@@ -35,3 +35,7 @@ def atr(high: pd.Series, low: pd.Series, close: pd.Series, window: int = 14) -> 
         axis=1,
     ).max(axis=1)
     return true_range.ewm(alpha=1 / window, adjust=False, min_periods=window).mean()
+
+
+def normalized_distance(numerator: pd.Series, denominator: pd.Series) -> pd.Series:
+    return numerator / denominator.mask(denominator <= 0)

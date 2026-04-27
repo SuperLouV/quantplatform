@@ -1,9 +1,81 @@
 # Backlog
 
-## 当前待办
+最后更新：2026-04-27
 
-- 梳理免费美股数据接口
-- 定义统一数据模型
-- 设计股票池筛选规则
-- 实现第一版指标体系
-- 设计回测输入输出格式
+这个文件记录尚未实现、未来可能实现、以及需要评估的功能/API。进入开发前，应先从这里移动到 `tasks/plan.md` 的具体阶段。
+
+## 近期开发
+
+- 将 `trend_momentum_v1` scanner 输出接入中文 Markdown 每日报告。
+- 扫描结果按日期持久化：`data/reference/system/scan_results/{pool_id}_{market_date_us}.json`。
+- 风控建议模块：
+  - ATR 止损
+  - 单笔风险预算
+  - 建议仓位
+  - 总仓位上限
+  - 同板块集中度
+  - PDT 提醒
+  - 财报和重大事件风险
+- 最小回测框架：
+  - 日线长仓
+  - 交易成本和滑点
+  - 止损和平仓规则
+  - 复用正式指标和信号代码
+
+## Scanner Strategy V1 后续增强
+
+- 市场状态过滤：
+  - `SPY` / `QQQ` 趋势
+  - `^VIX`
+  - 市场宽度
+  - 风险开关：Risk On / Neutral / Risk Off
+- 行业集中度控制：同板块候选数量或仓位上限。
+- 财报日前后阻断规则。
+- 更清晰的候选解释：matched rules、failed rules、risk flags。
+- 参数验证：通过回测评估 `20/60/120`、skip 5 days、RSI 区间、volume z-score 阈值。
+
+## 数据源和 API 候选
+
+### 行情和基本面
+
+- IBKR：后续真实账户、实时行情和模拟执行的候选源。
+- Polygon.io：更可靠的美股历史、分钟线和实时行情，适合付费升级。
+- Finnhub：新闻、基本面、earnings、部分免费额度。
+- Twelve Data：行情和技术数据 API，可作为备选。
+- Alpha Vantage：免费层可用，但限频较低。
+- Nasdaq Data Link：后续评估散户、机构、另类数据成本。
+
+### 宏观和事件
+
+- FRED：已接入 release calendar，后续可接入具体宏观时间序列。
+- SEC EDGAR：后续接入 filings、13F、10-K/10-Q。
+- Earnings API：后续可评估 Finnhub、Polygon、Nasdaq 或其它日历源。
+
+### 机构、筹码和情绪
+
+- SEC 13F：基金经理和机构持仓变化。
+- FINRA short interest / short sale volume：空头压力和市场情绪辅助。
+- Volume profile：先基于本地 OHLCV 做近似筹码分布。
+- 期权流：后续评估，但暂不作为第一版依赖。
+- 舆情监控：
+  - X/Twitter 股票讨论
+  - Reddit
+  - StockTwits
+  - 新闻标题和新闻情绪
+  - 讨论热度变化
+
+## UI 后续
+
+- 每日报告页面。
+- Scanner 候选详情页。
+- 风控建议展示：建议仓位、止损、风险金额。
+- 个股重大事件时间轴。
+- 图表叠加更多指标：SMA、Bollinger、MACD、ATR。
+- Watchlist 管理增强。
+
+## 执行层预留
+
+- Broker 抽象模型。
+- 纸面交易或模拟执行器。
+- IBKR / LongPort 后续适配。
+- 真实自动下单暂缓，必须等策略回测、风控和人工验证完成。

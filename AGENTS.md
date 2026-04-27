@@ -26,8 +26,8 @@ Current design direction:
 Read in this order when taking over a new session:
 
 1. `AGENTS.md`
-2. `tasks/plan.md`
-3. `PROJECT_CONTEXT.md`
+2. `PROJECT_MEMORY.md`
+3. `tasks/plan.md`
 4. `HANDOFF.md`
 5. `README.md`
 
@@ -36,21 +36,20 @@ Only open deeper documents when needed:
 - Architecture: `docs/architecture/`
 - Strategy: `docs/strategy/`
 - Full structure notes: `PROJECT_STRUCTURE.md`
+- Product context: `PROJECT_CONTEXT.md`
 - Work history: `tasks/work_journal.md`
 - Short roadmap: `tasks/roadmap.md`
+- Future backlog: `tasks/backlog.md`
 
 ## Current Priority
 
 Do not spend the next stage mainly expanding UI. The current core track is:
 
-1. Strategy specification
-2. Data-layer protection
-3. Technical indicators
-4. Rule-based signals
-5. Risk advice
-6. Daily Markdown report
-7. Daily pipeline
-8. Minimal backtest
+1. Scanner Strategy V1 output and daily report
+2. Risk advice: position sizing, ATR stop, event risk, PDT
+3. Daily Markdown report
+4. Minimal signal-driven backtest
+5. Strategy-enhancing data sources after the core loop works
 
 The optimized phase plan is in `tasks/plan.md`.
 
@@ -76,16 +75,21 @@ Already available:
 - Basic data quality checks for bars and quote snapshots
 - Phase B1 technical indicator engine using local processed parquet data
 - First rule-based signal detector for standardized indicator events
+- Daily refresh command and UI scheduler
+- US market calendar for latest completed trading day
+- Market event calendar from Fed, Census, and FRED release calendar
+- Scanner page and backend `MarketScanner`
+- `Scanner Strategy V1` with cross-sectional momentum rank and local parquet indicator fallback
 
 Main missing pieces:
 
-- Indicator integration into snapshots and pool scans
-- Signal integration into reports, UI, and backtests
+- Signal integration into daily reports and backtests
 - Position sizing and risk advice
 - Daily report generator
-- One-command daily pipeline
 - Minimal signal-driven backtest
-- Deeper failure logs and provider fallback
+- Provider fallback beyond `yfinance`
+- Market regime filter using SPY/QQQ/VIX/breadth
+- Strategy-enhancing data sources such as SEC 13F and FINRA short interest
 
 ## Repository Structure
 
@@ -104,6 +108,7 @@ Planning and tracking:
 - `tasks/roadmap.md`: short phase roadmap
 - `tasks/work_journal.md`: chronological work log
 - `tasks/backlog.md`: backlog
+- `PROJECT_MEMORY.md`: long-lived project understanding and Codex self-constraints
 
 Configuration:
 
@@ -179,6 +184,9 @@ python3 scripts/serve_ui.py
 - Every signal should be traceable to data, indicators, and a named rule.
 - Reports should be readable by humans first and AI second.
 - Do not implement real broker auto-trading until the user explicitly asks for it.
+- Treat `Scanner Strategy` and `Trading Strategy` as different layers. Scanner outputs watch candidates; trading strategy outputs buy/sell/size/stop and requires backtesting.
+- Default user-facing timestamps should be Beijing time. Use explicitly named US/Eastern fields when market-calendar logic requires it.
+- Do not start or stop the user's local UI server unless explicitly asked.
 
 ## Documentation Maintenance
 
@@ -186,8 +194,10 @@ When changing direction or completing meaningful work:
 
 - Update `AGENTS.md` only if the startup guide, priority, or structure changed.
 - Update `tasks/plan.md` when the implementation plan changes.
+- Update `tasks/backlog.md` when future features, APIs, or strategy ideas are added.
 - Update `tasks/work_journal.md` with a short chronological note.
 - Update `README.md` when user-facing commands or current progress change.
 - Update `HANDOFF.md` when the next-session handoff changes.
+- Update `PROJECT_MEMORY.md` when the durable project understanding or self-constraints change.
 
 Avoid duplicating long explanations across documents. `AGENTS.md` should stay as the entrypoint and index; detailed plans belong in `tasks/plan.md`.

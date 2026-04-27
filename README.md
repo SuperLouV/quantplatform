@@ -46,6 +46,7 @@ Codex 接手入口：
 - 已将新标的首次历史更新改为显式回填窗口，默认回填 2 年日线；已有足够历史后继续按 cursor 增量更新
 - 已新增第二页“候选池扫描”MVP：`/api/scanner?pool_id=default_core` 基于本地快照、技术指标和数据状态输出候选表，前端可在“个股/扫描”之间切换
 - 已将候选池扫描规则从 UI 服务拆到 `screeners/scanner.py`，输出结构化 `ScanSignal / ScanCandidate / ScanSummary`，后续可复用于日报、回测和策略迁移
+- 已参考外部策略扫描方案，落地 `Scanner Strategy V1` 的第一批基础字段：池内截面动量排名、跳过最近 5 日的 20/60/120 日收益、RSI 变化、60 日成交量 z-score 和 ATR 归一化趋势距离；扫描页会在本地缓存缺少新字段时从本地 parquet 兜底计算，不联网
 - 下一步重点是信号接入报告/快照、风控建议、每日报告和最小回测
 
 ## 当前主流程
@@ -104,12 +105,14 @@ flowchart TD
 - [docs/architecture/stock-screening-design.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/stock-screening-design.md)
 - [docs/architecture/product-objects.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/architecture/product-objects.md)
 - [docs/strategy/strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/strategy-v1.md)
+- [docs/strategy/scanner-strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/scanner-strategy-v1.md)
 
 Codex 新会话请先阅读：
 
 - [AGENTS.md](/Users/louyilin/项目文件夹/QuantPlatform/AGENTS.md)
+- [PROJECT_MEMORY.md](/Users/louyilin/项目文件夹/QuantPlatform/PROJECT_MEMORY.md)
 
-`AGENTS.md` 会指向当前需要继续阅读的计划、上下文和交接文档。
+`AGENTS.md` 会指向当前需要继续阅读的计划、长期记忆和交接文档。
 
 当前可用脚本：
 
@@ -141,6 +144,7 @@ Codex 新会话请先阅读：
 
 - [tasks/plan.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/plan.md)
 - [tasks/roadmap.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/roadmap.md)
+- [tasks/backlog.md](/Users/louyilin/项目文件夹/QuantPlatform/tasks/backlog.md)
 
 ## 审阅约定
 

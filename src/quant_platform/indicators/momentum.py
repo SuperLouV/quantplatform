@@ -21,3 +21,11 @@ def rsi(close: pd.Series, window: int = 14) -> pd.Series:
 
 def roc(close: pd.Series, window: int = 10) -> pd.Series:
     return close.pct_change(periods=window) * 100
+
+
+def return_skip(close: pd.Series, window: int, skip: int = 5) -> pd.Series:
+    return (close.shift(skip) / close.shift(skip + window)) - 1
+
+
+def delta(series: pd.Series, window: int) -> pd.Series:
+    return series - series.shift(window)
