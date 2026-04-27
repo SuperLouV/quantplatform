@@ -9,6 +9,12 @@ from __future__ import annotations
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
+from quant_platform.market_calendar import (
+    is_us_market_session,
+    latest_completed_us_session,
+    previous_us_market_session,
+)
+
 BEIJING = ZoneInfo("Asia/Shanghai")
 US_EASTERN = ZoneInfo("America/New_York")
 
@@ -39,7 +45,7 @@ def iso_beijing(value: datetime | None = None) -> str:
 
 def latest_us_weekday(reference: datetime | None = None) -> date:
     current = to_us_eastern(reference or now_us_eastern()).date()
-    while current.weekday() >= 5:
+    while not is_us_market_session(current):
         current -= timedelta(days=1)
     return current
 
@@ -47,10 +53,12 @@ def latest_us_weekday(reference: datetime | None = None) -> date:
 def latest_expected_us_market_data_date(reference: datetime | None = None) -> date:
     current_time = to_us_eastern(reference or now_us_eastern())
     current = current_time.date()
-    if current.weekday() >= 5:
+    if not is_us_market_session(current):
         return latest_us_weekday(current_time)
     if current_time.time() < time(9, 30):
-        current -= timedelta(days=1)
-        while current.weekday() >= 5:
-            current -= timedelta(days=1)
+        current = previous_us_market_session(current)
     return current
+
+
+def latest_completed_us_market_date(reference: datetime | None = None) -> date:
+    return latest_completed_us_session(to_us_eastern(reference or now_us_eastern()))

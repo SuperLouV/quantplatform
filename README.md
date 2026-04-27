@@ -45,6 +45,7 @@ Codex 接手入口：
 - 已加固 `yfinance` 历史请求：默认启用 `repair=True`，并预留 `prepost` 配置；批量请求最小间隔调整为 1 秒
 - 已将新标的首次历史更新改为显式回填窗口，默认回填 2 年日线；已有足够历史后继续按 cursor 增量更新
 - 已新增第二页“候选池扫描”MVP：`/api/scanner?pool_id=default_core` 基于本地快照、技术指标和数据状态输出候选表，前端可在“个股/扫描”之间切换
+- 已将候选池扫描规则从 UI 服务拆到 `screeners/scanner.py`，输出结构化 `ScanSignal / ScanCandidate / ScanSummary`，后续可复用于日报、回测和策略迁移
 - 下一步重点是信号接入报告/快照、风控建议、每日报告和最小回测
 
 ## 当前主流程

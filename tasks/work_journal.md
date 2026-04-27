@@ -121,3 +121,6 @@
 - 新增 `yfinance_initial_history_years` 配置，默认 2 年；新标的首次扫描或本地历史过短时从目标交易日回填 2 年日线，避免技术指标和后续信号基于不足历史计算
 - Makefile 的 `daily-refresh` 和 `pool-refresh` 支持 `POOL=...` 覆盖，并新增 `daily-refresh-nasdaq100` / `pool-refresh-nasdaq100`，用于先聚焦 NASDAQ 100 和自定义股票池
 - 新增候选池扫描 MVP：后端 `/api/scanner?pool_id=...` 从本地 snapshot 汇总候选动作、分数、趋势、RSI、MACD、成交量、风险和数据状态；前端顶栏新增“个股/扫描”切换，扫描页展示候选表和单股扫描理由
+- 将扫描规则从 `UIDataService` 抽离为 `MarketScanner`，并新增 `ScanSignal / ScanCandidate / ScanSummary / ScanResult` 模型，扫描结果保留结构化 signal 信息，方便后续日报、回测和策略代码复用
+- 修正 daily refresh 目标日期：自动刷新改用最近已完成的美股交易日，美东当天 17:30 前不再把当前日作为收盘日，避免 yfinance 在盘中或数据未落地时返回 `possibly delisted; no price data found`
+- 新增本地美股交易日历 `market_calendar/us_market.py`，覆盖常见 NYSE/Nasdaq 节假日、Good Friday、Juneteenth 和半日交易；`time_utils` 的最近交易日判断改为使用该日历

@@ -41,3 +41,54 @@ class UniverseBuildResult:
     watchlist: list[UniverseCandidate]
     tradable_universe: list[UniverseCandidate]
     decisions: list[ScreeningDecision]
+
+
+@dataclass(slots=True)
+class ScanSignal:
+    signal_type: str
+    direction: str
+    strength: int
+    state: str
+    reason: str
+    evidence: dict[str, float | str | None] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class ScanCandidate:
+    symbol: str
+    company_name: str | None
+    price: float | None
+    change_percent: float | None
+    latest_history_date_us: str | None
+    snapshot_refreshed_at_beijing: str | None
+    score: int
+    action: str
+    risk_level: str
+    trend_state: str
+    rsi_state: str
+    macd_state: str
+    volume_state: str
+    data_quality: str
+    signals: list[ScanSignal] = field(default_factory=list)
+
+    @property
+    def reasons(self) -> list[str]:
+        return [signal.reason for signal in self.signals if signal.reason]
+
+
+@dataclass(slots=True)
+class ScanSummary:
+    total: int
+    candidate_buy: int
+    watch: int
+    risk_avoid: int
+    insufficient_data: int
+    high_risk: int
+    medium_risk: int
+    low_risk: int
+
+
+@dataclass(slots=True)
+class ScanResult:
+    summary: ScanSummary
+    candidates: list[ScanCandidate]

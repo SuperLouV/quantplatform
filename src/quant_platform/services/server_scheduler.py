@@ -12,7 +12,7 @@ from typing import Any
 from quant_platform.config import Settings
 from quant_platform.services.daily_refresh import DailyRefreshService
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
-from quant_platform.time_utils import latest_us_weekday, now_beijing
+from quant_platform.time_utils import latest_completed_us_market_date, now_beijing
 
 
 @dataclass(slots=True)
@@ -102,7 +102,7 @@ class DailyRefreshScheduler:
         if current.time() < scheduled_time:
             return
 
-        market_date = latest_us_weekday(current)
+        market_date = latest_completed_us_market_date(current)
         run_key = f"{current.date().isoformat()}:{market_date.isoformat()}"
         if run_key in self._attempted_keys:
             return

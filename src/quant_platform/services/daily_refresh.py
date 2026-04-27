@@ -14,7 +14,7 @@ from quant_platform.services.market_events import MarketEventService
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.services.stock_snapshot_batch import StockSnapshotBatchService
 from quant_platform.services.yfinance_history import YFinanceHistoryUpdater
-from quant_platform.time_utils import iso_beijing, latest_us_weekday, now_beijing
+from quant_platform.time_utils import iso_beijing, latest_completed_us_market_date, now_beijing
 
 
 @dataclass(slots=True)
@@ -46,7 +46,7 @@ class DailyRefreshService:
         workers: int = 8,
         update_events: bool = True,
     ) -> DailyRefreshResult:
-        market_date = market_date_us or latest_us_weekday(now_beijing())
+        market_date = market_date_us or latest_completed_us_market_date(now_beijing())
         pool = self.snapshot_batch.load_pool(pool_path)
         self.logger.info(
             "daily_refresh.start",

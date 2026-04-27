@@ -89,3 +89,7 @@ make schedule-uninstall
 ## Timing
 
 美股夏令时收盘约为北京时间 `04:00`，冬令时约为北京时间 `05:00`。设置为 `06:30` 是为了给 yfinance 和其他数据源留出更新延迟窗口。
+
+`daily-refresh` 自动选择最近已完成的美股交易日：美东正常交易日 `17:30` 前不会把当天作为收盘日，半日交易日按 `13:00` 收盘并延迟 90 分钟判断，避免盘中或数据源尚未落地时误拉当前日的日线。
+
+交易日历由本地 `quant_platform.market_calendar.us_market` 提供，覆盖常见 NYSE/Nasdaq 周末、节假日、Good Friday、Juneteenth 和常见半日交易日。特殊临时休市后续可再补参考数据文件或外部日历 API。

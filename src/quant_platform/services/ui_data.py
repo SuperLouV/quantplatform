@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from quant_platform.services.bootstrap import bootstrap_local_state
 from quant_platform.services.market_events import MarketEventService
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.services.stock_snapshot_batch import StockSnapshotBatchService
+from quant_platform.screeners import MarketScanner
 from quant_platform.time_utils import iso_beijing, latest_expected_us_market_data_date, to_us_eastern
 
 
@@ -32,6 +34,7 @@ class UIDataService:
         self.ai_analysis = AIAnalysisService()
         self.indicator_engine = IndicatorEngine()
         self.market_events = MarketEventService(settings)
+        self.market_scanner = MarketScanner()
         self.logger = OperationLogger(operation_log_root(settings), "ui_data")
 
     def list_pools(self) -> list[dict[str, object]]:
@@ -201,33 +204,17 @@ class UIDataService:
         self.logger.info("ui.scanner.start", pool_id=pool_id)
         try:
             dashboard = self.load_pool_dashboard(pool_id)
-            candidates = [_build_scan_candidate(snapshot) for snapshot in dashboard.get("snapshots", [])]
-            candidates = sorted(candidates, key=lambda item: (-int(item["score"]), str(item["symbol"])))
-            action_counts: dict[str, int] = {}
-            risk_counts: dict[str, int] = {}
-            for candidate in candidates:
-                action = str(candidate["action"])
-                risk = str(candidate["risk_level"])
-                action_counts[action] = action_counts.get(action, 0) + 1
-                risk_counts[risk] = risk_counts.get(risk, 0) + 1
+            snapshots = [snapshot for snapshot in dashboard.get("snapshots", []) if isinstance(snapshot, dict)]
+            result = self.market_scanner.scan_snapshots(snapshots)
 
             payload = {
                 "generated_at": self._now_iso(),
                 "timezone": "Asia/Shanghai",
                 "pool": dashboard.get("pool", {}),
-                "summary": {
-                    "total": len(candidates),
-                    "candidate_buy": action_counts.get("候选买入", 0),
-                    "watch": action_counts.get("继续观察", 0),
-                    "risk_avoid": action_counts.get("风险回避", 0),
-                    "insufficient_data": action_counts.get("数据不足", 0),
-                    "high_risk": risk_counts.get("高", 0),
-                    "medium_risk": risk_counts.get("中", 0),
-                    "low_risk": risk_counts.get("低", 0),
-                },
-                "candidates": candidates,
+                "summary": asdict(result.summary),
+                "candidates": [_scan_candidate_payload(candidate) for candidate in result.candidates],
             }
-            self.logger.info("ui.scanner.success", pool_id=pool_id, candidates=len(candidates))
+            self.logger.info("ui.scanner.success", pool_id=pool_id, candidates=len(result.candidates))
             return payload
         except Exception as exc:
             self.logger.error("ui.scanner.error", pool_id=pool_id, error=str(exc))
@@ -370,131 +357,10 @@ def _append_screening_reason(payload: dict[str, object], reason: str) -> None:
     payload["screening_reasons"] = reasons
 
 
-def _build_scan_candidate(snapshot: dict[str, object]) -> dict[str, object]:
-    indicators = snapshot.get("indicators") if isinstance(snapshot.get("indicators"), dict) else {}
-    assert isinstance(indicators, dict)
-    price = _optional_float(snapshot.get("current_price")) or _optional_float(snapshot.get("latest_close"))
-    previous_close = _optional_float(snapshot.get("previous_close"))
-    change_percent = _optional_float(snapshot.get("change_percent"))
-    if change_percent is None and price is not None and previous_close not in (None, 0):
-        change_percent = ((price - previous_close) / previous_close) * 100
-
-    sma20 = _optional_float(indicators.get("sma_20"))
-    sma50 = _optional_float(indicators.get("sma_50"))
-    sma200 = _optional_float(indicators.get("sma_200"))
-    rsi14 = _optional_float(indicators.get("rsi_14"))
-    macd = _optional_float(indicators.get("macd"))
-    macd_signal = _optional_float(indicators.get("macd_signal"))
-    volume_ratio = _optional_float(indicators.get("volume_ratio_20"))
-    data_quality = _scan_data_quality(snapshot, indicators)
-
-    trend_state, trend_score, trend_reason = _scan_trend(price, sma20, sma50, sma200)
-    rsi_state, rsi_score, rsi_reason = _scan_rsi(rsi14)
-    macd_state, macd_score, macd_reason = _scan_macd(macd, macd_signal)
-    volume_state, volume_score, volume_reason = _scan_volume(volume_ratio)
-    risk_level, risk_penalty, risk_reason = _scan_risk(snapshot, data_quality)
-
-    score = max(0, min(100, 45 + trend_score + rsi_score + macd_score + volume_score - risk_penalty))
-    action = _scan_action(score, risk_level, data_quality)
-    reasons = [trend_reason, rsi_reason, macd_reason, volume_reason, risk_reason]
-    reasons = [reason for reason in reasons if reason]
-
-    return {
-        "symbol": snapshot.get("symbol"),
-        "company_name": snapshot.get("company_name_zh") or snapshot.get("company_name"),
-        "price": price,
-        "change_percent": change_percent,
-        "latest_history_date_us": snapshot.get("latest_history_date_us"),
-        "snapshot_refreshed_at_beijing": snapshot.get("snapshot_refreshed_at_beijing"),
-        "score": round(score),
-        "action": action,
-        "risk_level": risk_level,
-        "trend_state": trend_state,
-        "rsi_state": rsi_state,
-        "macd_state": macd_state,
-        "volume_state": volume_state,
-        "data_quality": data_quality,
-        "reasons": reasons[:5],
-    }
-
-
-def _scan_data_quality(snapshot: dict[str, object], indicators: dict[str, object]) -> str:
-    if not snapshot.get("latest_history_date_us"):
-        return "缺行情日期"
-    usable = any(_optional_float(indicators.get(key)) is not None for key in ("sma_20", "sma_50", "rsi_14", "macd"))
-    if not usable:
-        return "指标不足"
-    return "正常"
-
-
-def _scan_trend(price: float | None, sma20: float | None, sma50: float | None, sma200: float | None) -> tuple[str, int, str]:
-    if price is None or sma20 is None or sma50 is None:
-        return "数据不足", -18, "趋势数据不足"
-    if sma200 is not None and price > sma20 > sma50 > sma200:
-        return "多头排列", 22, "价格和均线呈多头排列"
-    if price > sma20 and sma20 >= sma50:
-        return "偏强", 14, "价格站上短中期均线"
-    if price < sma20 and sma20 < sma50:
-        return "转弱", -12, "价格跌破短期均线且短线弱于中期"
-    return "震荡", 0, "趋势方向暂不明确"
-
-
-def _scan_rsi(rsi14: float | None) -> tuple[str, int, str]:
-    if rsi14 is None:
-        return "数据不足", -10, "RSI 数据不足"
-    if 45 <= rsi14 <= 65:
-        return "健康", 8, "RSI 处于相对健康区间"
-    if 30 <= rsi14 < 45:
-        return "修复", 4, "RSI 从弱势区间修复中"
-    if rsi14 < 30:
-        return "超跌", -2, "RSI 低于 30，可能超跌但仍需确认"
-    if rsi14 > 75:
-        return "过热", -8, "RSI 高位过热"
-    return "偏热", -2, "RSI 偏高，追涨风险上升"
-
-
-def _scan_macd(macd: float | None, signal: float | None) -> tuple[str, int, str]:
-    if macd is None or signal is None:
-        return "数据不足", -8, "MACD 数据不足"
-    if macd > signal:
-        return "偏多", 10, "MACD 在 Signal 上方"
-    if macd < signal:
-        return "偏弱", -8, "MACD 在 Signal 下方"
-    return "中性", 0, "MACD 与 Signal 接近"
-
-
-def _scan_volume(volume_ratio: float | None) -> tuple[str, int, str]:
-    if volume_ratio is None:
-        return "数据不足", -4, "成交量指标不足"
-    if volume_ratio >= 1.8:
-        return "明显放量", 8, "成交量明显高于 20 日均量"
-    if volume_ratio >= 1.2:
-        return "温和放量", 5, "成交量温和放大"
-    if volume_ratio < 0.7:
-        return "缩量", -2, "成交量低于近期均量"
-    return "正常", 0, "成交量接近近期均值"
-
-
-def _scan_risk(snapshot: dict[str, object], data_quality: str) -> tuple[str, int, str]:
-    if data_quality != "正常":
-        return "高", 28, f"数据状态：{data_quality}"
-    reasons = snapshot.get("screening_reasons")
-    reason_text = " ".join(str(item) for item in reasons) if isinstance(reasons, list) else ""
-    if "stale_bars" in reason_text or "future_bars" in reason_text or "error" in reason_text:
-        return "高", 24, "本地数据质量存在风险提示"
-    if snapshot.get("next_earnings_date"):
-        return "中", 8, "存在财报日期，需确认事件风险"
-    return "低", 0, "未发现明显数据或事件风险"
-
-
-def _scan_action(score: float, risk_level: str, data_quality: str) -> str:
-    if data_quality != "正常":
-        return "数据不足"
-    if risk_level == "高":
-        return "风险回避"
-    if score >= 72:
-        return "候选买入"
-    return "继续观察"
+def _scan_candidate_payload(candidate) -> dict[str, object]:
+    payload = asdict(candidate)
+    payload["reasons"] = candidate.reasons[:5]
+    return payload
 
 
 def _history_market_date_us(value: object) -> str | None:
