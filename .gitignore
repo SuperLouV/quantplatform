@@ -11,6 +11,7 @@ data/system/state.db
 data/cache/
 data/raw/
 data/logs/
+data/reports/
 data/processed/snapshots/
 data/processed/yfinance/bars/
 data/reference/system/daily_refresh/

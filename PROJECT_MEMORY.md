@@ -52,6 +52,17 @@
   - `volume_zscore_60`
   - `trend_distance_sma50_atr14`
   - 旧快照缺少新指标时，扫描接口会从本地 parquet 兜底计算，不联网。
+- 中文 Markdown 每日报告 MVP：
+  - 本地市场概览
+  - scanner 候选
+  - 未来 14 天市场事件
+  - daily refresh 数据质量摘要
+  - 给 AI 的结构化分析提示
+  - 当目标交易日没有成功刷新时，自动回落到本地最新可用行情日。
+- 简单市场宏观分析：
+  - `SPY/QQQ/DIA` 判断大盘、科技成长和道指蓝筹趋势
+  - `^VIX` 判断波动/恐慌状态
+  - 11 个 sector ETF 预留板块轮动分析
 
 ## Scanner 策略与交易策略
 
@@ -106,9 +117,8 @@
 
 当前最值得继续推进的顺序：
 
-1. 把 Scanner Strategy V1 输出接入每日报告。
-2. 做风控建议：仓位、ATR 止损、PDT、财报事件。
-3. 做中文 Markdown 每日报告。
+1. 做风控建议：仓位、ATR 止损、PDT、财报事件。
+2. 持久化 scanner 结果，方便日报、UI 和回测复用。
+3. 扩展市场概览历史数据：DIA、^VIX 和 11 个 SPDR sector ETF。
 4. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
-5. 再接入更多 API 和数据源。
-
+5. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。

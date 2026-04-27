@@ -44,6 +44,7 @@
 ## Phase E2：策略增强数据源
 
 - 接入 SEC 13F，跟踪重要基金经理和机构持仓变化
+- 评估 NAAIM Exposure Index、AAII Investor Sentiment Survey、Fear & Greed 等情绪/仓位数据，作为市场状态过滤和 AI 研判辅助
 - 接入 FINRA short interest / short sale volume，辅助判断空头压力和市场情绪
 - 基于本地 OHLCV 计算 volume profile / 筹码分布近似指标
 - 评估 IBKR、Polygon.io、Finnhub、Twelve Data、Alpha Vantage 等行情源作为 yfinance 的后续替代或补充

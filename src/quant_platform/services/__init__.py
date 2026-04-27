@@ -3,7 +3,9 @@
 from quant_platform.services.ai_analysis import AIAnalysisService
 from quant_platform.services.bootstrap import BootstrapArtifacts, bootstrap_local_state
 from quant_platform.services.daily_refresh import DailyRefreshResult, DailyRefreshService
+from quant_platform.services.daily_report import DailyReportResult, DailyReportService
 from quant_platform.services.market_events import MarketEventService, MarketEventUpdateResult
+from quant_platform.services.market_overview import MarketOverview, MarketOverviewService
 from quant_platform.services.nasdaq100_pool import Nasdaq100PoolService
 from quant_platform.services.preset_pools import PresetPoolService
 from quant_platform.services.server_scheduler import DailyRefreshScheduler
@@ -19,8 +21,12 @@ __all__ = [
     "BootstrapArtifacts",
     "DailyRefreshResult",
     "DailyRefreshService",
+    "DailyReportResult",
+    "DailyReportService",
     "MarketEventService",
     "MarketEventUpdateResult",
+    "MarketOverview",
+    "MarketOverviewService",
     "Nasdaq100PoolService",
     "PresetPoolService",
     "DailyRefreshScheduler",

@@ -227,12 +227,13 @@
 
 - 接入 SEC 13F，跟踪重要基金经理、机构持仓、增持、减持、新建仓和清仓。
 - 接入 FINRA short interest / short sale volume，形成空头压力和情绪辅助指标。
+- 评估 NAAIM Exposure Index、AAII Investor Sentiment Survey、Fear & Greed 等市场情绪和仓位数据。
 - 基于本地 OHLCV 计算 volume profile / 筹码分布近似指标。
 - 保留 Nasdaq Retail Trading Activity、期权流和付费 alternative data 的接口位置，但暂不作为第一版依赖。
 
 验收：
 
-- 个股分析可以展示机构持仓变化、空头压力和成交量成本区间。
+- 个股和市场分析可以展示机构持仓变化、主动管理人仓位、散户看多看空、空头压力和成交量成本区间。
 - 这些数据只作为策略辅助特征，不直接替代价格、指标、信号和风控规则。
 
 ### Phase G：UI 增强
@@ -284,7 +285,7 @@
 
 1. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
 2. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险。
-3. 实现 `Phase D` 中文 Markdown 每日报告。
+3. 扩展市场概览数据更新范围：DIA、^VIX 和 11 个 SPDR sector ETF。
 4. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 5. 在核心闭环稳定后接入更多 API 和数据源。
 

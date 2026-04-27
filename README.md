@@ -47,7 +47,8 @@ Codex 接手入口：
 - 已新增第二页“候选池扫描”MVP：`/api/scanner?pool_id=default_core` 基于本地快照、技术指标和数据状态输出候选表，前端可在“个股/扫描”之间切换
 - 已将候选池扫描规则从 UI 服务拆到 `screeners/scanner.py`，输出结构化 `ScanSignal / ScanCandidate / ScanSummary`，后续可复用于日报、回测和策略迁移
 - 已参考外部策略扫描方案，落地 `Scanner Strategy V1` 的第一批基础字段：池内截面动量排名、跳过最近 5 日的 20/60/120 日收益、RSI 变化、60 日成交量 z-score 和 ATR 归一化趋势距离；扫描页会在本地缓存缺少新字段时从本地 parquet 兜底计算，不联网
-- 下一步重点是信号接入报告/快照、风控建议、每日报告和最小回测
+- 已新增中文 Markdown 每日报告 MVP，汇总本地市场概览、scanner 候选、市场事件、数据刷新摘要和给 AI 的分析提示
+- 下一步重点是补齐风控建议、扫描结果持久化、市场概览 ETF 历史更新和最小回测
 
 ## 当前主流程
 
@@ -129,6 +130,9 @@ Codex 新会话请先阅读：
 - 收盘后刷新默认股票池：`make daily-refresh`
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`
+- 刷新市场宏观代理历史：`make market-overview-refresh`
+- 生成中文每日报告：`make daily-report`
+- 收盘刷新、宏观代理刷新后生成报告：`make daily-refresh-report`
 - UI 服务内置调度器状态：`curl http://127.0.0.1:8000/api/scheduler`
 - 安装盘后自动刷新：`make schedule-install`
 - 查看盘后自动刷新状态：`make schedule-status`

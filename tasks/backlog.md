@@ -6,8 +6,9 @@
 
 ## 近期开发
 
-- 将 `trend_momentum_v1` scanner 输出接入中文 Markdown 每日报告。
 - 扫描结果按日期持久化：`data/reference/system/scan_results/{pool_id}_{market_date_us}.json`。
+- 扩展日报市场概览所需历史数据：
+  - `XLK / XLF / XLV / XLY / XLC / XLI / XLE / XLP / XLU / XLB / XLRE`
 - 风控建议模块：
   - ATR 止损
   - 单笔风险预算
@@ -54,9 +55,16 @@
 ### 机构、筹码和情绪
 
 - SEC 13F：基金经理和机构持仓变化。
+- 基金经理/主动管理人仓位：
+  - NAAIM Exposure Index：主动投资经理股票敞口，用于判断专业资金 risk-on/risk-off。
+  - 后续可评估其它基金经理仓位、现金比例或风险预算数据源。
 - FINRA short interest / short sale volume：空头压力和市场情绪辅助。
 - Volume profile：先基于本地 OHLCV 做近似筹码分布。
 - 期权流：后续评估，但暂不作为第一版依赖。
+- 全市场情绪：
+  - CNN Fear & Greed 或类似恐惧贪婪指标，作为市场风险偏好辅助。
+  - AAII Investor Sentiment Survey：散户看多、看空、中性比例。
+  - put/call ratio、VIX term structure 等可作为后续补充。
 - 舆情监控：
   - X/Twitter 股票讨论
   - Reddit

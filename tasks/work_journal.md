@@ -131,3 +131,9 @@
 - 扫描接口新增本地指标兜底：当旧快照缺少 Strategy V1 字段时，从本地 processed parquet 计算指标后再扫描，不触发联网请求
 - 参考桌面 `CLAUDE.md`，新增 `PROJECT_MEMORY.md` 作为 Codex 长期项目记忆和自我约束文档，并更新 `AGENTS.md` 的新窗口阅读顺序
 - 更新 `tasks/plan.md`、`tasks/roadmap.md`、`tasks/backlog.md`、`HANDOFF.md` 和 `PROJECT_CONTEXT.md`，将动态开发计划、未来 API 接入和未实现功能同步到仓库文档
+- 新增 `MarketOverviewService` 和 `DailyReportService`，可基于本地 processed parquet、scanner、market events 和 daily refresh summary 生成中文 Markdown 每日报告
+- 新增 `scripts/generate_daily_report.py`、`make daily-report` 和 `make daily-refresh-report`；日报默认写入 `data/reports/daily_YYYY-MM-DD.md`，生成文件不提交 Git
+- 日报日期会根据 daily refresh summary 和本地历史 cursor 自动回落到实际可用行情日，避免在盘中或数据源未落地时误生成未完成交易日的收盘报告
+- 将 NAAIM 主动管理人仓位、AAII 散户情绪、Fear & Greed 恐惧贪婪指标加入后续策略增强数据源计划，用于市场状态过滤和 AI 研判辅助
+- 新增 `scripts/update_market_overview_history.py` 和 `make market-overview-refresh`，用于刷新 `SPY/QQQ/DIA/^VIX` 与 11 个 sector ETF 的本地历史数据
+- 市场概览规则新增 VIX 状态判断：低波动、正常、警戒、高风险和恐慌区间会进入日报和 AI 分析提示
