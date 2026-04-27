@@ -137,3 +137,5 @@
 - 将 NAAIM 主动管理人仓位、AAII 散户情绪、Fear & Greed 恐惧贪婪指标加入后续策略增强数据源计划，用于市场状态过滤和 AI 研判辅助
 - 新增 `scripts/update_market_overview_history.py` 和 `make market-overview-refresh`，用于刷新 `SPY/QQQ/DIA/^VIX` 与 11 个 sector ETF 的本地历史数据
 - 市场概览规则新增 VIX 状态判断：低波动、正常、警戒、高风险和恐慌区间会进入日报和 AI 分析提示
+- 新增 `tests/unit/` 单元测试骨架，覆盖美股交易日历、指标引擎、scanner、市场概览 VIX 风险状态和日报日期回落逻辑；`make check` 现在会运行 12 个不联网单元测试
+- 完成一次结构审查，决定暂不删除会影响路线图的预留目录；轻量清理项先记录到 backlog，后续单独处理

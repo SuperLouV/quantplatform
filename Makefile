@@ -12,6 +12,7 @@ ui:
 check:
 	$(PYTHON) -m compileall -q src scripts
 	node -e 'const fs=require("fs"); const html=fs.readFileSync("ui/index.html","utf8"); const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(s=>s.trim()); for (const script of scripts) new Function(script); console.log(`checked $${scripts.length} inline scripts`);'
+	PYTHONPATH=src $(PYTHON) -m unittest discover -s tests/unit -p 'test_*.py'
 
 events:
 	PYTHONPATH=src $(PYTHON) scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31

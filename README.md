@@ -137,6 +137,7 @@ Codex 新会话请先阅读：
 - 安装盘后自动刷新：`make schedule-install`
 - 查看盘后自动刷新状态：`make schedule-status`
 - 卸载盘后自动刷新：`make schedule-uninstall`
+- 本地检查和单元测试：`make check`
 
 本地日志说明：
 
