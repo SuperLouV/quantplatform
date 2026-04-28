@@ -43,7 +43,7 @@ Codex 接手入口：
 - 已新增 UI 服务内置盘后刷新调度器：`make ui` 启动后会在后台按北京时间 06:30 执行每日刷新，可通过 `/api/scheduler` 查看状态
 - 已在右侧数据状态区展示定时任务状态、计划时间、最近一次全量刷新交易日和历史数据成功/失败数量
 - 已加固 `yfinance` 历史请求：默认启用 `repair=True`，并预留 `prepost` 配置；批量请求最小间隔调整为 1 秒
-- 已将新标的首次历史更新改为显式回填窗口，默认回填 2 年日线；已有足够历史后继续按 cursor 增量更新
+- 已将新标的首次历史更新改为显式回填窗口，默认回填 10 年日线；已有足够历史后继续按 cursor 增量更新，单股支持 `--full-history` 获取上市以来尽可能完整的数据
 - 已新增第二页“候选池扫描”MVP：`/api/scanner?pool_id=default_core` 基于本地快照、技术指标和数据状态输出候选表，前端可在“个股/扫描”之间切换
 - 已将候选池扫描规则从 UI 服务拆到 `screeners/scanner.py`，输出结构化 `ScanSignal / ScanCandidate / ScanSummary`，后续可复用于日报、回测和策略迁移
 - 已参考外部策略扫描方案，落地 `Scanner Strategy V1` 的第一批基础字段：池内截面动量排名、跳过最近 5 日的 20/60/120 日收益、RSI 变化、60 日成交量 z-score 和 ATR 归一化趋势距离；扫描页会在本地缓存缺少新字段时从本地 parquet 兜底计算，不联网
@@ -128,6 +128,8 @@ Codex 新会话请先阅读：
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 - 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`
 - Makefile 日常命令默认只在 terminal 打印最终成功摘要，详细过程写入 `data/logs/*.jsonl`；如需调试逐条日志：`make daily-report LOG_TO_CONSOLE=1`
+- 更新单个标的 10 年历史日线：`make history SYMBOL=AAPL YEARS=10`
+- 更新单个标的上市以来尽可能完整日线：`make history-full SYMBOL=AAPL`
 - 收盘后刷新默认股票池：`make daily-refresh`
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`

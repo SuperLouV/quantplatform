@@ -27,7 +27,7 @@ class DataConfig:
     request_timeout_seconds: float = 15.0
     yfinance_history_repair: bool = True
     yfinance_history_prepost: bool = False
-    yfinance_initial_history_years: int = 2
+    yfinance_initial_history_years: int = 10
 
 
 @dataclass(slots=True)
@@ -154,7 +154,7 @@ def load_settings(path: str | Path) -> Settings:
             yfinance_history_prepost=bool(market_data.get("yfinance_history_prepost", False)),
             yfinance_initial_history_years=int(
                 os.environ.get("QP_YFINANCE_INITIAL_HISTORY_YEARS")
-                or market_data.get("yfinance_initial_history_years", 2)
+                or market_data.get("yfinance_initial_history_years", 10)
             ),
         ),
         storage=StorageConfig(

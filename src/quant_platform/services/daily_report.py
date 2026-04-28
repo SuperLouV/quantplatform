@@ -286,10 +286,12 @@ def _render_event_table(events: list[dict[str, object]]) -> str:
 def _render_data_quality(refresh_summary: dict[str, Any] | None, scanner: dict[str, Any]) -> str:
     scanner_summary = scanner.get("summary") if isinstance(scanner.get("summary"), dict) else {}
     refresh_counts = _refresh_history_counts(refresh_summary)
+    coverage = _history_coverage_summary(refresh_summary)
     lines = [
         f"- refresh summary：{refresh_summary.get('generated_at_beijing') if refresh_summary else '未找到'}",
         f"- scanner result：{scanner.get('scan_result_path') or '未写入'}",
         f"- 历史数据：success={refresh_counts['success']}，empty={refresh_counts['empty']}，error={refresh_counts['error']}",
+        f"- 历史覆盖：最早 {coverage['earliest_date'] or '-'}，最新 {coverage['latest_date'] or '-'}，最少行数 {coverage['min_rows']}",
         f"- scanner 数据不足：{scanner_summary.get('insufficient_data', 0)}",
         f"- scanner 高风险：{scanner_summary.get('high_risk', 0)}",
     ]
@@ -301,6 +303,35 @@ def _render_data_quality(refresh_summary: dict[str, Any] | None, scanner: dict[s
         ]
         lines.append(f"- 错误标的：{'; '.join(errors[:10])}")
     return "\n".join(lines)
+
+
+def _history_coverage_summary(refresh_summary: dict[str, Any] | None) -> dict[str, Any]:
+    summary: dict[str, Any] = {"earliest_date": None, "latest_date": None, "min_rows": 0}
+    if not refresh_summary:
+        return summary
+    history = refresh_summary.get("history", {})
+    if not isinstance(history, dict):
+        return summary
+    earliest_dates: list[str] = []
+    latest_dates: list[str] = []
+    row_counts: list[int] = []
+    for item in history.values():
+        if not isinstance(item, dict) or item.get("status") != "success":
+            continue
+        if item.get("earliest_date"):
+            earliest_dates.append(str(item["earliest_date"]))
+        if item.get("latest_date"):
+            latest_dates.append(str(item["latest_date"]))
+        if item.get("total_rows") is not None:
+            try:
+                row_counts.append(int(item["total_rows"]))
+            except (TypeError, ValueError):
+                pass
+    return {
+        "earliest_date": min(earliest_dates) if earliest_dates else None,
+        "latest_date": max(latest_dates) if latest_dates else None,
+        "min_rows": min(row_counts) if row_counts else 0,
+    }
 
 
 def _render_ai_prompt(

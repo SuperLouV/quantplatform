@@ -64,8 +64,14 @@ class DailyRefreshService:
                 status = _history_status(result.cursor, market_date)
                 history_results[symbol] = {
                     "status": status,
+                    "rows_fetched": result.rows_written,
                     "rows_written": result.rows_written,
+                    "total_rows": result.total_rows,
+                    "earliest_date": result.earliest_date,
+                    "latest_date": result.latest_date,
                     "cursor": result.cursor,
+                    "start_reason": result.start_reason,
+                    "requested_start": result.requested_start,
                     "raw_path": str(result.raw_path),
                     "processed_path": str(result.processed_path),
                 }

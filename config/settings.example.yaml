@@ -13,7 +13,7 @@ data:
   request_timeout_seconds: 15.0
   yfinance_history_repair: true
   yfinance_history_prepost: false
-  yfinance_initial_history_years: 2
+  yfinance_initial_history_years: 10
 
 storage:
   raw_dir: data/raw

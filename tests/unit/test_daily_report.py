@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 from datetime import date
 
-from quant_platform.services.daily_report import _refresh_history_counts, _report_market_date
+from quant_platform.services.daily_report import _history_coverage_summary, _refresh_history_counts, _report_market_date
 
 
 class DailyReportTest(unittest.TestCase):
@@ -33,6 +33,20 @@ class DailyReportTest(unittest.TestCase):
         }
 
         self.assertEqual(_refresh_history_counts(summary), {"success": 1, "empty": 1, "error": 1})
+
+    def test_history_coverage_summary_uses_successful_symbols(self) -> None:
+        summary = {
+            "history": {
+                "AAPL": {"status": "success", "earliest_date": "1980-12-12", "latest_date": "2026-04-27", "total_rows": 11400},
+                "MSFT": {"status": "success", "earliest_date": "1986-03-13", "latest_date": "2026-04-27", "total_rows": 10100},
+                "BAD": {"status": "error", "earliest_date": "1970-01-01", "latest_date": "1970-01-02", "total_rows": 2},
+            }
+        }
+
+        self.assertEqual(
+            _history_coverage_summary(summary),
+            {"earliest_date": "1980-12-12", "latest_date": "2026-04-27", "min_rows": 10100},
+        )
 
 
 if __name__ == "__main__":

@@ -118,7 +118,7 @@
 - 完成默认池 daily refresh 重跑验证：10 个标的历史 K 线均更新到 `cursor=2026-04-24`；将历史更新结果扩展为 `success/empty/error`，避免 cursor 未达目标日期时误判为成功
 - 明确后续选股范围：先聚焦 `NASDAQ 100`、`S&P 500`、高热度股票和用户自定义列表，暂不做全美全市场扫描
 - 将 SEC 13F、FINRA short interest / short sale volume、volume profile / 筹码分布放入后续策略增强数据源计划
-- 新增 `yfinance_initial_history_years` 配置，默认 2 年；新标的首次扫描或本地历史过短时从目标交易日回填 2 年日线，避免技术指标和后续信号基于不足历史计算
+- 新增 `yfinance_initial_history_years` 配置，初始默认 2 年；新标的首次扫描或本地历史过短时从目标交易日回填配置化日线，避免技术指标和后续信号基于不足历史计算
 - Makefile 的 `daily-refresh` 和 `pool-refresh` 支持 `POOL=...` 覆盖，并新增 `daily-refresh-nasdaq100` / `pool-refresh-nasdaq100`，用于先聚焦 NASDAQ 100 和自定义股票池
 - 新增候选池扫描 MVP：后端 `/api/scanner?pool_id=...` 从本地 snapshot 汇总候选动作、分数、趋势、RSI、MACD、成交量、风险和数据状态；前端顶栏新增“个股/扫描”切换，扫描页展示候选表和单股扫描理由
 - 将扫描规则从 `UIDataService` 抽离为 `MarketScanner`，并新增 `ScanSignal / ScanCandidate / ScanSummary / ScanResult` 模型，扫描结果保留结构化 signal 信息，方便后续日报、回测和策略代码复用
@@ -143,3 +143,4 @@
 - 市场概览会按报告目标交易日检查本地宏观/板块代理是否过期，过期的 VIX 或 sector ETF 不再参与 Risk On/Off 和板块轮动判断
 - `OperationLogger` 新增 `QP_LOG_TO_CONSOLE=1` 控制的 terminal 简洁日志输出；Makefile 日常命令默认只打印最终成功摘要，详细逐条日志继续写入 `data/logs/*.jsonl`，需要调试时可用 `LOG_TO_CONSOLE=1` 打开
 - 已将 TradingAgents-CN clone 到 `/Users/louyilin/项目文件夹/TradingAgents-CN` 并完成参考审查；结论记录在 `docs/architecture/tradingagents-cn-reference.md`，仅参考多 Agent 流程、报告拆分、provider 抽象、数据源降级和新闻过滤设计，不复制其专有 `app/` / `frontend/` 代码
+- 将 yfinance 新标的默认历史回填窗口从 2 年提升到 10 年；新增 `make history SYMBOL=AAPL YEARS=10` 和 `make history-full SYMBOL=AAPL`，历史刷新结果会记录本地最早日期、最新日期和总行数，日报数据质量区展示历史覆盖范围

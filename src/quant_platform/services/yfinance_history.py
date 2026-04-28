@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -25,6 +25,11 @@ class YFinanceHistoryUpdateResult:
     raw_path: Path
     processed_path: Path
     cursor: str | None
+    start_reason: str
+    requested_start: str | None
+    earliest_date: str | None
+    latest_date: str | None
+    total_rows: int
 
 
 class YFinanceHistoryUpdater:
@@ -44,6 +49,7 @@ class YFinanceHistoryUpdater:
         end: date | None = None,
         interval: str = "1d",
         adjusted: bool = True,
+        full_history: bool = False,
     ) -> YFinanceHistoryUpdateResult:
         dataset = "bars"
         run_started = _now_beijing()
@@ -55,6 +61,7 @@ class YFinanceHistoryUpdater:
             previous_cursor=previous_cursor,
             end=end,
             interval=interval,
+            full_history=full_history,
         )
         request = DataRequest(symbol=symbol, start=effective_start, end=end, interval=interval, adjusted=adjusted)
         self.logger.info(
@@ -66,6 +73,7 @@ class YFinanceHistoryUpdater:
             interval=interval,
             adjusted=adjusted,
             previous_cursor=previous_cursor,
+            full_history=full_history,
         )
 
         self.state_store.mark_attempt(
@@ -80,6 +88,7 @@ class YFinanceHistoryUpdater:
             bars = self.client.fetch_bars(request)
             raw_path = self._write_raw(symbol, request, bars)
             processed_path = self._write_processed(symbol, bars)
+            coverage = _processed_coverage(processed_path)
             cursor = bars[-1].timestamp.date().isoformat() if bars else previous_cursor
 
             self.state_store.mark_success(
@@ -87,7 +96,7 @@ class YFinanceHistoryUpdater:
                 dataset,
                 symbol,
                 cursor=cursor,
-                note=f"rows={len(bars)}",
+                note=f"rows={len(bars)} total_rows={coverage['total_rows']}",
             )
             self.state_store.record_run(
                 UpdateRunRecord(
@@ -104,10 +113,15 @@ class YFinanceHistoryUpdater:
             self.logger.info(
                 "yfinance_history.update.success",
                 symbol=symbol,
-                rows_written=len(bars),
+                rows_fetched=len(bars),
+                total_rows=coverage["total_rows"],
+                earliest_date=coverage["earliest_date"],
+                latest_date=coverage["latest_date"],
                 raw_path=str(raw_path),
                 processed_path=str(processed_path),
                 cursor=cursor,
+                start_reason=start_reason,
+                requested_start=effective_start.isoformat() if effective_start else None,
             )
             return YFinanceHistoryUpdateResult(
                 symbol=symbol,
@@ -115,6 +129,11 @@ class YFinanceHistoryUpdater:
                 raw_path=raw_path,
                 processed_path=processed_path,
                 cursor=cursor,
+                start_reason=start_reason,
+                requested_start=effective_start.isoformat() if effective_start else None,
+                earliest_date=coverage["earliest_date"],
+                latest_date=coverage["latest_date"],
+                total_rows=int(coverage["total_rows"]),
             )
         except Exception as exc:
             self.state_store.mark_failure(
@@ -144,6 +163,7 @@ class YFinanceHistoryUpdater:
                 interval=interval,
                 adjusted=adjusted,
                 start_reason=start_reason,
+                full_history=full_history,
                 error=str(exc),
             )
             raise
@@ -156,7 +176,11 @@ class YFinanceHistoryUpdater:
         previous_cursor: str | None,
         end: date | None,
         interval: str,
+        full_history: bool = False,
     ) -> tuple[date | None, str]:
+        if full_history:
+            return _full_history_start(), "full_history"
+
         if explicit_start:
             return explicit_start, "explicit"
 
@@ -304,6 +328,27 @@ def _derive_initial_history_start(end: date | None, years: int) -> date:
         return anchor.replace(year=anchor.year - years)
     except ValueError:
         return anchor.replace(month=2, day=28, year=anchor.year - years)
+
+
+def _full_history_start() -> date:
+    return date(1900, 1, 1)
+
+
+def _processed_coverage(path: Path) -> dict[str, str | int | None]:
+    if not path.exists():
+        return {"earliest_date": None, "latest_date": None, "total_rows": 0}
+    try:
+        frame = pd.read_parquet(path, columns=["timestamp"])
+    except Exception:  # noqa: BLE001 - coverage is diagnostic and should not fail ingestion.
+        return {"earliest_date": None, "latest_date": None, "total_rows": 0}
+    if frame.empty or "timestamp" not in frame:
+        return {"earliest_date": None, "latest_date": None, "total_rows": 0}
+    timestamps = pd.to_datetime(frame["timestamp"], utc=True)
+    return {
+        "earliest_date": timestamps.min().date().isoformat(),
+        "latest_date": timestamps.max().date().isoformat(),
+        "total_rows": int(len(frame.index)),
+    }
 
 
 def _now_beijing() -> datetime:

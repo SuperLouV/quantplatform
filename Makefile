@@ -3,10 +3,12 @@ PYTHON ?= python3
 POOL ?= data/reference/system/stock_pools/preset/default_core.json
 POOL_ID ?= default_core
 NASDAQ100_POOL ?= data/reference/system/stock_pools/index/nasdaq100.json
+SYMBOL ?= AAPL
+YEARS ?= 10
 LOG_TO_CONSOLE ?= 0
 CONSOLE_LOG_ENV = QP_LOG_TO_CONSOLE=$(LOG_TO_CONSOLE)
 
-.PHONY: ui check events market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
+.PHONY: ui check events history history-full market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
 
 ui:
 	@$(CONSOLE_LOG_ENV) $(PYTHON) scripts/serve_ui.py $(PORT)
@@ -18,6 +20,12 @@ check:
 
 events:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31
+
+history:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/update_yfinance_history.py $(SYMBOL) --years $(YEARS)
+
+history-full:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/update_yfinance_history.py $(SYMBOL) --full-history
 
 market-overview-refresh:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/update_market_overview_history.py
