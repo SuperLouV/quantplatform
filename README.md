@@ -127,6 +127,7 @@ Codex 新会话请先阅读：
 - 更新全市场重大事件日历：`PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 - 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`
+- Makefile 日常命令默认只在 terminal 打印最终成功摘要，详细过程写入 `data/logs/*.jsonl`；如需调试逐条日志：`make daily-report LOG_TO_CONSOLE=1`
 - 收盘后刷新默认股票池：`make daily-refresh`
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`

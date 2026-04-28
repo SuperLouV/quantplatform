@@ -288,6 +288,7 @@ def _render_data_quality(refresh_summary: dict[str, Any] | None, scanner: dict[s
     refresh_counts = _refresh_history_counts(refresh_summary)
     lines = [
         f"- refresh summary：{refresh_summary.get('generated_at_beijing') if refresh_summary else '未找到'}",
+        f"- scanner result：{scanner.get('scan_result_path') or '未写入'}",
         f"- 历史数据：success={refresh_counts['success']}，empty={refresh_counts['empty']}，error={refresh_counts['error']}",
         f"- scanner 数据不足：{scanner_summary.get('insufficient_data', 0)}",
         f"- scanner 高风险：{scanner_summary.get('high_risk', 0)}",

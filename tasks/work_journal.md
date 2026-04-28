@@ -137,5 +137,8 @@
 - 将 NAAIM 主动管理人仓位、AAII 散户情绪、Fear & Greed 恐惧贪婪指标加入后续策略增强数据源计划，用于市场状态过滤和 AI 研判辅助
 - 新增 `scripts/update_market_overview_history.py` 和 `make market-overview-refresh`，用于刷新 `SPY/QQQ/DIA/^VIX` 与 11 个 sector ETF 的本地历史数据
 - 市场概览规则新增 VIX 状态判断：低波动、正常、警戒、高风险和恐慌区间会进入日报和 AI 分析提示
-- 新增 `tests/unit/` 单元测试骨架，覆盖美股交易日历、指标引擎、scanner、市场概览 VIX 风险状态和日报日期回落逻辑；`make check` 现在会运行 12 个不联网单元测试
+- 新增 `tests/unit/` 单元测试骨架，覆盖美股交易日历、指标引擎、scanner、市场概览 VIX 风险状态、日报日期回落和命令输出过滤逻辑；`make check` 现在会运行 17 个不联网单元测试
 - 完成一次结构审查，决定暂不删除会影响路线图的预留目录；轻量清理项先记录到 backlog，后续单独处理
+- Scanner API 会按交易日持久化扫描结果到 `data/reference/system/scan_results/{pool_id}_{market_date_us}.json`，日报数据质量区会引用对应扫描结果文件
+- 市场概览会按报告目标交易日检查本地宏观/板块代理是否过期，过期的 VIX 或 sector ETF 不再参与 Risk On/Off 和板块轮动判断
+- `OperationLogger` 新增 `QP_LOG_TO_CONSOLE=1` 控制的 terminal 简洁日志输出；Makefile 日常命令默认只打印最终成功摘要，详细逐条日志继续写入 `data/logs/*.jsonl`，需要调试时可用 `LOG_TO_CONSOLE=1` 打开

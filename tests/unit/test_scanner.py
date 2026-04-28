@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from quant_platform.screeners.scanner import MarketScanner
+from quant_platform.services.ui_data import _scanner_market_date_us
 
 
 def _snapshot(symbol: str, ret20: float, ret60: float, ret120: float) -> dict[str, object]:
@@ -50,6 +51,16 @@ class MarketScannerTest(unittest.TestCase):
 
         self.assertEqual(candidate.action, "数据不足")
         self.assertEqual(candidate.risk_level, "高")
+
+    def test_scanner_market_date_uses_latest_candidate_history_date(self) -> None:
+        result = MarketScanner().scan_snapshots(
+            [
+                _snapshot("AAA", 0.2, 0.3, 0.4),
+                {**_snapshot("BBB", 0.1, 0.2, 0.3), "latest_history_date_us": "2026-04-27"},
+            ]
+        )
+
+        self.assertEqual(_scanner_market_date_us(result.candidates), "2026-04-27")
 
 
 if __name__ == "__main__":

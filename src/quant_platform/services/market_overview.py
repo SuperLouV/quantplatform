@@ -74,9 +74,9 @@ class MarketOverviewService:
 
     def build(self, *, market_date_us: date, generated_at_beijing: str) -> MarketOverview:
         self.logger.info("market_overview.build.start", market_date_us=market_date_us.isoformat())
-        indexes = [self._instrument_state(symbol, symbol) for symbol in INDEX_SYMBOLS]
+        indexes = [self._instrument_state(symbol, symbol, market_date_us=market_date_us) for symbol in INDEX_SYMBOLS]
         sectors = [
-            self._instrument_state(symbol, f"{symbol} {name}")
+            self._instrument_state(symbol, f"{symbol} {name}", market_date_us=market_date_us)
             for symbol, name in SECTOR_ETFS.items()
         ]
         summary = _summarize_overview(indexes, sectors)
@@ -95,7 +95,7 @@ class MarketOverviewService:
             summary=summary,
         )
 
-    def _instrument_state(self, symbol: str, name: str) -> MarketInstrumentState:
+    def _instrument_state(self, symbol: str, name: str, *, market_date_us: date) -> MarketInstrumentState:
         path = self.artifacts.layout.processed_symbol_path(self.settings.data.provider, "bars", symbol)
         if not path.exists():
             return _missing_state(symbol, name, "missing_local_bars")
@@ -112,10 +112,16 @@ class MarketOverviewService:
             previous_close = _optional_float(previous.get("close")) if previous is not None else None
             sma50 = _optional_float(latest.get("sma_50"))
             rsi14 = _optional_float(latest.get("rsi_14"))
+            latest_date_us = _market_date_us(latest.get("timestamp"))
+            data_status = "ok"
+            trend_state = _trend_state(close, sma50)
+            if latest_date_us and latest_date_us < market_date_us.isoformat():
+                data_status = "stale_local_bars"
+                trend_state = f"数据过期：{latest_date_us}"
             return MarketInstrumentState(
                 symbol=symbol,
                 name=name,
-                latest_date_us=_market_date_us(latest.get("timestamp")),
+                latest_date_us=latest_date_us,
                 close=close,
                 change_1d_pct=_pct_change(close, previous_close),
                 change_5d_pct=_period_change(prepared, 5),
@@ -123,8 +129,8 @@ class MarketOverviewService:
                 sma50=sma50,
                 distance_sma50_pct=_pct_change(close, sma50),
                 rsi14=rsi14,
-                trend_state=_trend_state(close, sma50),
-                data_status="ok",
+                trend_state=trend_state,
+                data_status=data_status,
             )
         except Exception as exc:  # noqa: BLE001 - reports should degrade instead of failing on one market proxy.
             self.logger.error("market_overview.instrument.error", symbol=symbol, path=str(path), error=str(exc))

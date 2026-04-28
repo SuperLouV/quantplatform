@@ -10,7 +10,6 @@
   - 合并 `tasks/worklog.md` 到 `tasks/work_journal.md` 后删除旧文件
   - 评估 `browser/`、`factors/`、`portfolio/` 空预留模块是否延后再建
   - 更新或归档早期 `PROJECT_STRUCTURE.md` 和 `us-stock-trading-system-outline.md`
-- 扫描结果按日期持久化：`data/reference/system/scan_results/{pool_id}_{market_date_us}.json`。
 - 扩展日报市场概览所需历史数据：
   - `XLK / XLF / XLV / XLY / XLC / XLI / XLE / XLP / XLU / XLB / XLRE`
 - 风控建议模块：

@@ -223,11 +223,21 @@ class UIDataService:
             payload = {
                 "generated_at": self._now_iso(),
                 "timezone": "Asia/Shanghai",
+                "market_date_us": _scanner_market_date_us(result.candidates),
+                "market_timezone": "America/New_York",
                 "pool": dashboard.get("pool", {}),
                 "summary": asdict(result.summary),
                 "candidates": [_scan_candidate_payload(candidate) for candidate in result.candidates],
             }
-            self.logger.info("ui.scanner.success", pool_id=pool_id, candidates=len(result.candidates))
+            scan_result_path = self._write_scan_result(pool_id, payload)
+            payload["scan_result_path"] = str(scan_result_path)
+            self.logger.info(
+                "ui.scanner.success",
+                pool_id=pool_id,
+                market_date_us=payload["market_date_us"],
+                path=str(scan_result_path),
+                candidates=len(result.candidates),
+            )
             return payload
         except Exception as exc:
             self.logger.error("ui.scanner.error", pool_id=pool_id, error=str(exc))
@@ -287,6 +297,14 @@ class UIDataService:
             columns=len(computation.latest),
         )
         return payload
+
+    def _write_scan_result(self, pool_id: str, payload: dict[str, object]) -> Path:
+        market_date_us = str(payload.get("market_date_us") or "unknown")
+        path = self.settings.storage.reference_dir / "system" / "scan_results" / f"{pool_id}_{market_date_us}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload_to_write = {**payload, "scan_result_path": str(path)}
+        path.write_text(json.dumps(payload_to_write, ensure_ascii=False, indent=2), encoding="utf-8")
+        return path
 
     def _find_pool_path(self, pool_id: str) -> Path | None:
         base = self.artifacts.layout.storage.reference_dir / "system" / "stock_pools"
@@ -405,6 +423,17 @@ def _scan_candidate_payload(candidate) -> dict[str, object]:
     payload = asdict(candidate)
     payload["reasons"] = candidate.reasons[:5]
     return payload
+
+
+def _scanner_market_date_us(candidates) -> str | None:
+    dates = [
+        candidate.latest_history_date_us
+        for candidate in candidates
+        if getattr(candidate, "latest_history_date_us", None)
+    ]
+    if not dates:
+        return None
+    return max(str(value) for value in dates)
 
 
 def _history_market_date_us(value: object) -> str | None:
