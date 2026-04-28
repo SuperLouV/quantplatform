@@ -10,6 +10,11 @@
   - 合并 `tasks/worklog.md` 到 `tasks/work_journal.md` 后删除旧文件
   - 评估 `browser/`、`factors/`、`portfolio/` 空预留模块是否延后再建
   - 更新或归档早期 `PROJECT_STRUCTURE.md` 和 `us-stock-trading-system-outline.md`
+- 参考 TradingAgents-CN 设计，但不复制源码：
+  - 报告模块拆分：技术、基本面、新闻、情绪、风控、最终建议
+  - 轻量 AI 研判接口：读取本地日报和扫描结果，输出结构化解释
+  - 新闻/舆情 relevance_score 过滤
+  - LLM provider 抽象：quick model / deep model
 - 扩展日报市场概览所需历史数据：
   - `XLK / XLF / XLV / XLY / XLC / XLI / XLE / XLP / XLU / XLB / XLRE`
 - 风控建议模块：

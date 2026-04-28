@@ -142,3 +142,4 @@
 - Scanner API 会按交易日持久化扫描结果到 `data/reference/system/scan_results/{pool_id}_{market_date_us}.json`，日报数据质量区会引用对应扫描结果文件
 - 市场概览会按报告目标交易日检查本地宏观/板块代理是否过期，过期的 VIX 或 sector ETF 不再参与 Risk On/Off 和板块轮动判断
 - `OperationLogger` 新增 `QP_LOG_TO_CONSOLE=1` 控制的 terminal 简洁日志输出；Makefile 日常命令默认只打印最终成功摘要，详细逐条日志继续写入 `data/logs/*.jsonl`，需要调试时可用 `LOG_TO_CONSOLE=1` 打开
+- 已将 TradingAgents-CN clone 到 `/Users/louyilin/项目文件夹/TradingAgents-CN` 并完成参考审查；结论记录在 `docs/architecture/tradingagents-cn-reference.md`，仅参考多 Agent 流程、报告拆分、provider 抽象、数据源降级和新闻过滤设计，不复制其专有 `app/` / `frontend/` 代码
