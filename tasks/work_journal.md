@@ -144,3 +144,4 @@
 - `OperationLogger` 新增 `QP_LOG_TO_CONSOLE=1` 控制的 terminal 简洁日志输出；Makefile 日常命令默认只打印最终成功摘要，详细逐条日志继续写入 `data/logs/*.jsonl`，需要调试时可用 `LOG_TO_CONSOLE=1` 打开
 - 已将 TradingAgents-CN clone 到 `/Users/louyilin/项目文件夹/TradingAgents-CN` 并完成参考审查；结论记录在 `docs/architecture/tradingagents-cn-reference.md`，仅参考多 Agent 流程、报告拆分、provider 抽象、数据源降级和新闻过滤设计，不复制其专有 `app/` / `frontend/` 代码
 - 将 yfinance 新标的默认历史回填窗口从 2 年提升到 10 年；新增 `make history SYMBOL=AAPL YEARS=10` 和 `make history-full SYMBOL=AAPL`，历史刷新结果会记录本地最早日期、最新日期和总行数，日报数据质量区展示历史覆盖范围
+- UI 服务前台日志改为安静模式：默认隐藏 HTTP access log、ETF fundamentals 404 和 yfinance 短周期 `possibly delisted` 噪音；内置每日刷新 job 完成后只打印一行 `DAILY_REFRESH success/skipped/error ...`，详细过程继续写入 `data/logs/*.jsonl`

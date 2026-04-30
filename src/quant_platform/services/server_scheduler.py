@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from quant_platform.config import Settings
+from quant_platform.console_output import quiet_known_native_stderr
 from quant_platform.services.daily_refresh import DailyRefreshService
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.time_utils import latest_completed_us_market_date, now_beijing
@@ -118,6 +119,13 @@ class DailyRefreshScheduler:
                     market_date_us=market_date.isoformat(),
                     summary_path=str(summary_path),
                 )
+                print(
+                    "DAILY_REFRESH skipped "
+                    f"market_date_us={market_date.isoformat()} "
+                    "reason=summary_complete "
+                    f"summary={summary_path}",
+                    flush=True,
+                )
             self._attempted_keys.add(run_key)
             return
 
@@ -145,20 +153,32 @@ class DailyRefreshScheduler:
         )
 
         try:
-            result = self.service.run(
-                pool_path=pool_path,
-                market_date_us=market_date,
-                workers=self.settings.scheduler.daily_refresh_workers,
-                update_events=self.settings.scheduler.daily_refresh_update_events,
-            )
+            with quiet_known_native_stderr():
+                result = self.service.run(
+                    pool_path=pool_path,
+                    market_date_us=market_date,
+                    workers=self.settings.scheduler.daily_refresh_workers,
+                    update_events=self.settings.scheduler.daily_refresh_update_events,
+                )
             self.state.last_status = "success"
             self.state.last_summary_path = str(result.summary_path)
+            history_counts = _history_counts(result.history)
             self.logger.info(
                 "scheduler.daily_refresh.success",
                 market_date_us=market_date.isoformat(),
                 summary_path=str(result.summary_path),
                 snapshot_count=result.snapshot_count,
                 market_events_count=result.market_events_count,
+            )
+            print(
+                "DAILY_REFRESH success "
+                f"market_date_us={market_date.isoformat()} "
+                f"history_success={history_counts['success']} "
+                f"history_empty={history_counts['empty']} "
+                f"history_error={history_counts['error']} "
+                f"snapshots={result.snapshot_count} "
+                f"summary={result.summary_path}",
+                flush=True,
             )
         except Exception as exc:
             self.state.last_status = "error"
@@ -168,6 +188,12 @@ class DailyRefreshScheduler:
                 market_date_us=market_date.isoformat(),
                 pool_path=str(pool_path),
                 error=str(exc),
+            )
+            print(
+                "DAILY_REFRESH error "
+                f"market_date_us={market_date.isoformat()} "
+                f"error={exc}",
+                flush=True,
             )
         finally:
             self.state.running = False
@@ -229,3 +255,12 @@ class DailyRefreshScheduler:
 def _parse_time(value: str) -> time:
     hour_text, minute_text = value.split(":", 1)
     return time(hour=int(hour_text), minute=int(minute_text))
+
+
+def _history_counts(history: dict[str, dict[str, Any]]) -> dict[str, int]:
+    counts = {"success": 0, "empty": 0, "error": 0}
+    for item in history.values():
+        status = str(item.get("status") or "")
+        if status in counts:
+            counts[status] += 1
+    return counts

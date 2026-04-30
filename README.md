@@ -128,6 +128,7 @@ Codex 新会话请先阅读：
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 - 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`
 - Makefile 日常命令默认只在 terminal 打印最终成功摘要，详细过程写入 `data/logs/*.jsonl`；如需调试逐条日志：`make daily-report LOG_TO_CONSOLE=1`
+- UI 服务默认不打印每个 HTTP 请求和 yfinance 已知非致命噪音；每日内置调度刷新完成后只打印一行 `DAILY_REFRESH ...`。如需查看 HTTP access log：`QP_HTTP_ACCESS_LOG=1 make ui`
 - 更新单个标的 10 年历史日线：`make history SYMBOL=AAPL YEARS=10`
 - 更新单个标的上市以来尽可能完整日线：`make history-full SYMBOL=AAPL`
 - 收盘后刷新默认股票池：`make daily-refresh`

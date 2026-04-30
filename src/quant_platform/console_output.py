@@ -6,7 +6,10 @@ import contextlib
 import os
 import sys
 import tempfile
+import threading
 from collections.abc import Iterator
+
+_STDERR_FILTER_LOCK = threading.RLock()
 
 
 @contextlib.contextmanager
@@ -16,26 +19,29 @@ def quiet_known_native_stderr() -> Iterator[None]:
         yield
         return
 
-    original_fd = os.dup(2)
-    with tempfile.TemporaryFile(mode="w+b") as captured:
-        os.dup2(captured.fileno(), 2)
-        try:
-            yield
-        finally:
-            os.dup2(original_fd, 2)
-            os.close(original_fd)
-            captured.seek(0)
-            lines = captured.read().decode("utf-8", errors="replace").splitlines()
+    with _STDERR_FILTER_LOCK:
+        original_fd = os.dup(2)
+        with tempfile.TemporaryFile(mode="w+b") as captured:
+            os.dup2(captured.fileno(), 2)
+            try:
+                yield
+            finally:
+                os.dup2(original_fd, 2)
+                os.close(original_fd)
+                captured.seek(0)
+                lines = captured.read().decode("utf-8", errors="replace").splitlines()
 
-    for line in lines:
-        if not _is_known_native_noise(line):
-            print(line, file=sys.stderr)
+        for line in lines:
+            if not _is_known_native_noise(line):
+                print(line, file=sys.stderr)
 
 
 def _is_known_native_noise(line: str) -> bool:
     if "arrow/util/cpu_info.cc" in line and "sysctlbyname failed" in line:
         return True
-    return "HTTP Error 404:" in line and "No fundamentals data found for symbol" in line
+    if "HTTP Error 404:" in line and "No fundamentals data found for symbol" in line:
+        return True
+    return "possibly delisted; no price data found" in line
 
 
 def _env_bool(name: str) -> bool:

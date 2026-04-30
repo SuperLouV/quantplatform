@@ -18,11 +18,13 @@ class ConsoleOutputTest(unittest.TestCase):
                     2,
                     b'HTTP Error 404: {"quoteSummary":{"error":{"description":"No fundamentals data found for symbol: QQQ"}}}\n',
                 )
+                os.write(2, b"$GLD: possibly delisted; no price data found  (period=5d)\n")
                 os.write(2, b"real error line\n")
 
         output = stderr.getvalue()
         self.assertNotIn("cpu_info.cc", output)
         self.assertNotIn("No fundamentals data found", output)
+        self.assertNotIn("possibly delisted", output)
         self.assertIn("real error line", output)
 
 
