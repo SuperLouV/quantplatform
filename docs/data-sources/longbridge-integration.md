@@ -64,17 +64,38 @@ make longbridge-quote LONGBRIDGE_SYMBOL=AAPL
 
 这样后续 UI、每日刷新、期权助手可以复用统一字段。
 
+## 当前项目接入方式
+
+`config/settings.example.yaml` 中：
+
+```yaml
+data:
+  provider: yfinance
+  quote_provider: auto
+```
+
+含义：
+
+- `provider: yfinance` 继续负责历史日线、技术指标、扫描和日报
+- `quote_provider: auto` 用于单股快照刷新，优先 Longbridge CLI，失败时 fallback 到 yfinance
+
+前端点击“刷新当前股票”会走 `/api/snapshot?...&force_refresh=1`，当前会优先尝试 Longbridge。快照里会记录：
+
+- `quote_provider`
+- `quote_provider_status`
+
+右侧“数据状态”会展示本次快照来源。
+
 ## 后续优先级
 
-1. 将 Longbridge quote 作为单股手动刷新增强源，yfinance 继续兜底。
-2. 接 `market_status` 和 `trading_days`，替代本地简化交易日判断。
-3. 接期权链：
+1. 接 `market_status` 和 `trading_days`，替代本地简化交易日判断。
+2. 接期权链：
    - expiration 列表
    - 指定日期 option chain
    - option quote
    - bid / ask / delta / IV / volume / open interest
-4. 将期权助手从手工输入升级为自动读取候选合约。
-5. 评估 SDK Provider，降低 CLI subprocess 依赖。
+3. 将期权助手从手工输入升级为自动读取候选合约。
+4. 评估 SDK Provider，降低 CLI subprocess 依赖。
 
 ## 风控边界
 

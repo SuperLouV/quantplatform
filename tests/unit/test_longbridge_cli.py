@@ -55,6 +55,7 @@ class LongbridgeCLITest(unittest.TestCase):
         self.assertEqual(payload["post_market_price"], 280.07)
         self.assertEqual(payload["pre_market_price"], 278.42)
         self.assertEqual(payload["market_state"], "POST")
+        self.assertEqual(payload["latest_history_date_us"], "2026-05-01")
         self.assertEqual(payload["latest_volume"], 79_915_442)
         expected_change = ((280.07 - 271.35) / 271.35) * 100
         self.assertAlmostEqual(payload["change_percent"] or 0, expected_change)

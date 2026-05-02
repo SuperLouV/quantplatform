@@ -148,3 +148,4 @@
 - 新增期权策略 MVP：`src/quant_platform/options/` 支持 `cash_secured_put` 和 `covered_call` 的规则层风险评估；新增 `scripts/evaluate_option_strategy.py` 和 `POST /api/options/evaluate`，输出可供 DeepSeek 解释的结构化 `ai_context`，但不生成自动下单指令
 - 个股右侧工作栏新增“期权助手”入口：前端可手工输入期权合约并调用本地规则层，按资金占用、盈亏平衡、硬性不通过、观察项和通过项展示结果
 - 新增 Longbridge Terminal CLI 只读数据源原型：`src/quant_platform/clients/longbridge_cli.py` 通过本地 `longbridge quote SYMBOL.US --format json` 获取行情，并归一化到现有快照字段；新增 `make longbridge-quote LONGBRIDGE_SYMBOL=AAPL`
+- 单股强制刷新接入 `quote_provider: auto`：`/api/snapshot?force_refresh=1` 优先 Longbridge CLI，失败时 fallback 到 yfinance；快照写入 `quote_provider` / `quote_provider_status`，前端数据状态展示来源

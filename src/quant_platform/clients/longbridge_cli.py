@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from quant_platform.config import DataConfig
@@ -94,6 +95,8 @@ def normalize_quote_snapshot(raw: dict[str, Any], *, requested_symbol: str) -> d
     return {
         "symbol": symbol,
         "provider": LongbridgeCLIClient.provider_name,
+        "quote_provider": LongbridgeCLIClient.provider_name,
+        "quote_provider_status": "success",
         "company_name": None,
         "sector": None,
         "industry": None,
@@ -109,7 +112,7 @@ def normalize_quote_snapshot(raw: dict[str, Any], *, requested_symbol: str) -> d
         "post_market_price": (post_market or {}).get("last"),
         "overnight_price": (overnight or {}).get("last"),
         "market_state": _market_state(pre_market=pre_market, post_market=post_market, overnight=overnight),
-        "latest_history_date_us": None,
+        "latest_history_date_us": _latest_quote_date(pre_market=pre_market, post_market=post_market, overnight=overnight),
         "snapshot_refreshed_at_beijing": iso_beijing(),
         "market_timezone": "America/New_York",
         "previous_close": previous_close,
@@ -156,6 +159,29 @@ def _market_state(
     if pre_market and pre_market.get("last") is not None:
         return "PRE"
     return "REGULAR"
+
+
+def _latest_quote_date(
+    *,
+    pre_market: dict[str, Any] | None,
+    post_market: dict[str, Any] | None,
+    overnight: dict[str, Any] | None,
+) -> str | None:
+    for quote in (overnight, post_market, pre_market):
+        timestamp = quote.get("timestamp") if quote else None
+        if not timestamp:
+            continue
+        parsed = _date_from_timestamp(str(timestamp))
+        if parsed:
+            return parsed.isoformat()
+    return None
+
+
+def _date_from_timestamp(value: str) -> date | None:
+    try:
+        return date.fromisoformat(value.split(" ", 1)[0])
+    except ValueError:
+        return None
 
 
 def _internal_symbol(symbol: str) -> str:

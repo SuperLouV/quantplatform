@@ -19,6 +19,7 @@ class AppConfig:
 class DataConfig:
     provider: str
     timezone: str
+    quote_provider: str = "auto"
     fred_api_key: str = ""
     user_agent: str = "quant-platform/0.1"
     request_min_interval_seconds: float = 0.5
@@ -144,6 +145,7 @@ def load_settings(path: str | Path) -> Settings:
         ),
         data=DataConfig(
             provider=market_data.get("provider", "yfinance"),
+            quote_provider=market_data.get("quote_provider", "auto"),
             timezone=market_data.get("timezone", "America/New_York"),
             fred_api_key=os.environ.get("FRED_API_KEY") or market_data.get("fred_api_key", ""),
             user_agent=market_data.get("user_agent", "quant-platform/0.1"),

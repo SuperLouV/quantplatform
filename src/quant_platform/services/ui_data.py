@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from quant_platform.config import Settings
+from quant_platform.clients.longbridge_cli import LongbridgeCLIClient
 from quant_platform.indicators import IndicatorEngine
 from quant_platform.i18n import (
     localize_pool_name,
@@ -40,6 +41,7 @@ class UIDataService:
         self.artifacts = bootstrap_local_state(settings)
         self.snapshot_batch = StockSnapshotBatchService(settings)
         self.client = self.snapshot_batch.client
+        self.longbridge_client = LongbridgeCLIClient.from_data_config(settings.data)
         self.ai_analysis = AIAnalysisService()
         self.indicator_engine = IndicatorEngine()
         self.market_events = MarketEventService(settings)
@@ -136,6 +138,7 @@ class UIDataService:
                 return localize_snapshot_payload(payload)
 
         pool_ids = [pool_id] if pool_id else []
+        existing: dict[str, object] = {}
         if path.exists():
             existing = json.loads(path.read_text(encoding="utf-8"))
             pool_ids = list(dict.fromkeys([*existing.get("pool_ids", []), *pool_ids]))
@@ -143,6 +146,7 @@ class UIDataService:
         self.logger.info("ui.snapshot.refresh.start", symbol=symbol, pool_id=pool_id, force_refresh=force_refresh)
         try:
             quote = self._fetch_quote_snapshot_with_history_overlay(symbol)
+            _preserve_existing_metadata(quote, existing)
             snapshot = self.snapshot_batch.create_snapshot_from_quote(symbol, pool_ids=pool_ids, quote=quote)
             self.snapshot_batch.attach_local_indicators(snapshot)
             written_path = self.snapshot_batch.write_snapshot(snapshot)
@@ -341,12 +345,49 @@ class UIDataService:
             self.logger.error("ui.indicators.enrich.error", symbol=symbol, error=str(exc))
 
     def _fetch_quote_snapshot_with_history_overlay(self, symbol: str) -> dict[str, object]:
-        quote = self.client.fetch_quote_snapshot(symbol)
+        quote = self._fetch_quote_snapshot(symbol)
+        if quote.get("quote_provider") == "longbridge_cli":
+            return quote
         try:
             history = self.client.fetch_chart_history(symbol, period="5d", interval="1d")
             self._apply_latest_daily_bar(symbol, quote, history)
         except Exception as exc:  # noqa: BLE001 - quote refresh should still work if history overlay is unavailable.
             self.logger.error("ui.snapshot.history_overlay.error", symbol=symbol, error=str(exc))
+        return quote
+
+    def _fetch_quote_snapshot(self, symbol: str) -> dict[str, object]:
+        provider = self.settings.data.quote_provider
+        if provider in {"auto", "longbridge_cli"}:
+            try:
+                self.logger.info("ui.snapshot.quote_provider.start", symbol=symbol, provider="longbridge_cli")
+                quote = self.longbridge_client.fetch_quote_snapshot(symbol)
+                self.logger.info(
+                    "ui.snapshot.quote_provider.success",
+                    symbol=symbol,
+                    provider="longbridge_cli",
+                    market_state=quote.get("market_state"),
+                    current_price=quote.get("current_price"),
+                    latest_history_date_us=quote.get("latest_history_date_us"),
+                )
+                return quote
+            except Exception as exc:  # noqa: BLE001 - auto mode should fall back to yfinance.
+                self.logger.error("ui.snapshot.quote_provider.error", symbol=symbol, provider="longbridge_cli", error=str(exc))
+                if provider == "longbridge_cli":
+                    raise
+
+        self.logger.info("ui.snapshot.quote_provider.start", symbol=symbol, provider=self.client.provider_name)
+        quote = self.client.fetch_quote_snapshot(symbol)
+        quote["quote_provider"] = self.client.provider_name
+        quote["quote_provider_status"] = "fallback" if provider == "auto" else "success"
+        self.logger.info(
+            "ui.snapshot.quote_provider.success",
+            symbol=symbol,
+            provider=self.client.provider_name,
+            status=quote.get("quote_provider_status"),
+            market_state=quote.get("market_state"),
+            current_price=quote.get("current_price"),
+            latest_history_date_us=quote.get("latest_history_date_us"),
+        )
         return quote
 
     def _apply_latest_daily_bar(
@@ -417,6 +458,25 @@ def _append_screening_reason(payload: dict[str, object], reason: str) -> None:
     if reason not in reasons:
         reasons.append(reason)
     payload["screening_reasons"] = reasons
+
+
+def _preserve_existing_metadata(quote: dict[str, object], existing: dict[str, object]) -> None:
+    if not existing:
+        return
+    for key in (
+        "company_name",
+        "sector",
+        "industry",
+        "currency",
+        "market_cap",
+        "avg_dollar_volume",
+        "trailing_pe",
+        "forward_pe",
+        "next_earnings_date",
+        "exchange",
+    ):
+        if quote.get(key) in (None, "") and existing.get(key) not in (None, ""):
+            quote[key] = existing[key]
 
 
 def _scan_candidate_payload(candidate) -> dict[str, object]:

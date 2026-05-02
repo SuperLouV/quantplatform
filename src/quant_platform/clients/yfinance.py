@@ -210,6 +210,8 @@ class YFinanceClient(BaseDataClient):
 
         return {
             "symbol": symbol,
+            "quote_provider": self.provider_name,
+            "quote_provider_status": "success",
             "company_name": info.get("shortName") or info.get("longName"),
             "sector": info.get("sector"),
             "industry": info.get("industry"),

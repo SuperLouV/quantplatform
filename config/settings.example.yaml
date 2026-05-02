@@ -4,6 +4,7 @@ app:
 
 data:
   provider: yfinance
+  quote_provider: auto
   timezone: America/New_York
   fred_api_key: ""
   user_agent: quant-platform/0.1

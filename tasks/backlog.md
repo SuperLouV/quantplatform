@@ -32,7 +32,6 @@
   - 期权链数据源评估：Longbridge、IBKR、Polygon、Tradier、yfinance fallback
   - 飞书 / Telegram channel adapter
 - Longbridge 数据源后续：
-  - 将 `LongbridgeCLIClient.fetch_quote_snapshot` 接入单股手动刷新，保留 yfinance 兜底
   - 接 Longbridge `market_status` / `trading_days`
   - 接 Longbridge 期权链、期权报价和期权成交持仓字段
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖

@@ -45,6 +45,7 @@ class StockSnapshot:
     regular_market_price: float | None = None
     pre_market_price: float | None = None
     post_market_price: float | None = None
+    overnight_price: float | None = None
     market_state: str | None = None
     latest_history_date_us: str | None = None
     snapshot_refreshed_at_beijing: str | None = None
@@ -58,6 +59,8 @@ class StockSnapshot:
     forward_pe: float | None = None
     next_earnings_date: str | None = None
     exchange: str | None = None
+    quote_provider: str | None = None
+    quote_provider_status: str | None = None
     indicators: dict[str, float | str | None] = field(default_factory=dict)
     events: list[dict[str, str]] = field(default_factory=list)
     screening_status: str = "pending_data"

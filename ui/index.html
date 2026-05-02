@@ -3033,6 +3033,7 @@
         ["状态", item.screening_status || "unknown"],
         ["快照时间", formatDateTime(item.as_of)],
         ["行情交易日", item.latest_history_date_us ? `${item.latest_history_date_us} 美东` : "-"],
+        ["快照来源", quoteProviderLabel(item.quote_provider, item.quote_provider_status)],
         ["刷新时间", item.snapshot_refreshed_at_beijing ? `${formatDateTime(item.snapshot_refreshed_at_beijing)} 北京` : "-"],
         ["定时任务", scheduler ? `${scheduler.enabled ? "开启" : "关闭"} · ${scheduler.thread_alive ? "运行中" : "未运行"}` : "未连接"],
         ["计划时间", scheduler?.daily_refresh_time_beijing ? `${scheduler.daily_refresh_time_beijing} 北京` : "-"],
@@ -4050,7 +4051,9 @@
       const stateValue = String(item.market_state || "").toUpperCase();
       const preMarket = toNumber(item.pre_market_price);
       const postMarket = toNumber(item.post_market_price);
+      const overnight = toNumber(item.overnight_price);
       const current = toNumber(item.current_price) ?? toNumber(item.regular_market_price);
+      if (["OVERNIGHT", "OVERNIGHT_TRADING"].includes(stateValue) && overnight !== null) return overnight;
       if (["PRE", "PREPRE"].includes(stateValue) && preMarket !== null) return preMarket;
       if (["POST", "POSTPOST"].includes(stateValue) && postMarket !== null) return postMarket;
       return current ?? toNumber(item.latest_close);
@@ -4060,6 +4063,10 @@
       const stateValue = String(item.market_state || "").toUpperCase();
       const preMarket = toNumber(item.pre_market_price);
       const postMarket = toNumber(item.post_market_price);
+      const overnight = toNumber(item.overnight_price);
+      if (["OVERNIGHT", "OVERNIGHT_TRADING"].includes(stateValue) && overnight !== null) {
+        return { label: "夜盘", price: overnight };
+      }
       if (["PRE", "PREPRE"].includes(stateValue) && preMarket !== null) {
         return { label: "盘前", price: preMarket };
       }
@@ -4068,6 +4075,7 @@
       }
       if (preMarket !== null) return { label: "盘前", price: preMarket };
       if (postMarket !== null) return { label: "盘后", price: postMarket };
+      if (overnight !== null) return { label: "夜盘", price: overnight };
       return null;
     }
 
@@ -4079,9 +4087,25 @@
         REGULAR: "盘中",
         POST: "盘后",
         POSTPOST: "盘后",
+        OVERNIGHT: "夜盘",
+        OVERNIGHT_TRADING: "夜盘",
         CLOSED: "已收盘",
       };
       return labels[normalized] || "快照";
+    }
+
+    function quoteProviderLabel(provider, status) {
+      const providerMap = {
+        longbridge_cli: "Longbridge",
+        yfinance: "yfinance",
+      };
+      const statusMap = {
+        success: "成功",
+        fallback: "兜底",
+      };
+      const providerText = providerMap[provider] || provider || "-";
+      const statusText = statusMap[status] || status || "";
+      return statusText ? `${providerText} · ${statusText}` : providerText;
     }
 
     function scanActionClass(value) {
