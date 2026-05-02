@@ -112,6 +112,7 @@ flowchart TD
 - [docs/strategy/strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/strategy-v1.md)
 - [docs/strategy/scanner-strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/scanner-strategy-v1.md)
 - [docs/strategy/options-strategy-mvp.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/options-strategy-mvp.md)
+- [docs/strategy/options-assistant-v2-notes.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/options-assistant-v2-notes.md)
 - [docs/data-sources/longbridge-integration.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/data-sources/longbridge-integration.md)
 
 Codex 新会话请先阅读：

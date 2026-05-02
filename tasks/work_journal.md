@@ -150,3 +150,4 @@
 - 新增 Longbridge Terminal CLI 只读数据源原型：`src/quant_platform/clients/longbridge_cli.py` 通过本地 `longbridge quote SYMBOL.US --format json` 获取行情，并归一化到现有快照字段；新增 `make longbridge-quote LONGBRIDGE_SYMBOL=AAPL`
 - 单股强制刷新接入 `quote_provider: auto`：`/api/snapshot?force_refresh=1` 优先 Longbridge CLI，失败时 fallback 到 yfinance；快照写入 `quote_provider` / `quote_provider_status`，前端数据状态展示来源
 - 明确项目执行边界：Longbridge / broker 后续只读账户、现金、购买力、持仓和期权链等信息用于分析，禁止实现真实下单、撤单、改单或自动执行交易动作
+- 阅读 Longbridge 社区示例《用 AI 扫描期权机会，39 个合约年化收益最高 423%》，记录期权助手 V2 方向：从复杂合约表单改为 SELL PUT/Wheel 扫描任务、候选列表、少量关键指标和显眼风险提示
