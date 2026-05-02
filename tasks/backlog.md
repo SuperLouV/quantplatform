@@ -1,6 +1,6 @@
 # Backlog
 
-最后更新：2026-04-27
+最后更新：2026-05-02
 
 这个文件记录尚未实现、未来可能实现、以及需要评估的功能/API。进入开发前，应先从这里移动到 `tasks/plan.md` 的具体阶段。
 
@@ -25,6 +25,12 @@
   - 同板块集中度
   - PDT 提醒
   - 财报和重大事件风险
+- 期权助手后续：
+  - 将期权助手从手工输入升级为自动读取期权链候选合约
+  - 粘贴券商/期权链截图后的结构化解析
+  - DeepSeek OpenAI-compatible API 接入
+  - 期权链数据源评估：IBKR、Polygon、Tradier、yfinance fallback
+  - 飞书 / Telegram channel adapter
 - 最小回测框架：
   - 日线长仓
   - 交易成本和滑点

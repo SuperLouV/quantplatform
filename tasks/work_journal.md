@@ -145,3 +145,5 @@
 - 已将 TradingAgents-CN clone 到 `/Users/louyilin/项目文件夹/TradingAgents-CN` 并完成参考审查；结论记录在 `docs/architecture/tradingagents-cn-reference.md`，仅参考多 Agent 流程、报告拆分、provider 抽象、数据源降级和新闻过滤设计，不复制其专有 `app/` / `frontend/` 代码
 - 将 yfinance 新标的默认历史回填窗口从 2 年提升到 10 年；新增 `make history SYMBOL=AAPL YEARS=10` 和 `make history-full SYMBOL=AAPL`，历史刷新结果会记录本地最早日期、最新日期和总行数，日报数据质量区展示历史覆盖范围
 - UI 服务前台日志改为安静模式：默认隐藏 HTTP access log、ETF fundamentals 404 和 yfinance 短周期 `possibly delisted` 噪音；内置每日刷新 job 完成后只打印一行 `DAILY_REFRESH success/skipped/error ...`，详细过程继续写入 `data/logs/*.jsonl`
+- 新增期权策略 MVP：`src/quant_platform/options/` 支持 `cash_secured_put` 和 `covered_call` 的规则层风险评估；新增 `scripts/evaluate_option_strategy.py` 和 `POST /api/options/evaluate`，输出可供 DeepSeek 解释的结构化 `ai_context`，但不生成自动下单指令
+- 个股右侧工作栏新增“期权助手”入口：前端可手工输入期权合约并调用本地规则层，按资金占用、盈亏平衡、硬性不通过、观察项和通过项展示结果

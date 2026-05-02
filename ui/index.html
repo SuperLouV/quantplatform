@@ -664,6 +664,23 @@
       border-color: var(--line);
     }
 
+    .context-action-btn {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #17191d;
+      color: var(--soft);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .context-action-btn:hover {
+      border-color: #3d8f88;
+      color: var(--text);
+    }
+
     .workspace-body {
       min-height: 0;
       display: grid;
@@ -1510,6 +1527,218 @@
       text-align: right;
     }
 
+    .options-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.58);
+    }
+
+    .options-modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .options-modal {
+      width: min(920px, 100%);
+      max-height: min(820px, calc(100vh - 48px));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: #101113;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .options-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #0d0e10;
+    }
+
+    .options-modal-head h2 {
+      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .options-close {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #17191d;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .options-close:hover {
+      color: var(--text);
+      border-color: var(--line-strong);
+    }
+
+    .options-modal-body {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 36%);
+      overflow: hidden;
+    }
+
+    .options-form {
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+      border-right: 1px solid var(--line);
+    }
+
+    .options-fieldset {
+      margin: 0 0 18px;
+      padding: 0;
+      border: 0;
+    }
+
+    .options-fieldset legend {
+      margin-bottom: 10px;
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 620;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .options-field {
+      min-width: 0;
+      display: grid;
+      gap: 5px;
+    }
+
+    .options-field label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .options-field input,
+    .options-field select {
+      width: 100%;
+      height: 36px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      outline: 0;
+      background: #0b0c0e;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .options-field input:focus,
+    .options-field select:focus {
+      border-color: #3d8f88;
+    }
+
+    .options-form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .options-submit {
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid #347d78;
+      border-radius: 6px;
+      background: #10211f;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 620;
+      cursor: pointer;
+    }
+
+    .options-submit:disabled {
+      cursor: progress;
+      color: var(--faint);
+      border-color: var(--line);
+      background: #15171a;
+    }
+
+    .options-result {
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+      background: #0d0e10;
+    }
+
+    .options-result h3 {
+      font-size: 15px;
+      font-weight: 640;
+    }
+
+    .options-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .options-metric {
+      min-height: 58px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #101113;
+    }
+
+    .options-metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .options-metric strong {
+      display: block;
+      margin-top: 7px;
+      color: var(--soft);
+      font-size: 15px;
+      font-weight: 620;
+    }
+
+    .options-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .options-list li {
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      background: #101113;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .options-block {
+      margin-top: 16px;
+    }
+
     .empty {
       color: var(--muted);
       font-size: 13px;
@@ -1606,6 +1835,16 @@
         border-left: 0;
         border-top: 1px solid var(--line);
       }
+
+      .options-modal-body {
+        grid-template-columns: 1fr;
+        overflow: auto;
+      }
+
+      .options-form {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
     }
 
     @media (max-width: 680px) {
@@ -1636,6 +1875,15 @@
 
       .scanner-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .options-modal-backdrop {
+        padding: 12px;
+      }
+
+      .options-grid,
+      .options-summary {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1871,7 +2119,10 @@
         <div class="context-scroll">
           <section class="context-section">
             <p class="label">Decision</p>
-            <h3>买入 / 卖出 / AI 分析</h3>
+            <div class="section-title">
+              <h3>买入 / 卖出 / AI 分析</h3>
+              <button class="context-action-btn" id="openOptionsAssistant" type="button">期权助手</button>
+            </div>
             <div class="decision">
               <div class="decision-action">
                 <div id="decisionAction" class="action-pill watch">继续观察</div>
@@ -1915,6 +2166,134 @@
     </div>
   </div>
   <div class="metric-tooltip" id="metricTooltip" role="tooltip"></div>
+  <div class="options-modal-backdrop" id="optionsModal" hidden>
+    <div class="options-modal" role="dialog" aria-modal="true" aria-labelledby="optionsModalTitle">
+      <div class="options-modal-head">
+        <div>
+          <p class="label">Options Assistant</p>
+          <h2 id="optionsModalTitle">期权策略检查</h2>
+        </div>
+        <button class="options-close" id="closeOptionsAssistant" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="options-modal-body">
+        <form class="options-form" id="optionsForm">
+          <fieldset class="options-fieldset">
+            <legend>策略与账户</legend>
+            <div class="options-grid">
+              <div class="options-field">
+                <label for="optionStrategy">策略</label>
+                <select id="optionStrategy" name="strategy">
+                  <option value="cash_secured_put">Cash-secured put</option>
+                  <option value="covered_call">Covered call</option>
+                </select>
+              </div>
+              <div class="options-field">
+                <label for="optionEquity">账户净值</label>
+                <input id="optionEquity" name="equity" type="number" min="0" step="100" value="5000" />
+              </div>
+              <div class="options-field">
+                <label for="optionCash">可用现金</label>
+                <input id="optionCash" name="cash" type="number" min="0" step="100" value="5000" />
+              </div>
+              <div class="options-field">
+                <label for="optionMaxCashPct">单笔资金上限</label>
+                <input id="optionMaxCashPct" name="max_cash_pct" type="number" min="0" max="100" step="1" value="40" />
+              </div>
+              <div class="options-field">
+                <label for="optionShares">正股股数</label>
+                <input id="optionShares" name="stock_shares" type="number" min="0" step="1" value="0" />
+              </div>
+              <div class="options-field">
+                <label for="optionCostBasis">持仓成本</label>
+                <input id="optionCostBasis" name="stock_cost_basis" type="number" min="0" step="0.01" placeholder="可选" />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="options-fieldset">
+            <legend>股票上下文</legend>
+            <div class="options-grid">
+              <div class="options-field">
+                <label for="optionSymbol">代码</label>
+                <input id="optionSymbol" name="symbol" type="text" autocomplete="off" />
+              </div>
+              <div class="options-field">
+                <label for="optionUnderlying">当前价格</label>
+                <input id="optionUnderlying" name="underlying_price" type="number" min="0" step="0.01" />
+              </div>
+              <div class="options-field">
+                <label for="optionAsOf">日期</label>
+                <input id="optionAsOf" name="as_of" type="date" />
+              </div>
+              <div class="options-field">
+                <label for="optionSupport">支撑价</label>
+                <input id="optionSupport" name="support_price" type="number" min="0" step="0.01" placeholder="可选" />
+              </div>
+              <div class="options-field">
+                <label for="optionEarningsDays">距财报天数</label>
+                <input id="optionEarningsDays" name="earnings_days" type="number" min="0" step="1" placeholder="可选" />
+              </div>
+              <div class="options-field">
+                <label for="optionMarketRisk">市场风险</label>
+                <select id="optionMarketRisk" name="market_risk_state">
+                  <option value="Neutral">Neutral</option>
+                  <option value="Risk On">Risk On</option>
+                  <option value="Risk Off">Risk Off</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="options-fieldset">
+            <legend>期权合约</legend>
+            <div class="options-grid">
+              <div class="options-field">
+                <label for="optionType">合约方向</label>
+                <select id="optionType" name="option_type">
+                  <option value="put">Put</option>
+                  <option value="call">Call</option>
+                </select>
+              </div>
+              <div class="options-field">
+                <label for="optionStrike">Strike</label>
+                <input id="optionStrike" name="strike" type="number" min="0" step="0.01" required />
+              </div>
+              <div class="options-field">
+                <label for="optionExpiration">到期日</label>
+                <input id="optionExpiration" name="expiration" type="date" required />
+              </div>
+              <div class="options-field">
+                <label for="optionBid">Bid</label>
+                <input id="optionBid" name="bid" type="number" min="0" step="0.01" required />
+              </div>
+              <div class="options-field">
+                <label for="optionAsk">Ask</label>
+                <input id="optionAsk" name="ask" type="number" min="0" step="0.01" required />
+              </div>
+              <div class="options-field">
+                <label for="optionDelta">Delta</label>
+                <input id="optionDelta" name="delta" type="number" step="0.01" placeholder="可选" />
+              </div>
+              <div class="options-field">
+                <label for="optionOpenInterest">Open interest</label>
+                <input id="optionOpenInterest" name="open_interest" type="number" min="0" step="1" placeholder="可选" />
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="options-form-actions">
+            <button class="context-action-btn" id="resetOptionsForm" type="button">重置</button>
+            <button class="options-submit" id="submitOptionsForm" type="submit">检查策略</button>
+          </div>
+        </form>
+        <aside class="options-result" id="optionsResult">
+          <p class="label">Result</p>
+          <h3>等待输入</h3>
+          <p class="analysis-summary">输入期权合约后，这里会显示资金占用、盈亏平衡、硬性风险和观察项。</p>
+        </aside>
+      </div>
+    </div>
+  </div>
 
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <script>
@@ -1971,6 +2350,7 @@
       bindRefresh();
       bindIndicatorSwitch();
       bindMetricTooltips();
+      bindOptionsAssistant();
       bindSplitters();
       await selectPool(state.activePoolId);
     }
@@ -3238,6 +3618,176 @@
       });
     }
 
+    function bindOptionsAssistant() {
+      document.getElementById("openOptionsAssistant").addEventListener("click", () => {
+        openOptionsAssistant();
+      });
+      document.getElementById("closeOptionsAssistant").addEventListener("click", () => {
+        closeOptionsAssistant();
+      });
+      document.getElementById("optionsModal").addEventListener("click", event => {
+        if (event.target.id === "optionsModal") closeOptionsAssistant();
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !document.getElementById("optionsModal").hidden) {
+          closeOptionsAssistant();
+        }
+      });
+      document.getElementById("resetOptionsForm").addEventListener("click", () => {
+        populateOptionsForm();
+        renderOptionsPlaceholder();
+      });
+      document.getElementById("optionStrategy").addEventListener("change", syncOptionsStrategyFields);
+      document.getElementById("optionsForm").addEventListener("submit", event => {
+        event.preventDefault();
+        submitOptionsForm().catch(error => renderOptionsError(error));
+      });
+    }
+
+    function openOptionsAssistant() {
+      if (!state.activeItem) return;
+      populateOptionsForm();
+      renderOptionsPlaceholder();
+      document.getElementById("optionsModal").hidden = false;
+      setTimeout(() => document.getElementById("optionStrike").focus(), 0);
+    }
+
+    function closeOptionsAssistant() {
+      document.getElementById("optionsModal").hidden = true;
+    }
+
+    function populateOptionsForm() {
+      const item = state.activeItem || {};
+      const indicators = item.indicators || {};
+      setInputValue("optionSymbol", item.symbol || "");
+      setInputValue("optionUnderlying", priceInputValue(realtimeDisplayPrice(item) ?? item.latest_close));
+      setInputValue("optionAsOf", item.latest_history_date_us || todayDateKey());
+      setInputValue("optionExpiration", futureDateKey(45));
+      setInputValue("optionSupport", priceInputValue(indicators.bbands_lower));
+      setInputValue("optionEarningsDays", item.next_earnings_date ? daysUntil(item.next_earnings_date) : "");
+      setInputValue("optionMarketRisk", "Neutral");
+      syncOptionsStrategyFields();
+    }
+
+    function syncOptionsStrategyFields() {
+      const strategy = document.getElementById("optionStrategy").value;
+      const optionType = document.getElementById("optionType");
+      if (strategy === "covered_call") {
+        optionType.value = "call";
+      } else {
+        optionType.value = "put";
+      }
+    }
+
+    async function submitOptionsForm() {
+      const submit = document.getElementById("submitOptionsForm");
+      submit.disabled = true;
+      submit.textContent = "检查中";
+      try {
+        const payload = buildOptionsPayload();
+        const result = await apiJson("/api/options/evaluate", payload);
+        renderOptionsResult(result.evaluation);
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "检查策略";
+      }
+    }
+
+    function buildOptionsPayload() {
+      const strategy = inputValue("optionStrategy");
+      const symbol = inputValue("optionSymbol").toUpperCase();
+      const underlyingPrice = requiredNumber("optionUnderlying", "当前价格");
+      return {
+        strategy,
+        account: {
+          equity: numberValue("optionEquity") ?? 5000,
+          cash: numberValue("optionCash") ?? 5000,
+          max_cash_per_trade_pct: (numberValue("optionMaxCashPct") ?? 40) / 100,
+          max_loss_pct: 0.5,
+          allow_assignment: true,
+          stock_shares: numberValue("optionShares") ?? 0,
+          stock_cost_basis: numberValue("optionCostBasis"),
+        },
+        stock: {
+          symbol,
+          current_price: underlyingPrice,
+          as_of: inputValue("optionAsOf") || todayDateKey(),
+          support_price: numberValue("optionSupport"),
+          rsi14: state.activeItem?.indicators?.rsi_14 ?? null,
+          earnings_days: numberValue("optionEarningsDays"),
+          market_risk_state: inputValue("optionMarketRisk") || "Neutral",
+        },
+        contract: {
+          option_type: inputValue("optionType"),
+          strike: requiredNumber("optionStrike", "Strike"),
+          expiration: inputValue("optionExpiration"),
+          bid: requiredNumber("optionBid", "Bid"),
+          ask: requiredNumber("optionAsk", "Ask"),
+          delta: numberValue("optionDelta"),
+          open_interest: numberValue("optionOpenInterest"),
+        },
+      };
+    }
+
+    function renderOptionsPlaceholder() {
+      document.getElementById("optionsResult").innerHTML = `
+        <p class="label">Result</p>
+        <h3>${escapeHtml(state.activeItem?.symbol || "-")} 期权检查</h3>
+        <p class="analysis-summary">输入期权合约后，这里会显示资金占用、盈亏平衡、硬性风险和观察项。</p>
+      `;
+    }
+
+    function renderOptionsResult(evaluation) {
+      const decisionClass = optionDecisionClass(evaluation.decision);
+      document.getElementById("optionsResult").innerHTML = `
+        <p class="label">Result</p>
+        <div class="decision-action">
+          <h3>${escapeHtml(evaluation.symbol || "-")} · ${optionStrategyLabel(evaluation.strategy)}</h3>
+          <div class="action-pill ${decisionClass}">${escapeHtml(evaluation.decision || "-")}</div>
+        </div>
+        <div class="options-summary">
+          ${optionMetric("资金占用", money(evaluation.capital_required))}
+          ${optionMetric("权利金", money(evaluation.premium_income))}
+          ${optionMetric("最大亏损估算", money(evaluation.max_loss_estimate))}
+          ${optionMetric("盈亏平衡", money(evaluation.breakeven))}
+          ${optionMetric("DTE", integerNumber(evaluation.dte))}
+          ${optionMetric("年化参考", evaluation.annualized_return_pct == null ? "-" : `${plainNumber(evaluation.annualized_return_pct)}%`)}
+        </div>
+        ${optionList("硬性不通过", evaluation.violations, "当前不适合执行。")}
+        ${optionList("需要观察", evaluation.warnings, "没有额外观察项。")}
+        ${optionList("通过项", evaluation.confirmations, "暂无通过项。")}
+      `;
+    }
+
+    function renderOptionsError(error) {
+      document.getElementById("optionsResult").innerHTML = `
+        <p class="label">Result</p>
+        <h3>检查失败</h3>
+        <p class="analysis-summary">${escapeHtml(error.message || String(error))}</p>
+      `;
+    }
+
+    function optionMetric(label, value) {
+      return `
+        <div class="options-metric">
+          <span>${escapeHtml(label)}</span>
+          <strong class="numeric">${escapeHtml(value)}</strong>
+        </div>
+      `;
+    }
+
+    function optionList(title, items, emptyText) {
+      const rows = (items || []).length
+        ? items.map(item => `<li>${escapeHtml(item)}</li>`).join("")
+        : `<li>${escapeHtml(emptyText)}</li>`;
+      return `
+        <div class="options-block">
+          <p class="label">${escapeHtml(title)}</p>
+          <ul class="options-list">${rows}</ul>
+        </div>
+      `;
+    }
+
     function positionMetricTooltip(target) {
       const tooltip = document.getElementById("metricTooltip");
       const rect = target.getBoundingClientRect();
@@ -3355,6 +3905,72 @@
         throw new Error(payload.error || `HTTP ${res.status}`);
       }
       return res.json();
+    }
+
+    async function apiJson(url, payload) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(body.error || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    function setInputValue(id, value) {
+      document.getElementById(id).value = value ?? "";
+    }
+
+    function inputValue(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function numberValue(id) {
+      const value = inputValue(id);
+      if (!value) return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function requiredNumber(id, label) {
+      const number = numberValue(id);
+      if (number === null) {
+        throw new Error(`${label} 不能为空`);
+      }
+      return number;
+    }
+
+    function priceInputValue(value) {
+      const number = toNumber(value);
+      return number === null ? "" : number.toFixed(2);
+    }
+
+    function todayDateKey() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function futureDateKey(days) {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function daysUntil(dateValue) {
+      if (!dateValue) return "";
+      const target = new Date(dateValue);
+      if (Number.isNaN(target.getTime())) return "";
+      const today = new Date(todayDateKey());
+      return Math.max(0, Math.ceil((target - today) / (1000 * 60 * 60 * 24)));
     }
 
     function money(value) {
@@ -3642,6 +4258,23 @@
         review: "review",
       };
       return map[value] || "watch";
+    }
+
+    function optionDecisionClass(value) {
+      const map = {
+        "符合策略": "buy",
+        "继续观察": "review",
+        "不适合": "avoid",
+      };
+      return map[value] || "watch";
+    }
+
+    function optionStrategyLabel(value) {
+      const map = {
+        cash_secured_put: "Cash-secured put",
+        covered_call: "Covered call",
+      };
+      return map[value] || value || "-";
     }
 
     function eventSeverityLabel(value) {

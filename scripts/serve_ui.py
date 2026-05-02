@@ -18,10 +18,12 @@ if str(SRC_ROOT) not in sys.path:
 
 from quant_platform.config import load_settings
 from quant_platform.console_output import quiet_known_native_stderr
+from quant_platform.options import AccountProfile, OptionContract, OptionsAssistantService, OptionStrategyRequest, StockOptionContext
 from quant_platform.services import DailyRefreshScheduler, UIDataService
 
 SETTINGS = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
 UI_SERVICE = UIDataService(SETTINGS)
+OPTIONS_SERVICE = OptionsAssistantService()
 SCHEDULER = DailyRefreshScheduler(SETTINGS, project_root=PROJECT_ROOT)
 
 
@@ -36,6 +38,13 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             self._handle_api(parsed)
             return
         super().do_GET()
+
+    def do_POST(self) -> None:  # noqa: N802
+        parsed = urlparse(self.path)
+        if parsed.path == "/api/options/evaluate":
+            self._handle_options_evaluate()
+            return
+        self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
 
     def _handle_api(self, parsed) -> None:
         query = parse_qs(parsed.query)
@@ -100,6 +109,27 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
+    def _handle_options_evaluate(self) -> None:
+        try:
+            payload = self._read_json_body()
+            request = _option_request_from_payload(payload)
+            evaluation = OPTIONS_SERVICE.evaluate(request)
+            response: dict[str, object] = {"evaluation": evaluation.to_dict()}
+            if bool(payload.get("with_prompt")):
+                response["ai_prompt"] = OPTIONS_SERVICE.build_ai_prompt(evaluation)
+            self._respond_json(response)
+        except Exception as exc:  # noqa: BLE001
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+
+    def _read_json_body(self) -> dict[str, object]:
+        length = int(self.headers.get("Content-Length") or 0)
+        if length <= 0:
+            return {}
+        payload = json.loads(self.rfile.read(length).decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("JSON body must be an object")
+        return payload
+
     def _respond_json(self, payload: dict[str, object], status: HTTPStatus = HTTPStatus.OK) -> None:
         encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
@@ -117,6 +147,103 @@ def _optional_date(value: str) -> date | None:
 
 def _env_bool(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _option_request_from_payload(payload: dict[str, object]) -> OptionStrategyRequest:
+    account_payload = payload.get("account") if isinstance(payload.get("account"), dict) else {}
+    stock_payload = payload.get("stock") if isinstance(payload.get("stock"), dict) else {}
+    contract_payload = payload.get("contract") if isinstance(payload.get("contract"), dict) else {}
+    if not isinstance(account_payload, dict) or not isinstance(stock_payload, dict) or not isinstance(contract_payload, dict):
+        raise ValueError("account, stock, and contract must be objects")
+
+    strategy = str(payload.get("strategy") or "")
+    symbol = str(stock_payload.get("symbol") or contract_payload.get("symbol") or payload.get("symbol") or "").upper()
+    if strategy not in {"cash_secured_put", "covered_call"}:
+        raise ValueError("strategy must be cash_secured_put or covered_call")
+    if not symbol:
+        raise ValueError("symbol is required")
+    option_type = str(contract_payload.get("option_type") or "")
+    if option_type not in {"put", "call"}:
+        raise ValueError("contract.option_type must be put or call")
+
+    return OptionStrategyRequest(
+        strategy=strategy,  # type: ignore[arg-type]
+        account=AccountProfile(
+            equity=_float(account_payload.get("equity"), 5_000),
+            cash=_float(account_payload.get("cash"), 5_000),
+            max_cash_per_trade_pct=_float(account_payload.get("max_cash_per_trade_pct"), 0.4),
+            max_loss_pct=_float(account_payload.get("max_loss_pct"), 0.5),
+            allow_assignment=_bool(account_payload.get("allow_assignment"), True),
+            stock_shares=int(account_payload.get("stock_shares") or 0),
+            stock_cost_basis=_optional_float(account_payload.get("stock_cost_basis")),
+        ),
+        stock=StockOptionContext(
+            symbol=symbol,
+            current_price=_required_float(stock_payload.get("current_price"), "stock.current_price"),
+            as_of=date.fromisoformat(str(stock_payload.get("as_of") or date.today().isoformat())),
+            support_price=_optional_float(stock_payload.get("support_price")),
+            resistance_price=_optional_float(stock_payload.get("resistance_price")),
+            trend_state=_optional_str(stock_payload.get("trend_state")),
+            rsi14=_optional_float(stock_payload.get("rsi14")),
+            earnings_days=_optional_int(stock_payload.get("earnings_days")),
+            market_risk_state=_optional_str(stock_payload.get("market_risk_state")),
+        ),
+        contract=OptionContract(
+            symbol=symbol,
+            option_type=option_type,  # type: ignore[arg-type]
+            strike=_required_float(contract_payload.get("strike"), "contract.strike"),
+            expiration=date.fromisoformat(str(contract_payload.get("expiration"))),
+            bid=_required_float(contract_payload.get("bid"), "contract.bid"),
+            ask=_required_float(contract_payload.get("ask"), "contract.ask"),
+            delta=_optional_float(contract_payload.get("delta")),
+            implied_volatility=_optional_float(contract_payload.get("implied_volatility")),
+            volume=_optional_int(contract_payload.get("volume")),
+            open_interest=_optional_int(contract_payload.get("open_interest")),
+        ),
+    )
+
+
+def _required_float(value: object, field_name: str) -> float:
+    result = _optional_float(value)
+    if result is None:
+        raise ValueError(f"{field_name} is required")
+    return result
+
+
+def _float(value: object, default: float) -> float:
+    result = _optional_float(value)
+    return default if result is None else result
+
+
+def _bool(value: object, default: bool) -> bool:
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"invalid boolean value: {value}")
+
+
+def _optional_float(value: object) -> float | None:
+    if value in (None, ""):
+        return None
+    return float(value)
+
+
+def _optional_int(value: object) -> int | None:
+    if value in (None, ""):
+        return None
+    return int(value)
+
+
+def _optional_str(value: object) -> str | None:
+    if value in (None, ""):
+        return None
+    return str(value)
 
 
 def main() -> None:
