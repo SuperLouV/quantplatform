@@ -14,6 +14,12 @@ Current product stage:
 - Manual trading decision support
 - Not a real-money automatic trading system yet
 
+Hard execution boundary:
+
+- Do not implement real-money order placement, cancellation, replacement, or automatic trade execution.
+- Longbridge / broker integrations are read-only for market data, account cash, buying power, positions, and options chains.
+- Any trading action must remain a manual user action in the brokerage interface.
+
 Current design direction:
 
 - Quant rules are the core.

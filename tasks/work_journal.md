@@ -149,3 +149,4 @@
 - 个股右侧工作栏新增“期权助手”入口：前端可手工输入期权合约并调用本地规则层，按资金占用、盈亏平衡、硬性不通过、观察项和通过项展示结果
 - 新增 Longbridge Terminal CLI 只读数据源原型：`src/quant_platform/clients/longbridge_cli.py` 通过本地 `longbridge quote SYMBOL.US --format json` 获取行情，并归一化到现有快照字段；新增 `make longbridge-quote LONGBRIDGE_SYMBOL=AAPL`
 - 单股强制刷新接入 `quote_provider: auto`：`/api/snapshot?force_refresh=1` 优先 Longbridge CLI，失败时 fallback 到 yfinance；快照写入 `quote_provider` / `quote_provider_status`，前端数据状态展示来源
+- 明确项目执行边界：Longbridge / broker 后续只读账户、现金、购买力、持仓和期权链等信息用于分析，禁止实现真实下单、撤单、改单或自动执行交易动作

@@ -11,7 +11,8 @@ Longbridge 在本项目中先作为只读研究数据源，不作为自动交易
 - Skill / MCP 给 AI 开发助手使用，不进入项目运行时代码
 - CLI 作为本机原型接入方式，依赖用户本地 OAuth 登录状态
 - SDK / OpenAPI 作为后续更正式的数据源实现
-- 暂不启用自动下单、撤单或账户交易动作
+- 只读取行情、账户资金、购买力、持仓、期权链等信息用于分析
+- 禁止实现下单、撤单、改单、自动执行交易动作
 
 ## 三种接入方式
 
@@ -89,13 +90,18 @@ data:
 ## 后续优先级
 
 1. 接 `market_status` 和 `trading_days`，替代本地简化交易日判断。
-2. 接期权链：
+2. 接只读账户信息：
+   - `assets`
+   - `portfolio`
+   - `positions`
+   - 用于期权助手自动判断现金担保、购买力、持股数量和成本价
+3. 接期权链：
    - expiration 列表
    - 指定日期 option chain
    - option quote
    - bid / ask / delta / IV / volume / open interest
-3. 将期权助手从手工输入升级为自动读取候选合约。
-4. 评估 SDK Provider，降低 CLI subprocess 依赖。
+4. 将期权助手从手工输入升级为自动读取候选合约。
+5. 评估 SDK Provider，降低 CLI subprocess 依赖。
 
 ## 风控边界
 
@@ -108,4 +114,9 @@ data:
 - 回测
 - 人工决策辅助
 
-交易动作必须由用户在券商界面人工确认。
+交易动作必须由用户在券商界面人工确认。项目代码不得调用或封装真实交易命令，例如：
+
+- `longbridge order buy`
+- `longbridge order sell`
+- `longbridge order cancel`
+- `longbridge order replace`

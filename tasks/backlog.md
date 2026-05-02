@@ -32,9 +32,12 @@
   - 期权链数据源评估：Longbridge、IBKR、Polygon、Tradier、yfinance fallback
   - 飞书 / Telegram channel adapter
 - Longbridge 数据源后续：
+  - 只读账户信息：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
   - 接 Longbridge `market_status` / `trading_days`
   - 接 Longbridge 期权链、期权报价和期权成交持仓字段
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖
+- 禁止范围：
+  - 不实现 Longbridge / broker 真实下单、撤单、改单或自动执行交易动作
 - 最小回测框架：
   - 日线长仓
   - 交易成本和滑点
