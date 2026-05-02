@@ -28,6 +28,7 @@ class DataConfig:
     yfinance_history_repair: bool = True
     yfinance_history_prepost: bool = False
     yfinance_initial_history_years: int = 10
+    longbridge_cli_binary: str = "longbridge"
 
 
 @dataclass(slots=True)
@@ -156,6 +157,8 @@ def load_settings(path: str | Path) -> Settings:
                 os.environ.get("QP_YFINANCE_INITIAL_HISTORY_YEARS")
                 or market_data.get("yfinance_initial_history_years", 10)
             ),
+            longbridge_cli_binary=os.environ.get("QP_LONGBRIDGE_CLI_BINARY")
+            or market_data.get("longbridge_cli_binary", "longbridge"),
         ),
         storage=StorageConfig(
             raw_dir=(base_dir / storage.get("raw_dir", "data/raw")).resolve(),

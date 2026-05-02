@@ -49,6 +49,7 @@ Codex 接手入口：
 - 已参考外部策略扫描方案，落地 `Scanner Strategy V1` 的第一批基础字段：池内截面动量排名、跳过最近 5 日的 20/60/120 日收益、RSI 变化、60 日成交量 z-score 和 ATR 归一化趋势距离；扫描页会在本地缓存缺少新字段时从本地 parquet 兜底计算，不联网
 - 已新增中文 Markdown 每日报告 MVP，汇总本地市场概览、scanner 候选、市场事件、数据刷新摘要和给 AI 的分析提示
 - 已新增期权策略 MVP，支持 `cash_secured_put` 和 `covered_call` 的规则层风险检查；右侧工作栏已有“期权助手”入口，可手工输入合约并展示资金占用、盈亏平衡、硬性风险和观察项，不自动下单
+- 已新增 Longbridge Terminal CLI 只读数据源原型，可通过本地 OAuth 登录后的 `longbridge quote` 获取实时、盘前和盘后行情，并归一化为项目快照字段
 - 下一步重点是补齐风控建议、扫描结果持久化、市场概览 ETF 历史更新和最小回测
 
 ## 当前主流程
@@ -109,6 +110,7 @@ flowchart TD
 - [docs/strategy/strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/strategy-v1.md)
 - [docs/strategy/scanner-strategy-v1.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/scanner-strategy-v1.md)
 - [docs/strategy/options-strategy-mvp.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/strategy/options-strategy-mvp.md)
+- [docs/data-sources/longbridge-integration.md](/Users/louyilin/项目文件夹/QuantPlatform/docs/data-sources/longbridge-integration.md)
 
 Codex 新会话请先阅读：
 
@@ -127,6 +129,7 @@ Codex 新会话请先阅读：
 - 计算单个标的本地技术指标：`PYTHONPATH=src python3 scripts/compute_indicators.py AAPL`
 - 检测单个标的本地规则信号：`PYTHONPATH=src python3 scripts/detect_signals.py AAPL`
 - 手动评估一笔期权策略：`PYTHONPATH=src python3 scripts/evaluate_option_strategy.py --strategy cash_secured_put --symbol TSM --as-of 2026-05-01 --underlying-price 140 --option-type put --strike 130 --expiration 2026-06-19 --bid 2.0 --ask 2.2 --delta -0.24 --open-interest 500`
+- 查询 Longbridge CLI 只读行情：`make longbridge-quote LONGBRIDGE_SYMBOL=AAPL`
 - 更新全市场重大事件日历：`PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 - 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`

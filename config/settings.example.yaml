@@ -14,6 +14,7 @@ data:
   yfinance_history_repair: true
   yfinance_history_prepost: false
   yfinance_initial_history_years: 10
+  longbridge_cli_binary: longbridge
 
 storage:
   raw_dir: data/raw
