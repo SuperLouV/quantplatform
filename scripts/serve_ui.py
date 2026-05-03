@@ -18,7 +18,15 @@ if str(SRC_ROOT) not in sys.path:
 
 from quant_platform.config import load_settings
 from quant_platform.console_output import quiet_known_native_stderr
-from quant_platform.options import AccountProfile, OptionContract, OptionsAssistantService, OptionStrategyRequest, StockOptionContext
+from quant_platform.clients import LongbridgeCLIClient
+from quant_platform.options import (
+    AccountProfile,
+    OptionContract,
+    OptionsAssistantService,
+    OptionStrategyRequest,
+    SellPutScanConfig,
+    StockOptionContext,
+)
 from quant_platform.services import DailyRefreshScheduler, UIDataService
 
 SETTINGS = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
@@ -43,6 +51,9 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/options/evaluate":
             self._handle_options_evaluate()
+            return
+        if parsed.path == "/api/options/scan-sell-put":
+            self._handle_options_scan_sell_put()
             return
         self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
 
@@ -118,6 +129,15 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             if bool(payload.get("with_prompt")):
                 response["ai_prompt"] = OPTIONS_SERVICE.build_ai_prompt(evaluation)
             self._respond_json(response)
+        except Exception as exc:  # noqa: BLE001
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+
+    def _handle_options_scan_sell_put(self) -> None:
+        try:
+            payload = self._read_json_body()
+            with quiet_known_native_stderr():
+                result = _sell_put_scan_from_payload(payload)
+            self._respond_json({"scan": result.to_dict()})
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
@@ -201,6 +221,62 @@ def _option_request_from_payload(payload: dict[str, object]) -> OptionStrategyRe
             open_interest=_optional_int(contract_payload.get("open_interest")),
         ),
     )
+
+
+def _sell_put_scan_from_payload(payload: dict[str, object]):
+    account_payload = payload.get("account") if isinstance(payload.get("account"), dict) else {}
+    config_payload = payload.get("config") if isinstance(payload.get("config"), dict) else {}
+    if not isinstance(account_payload, dict) or not isinstance(config_payload, dict):
+        raise ValueError("account and config must be objects")
+
+    symbol = str(payload.get("symbol") or "").upper()
+    if not symbol:
+        raise ValueError("symbol is required")
+    as_of = date.fromisoformat(str(payload.get("as_of") or date.today().isoformat()))
+
+    config = SellPutScanConfig(
+        min_dte=int(config_payload.get("min_dte") or 14),
+        max_dte=int(config_payload.get("max_dte") or 45),
+        min_otm_pct=_float(config_payload.get("min_otm_pct"), 0.05),
+        max_otm_pct=_float(config_payload.get("max_otm_pct"), 0.30),
+        max_cash_per_trade_pct=_float(config_payload.get("max_cash_per_trade_pct"), 0.4),
+        max_candidates_per_symbol=int(config_payload.get("max_candidates_per_symbol") or 12),
+    )
+    account = AccountProfile(
+        equity=_float(account_payload.get("equity"), 5_000),
+        cash=_float(account_payload.get("cash"), 5_000),
+        max_cash_per_trade_pct=config.max_cash_per_trade_pct,
+    )
+    client = LongbridgeCLIClient.from_data_config(SETTINGS.data)
+    quote = client.fetch_quote_snapshot(symbol)
+    underlying_price = _required_float(
+        payload.get("underlying_price") or quote.get("current_price") or quote.get("regular_market_price"),
+        "underlying_price",
+    )
+    expirations = [
+        expiration
+        for expiration in client.fetch_option_expirations(symbol)
+        if config.min_dte <= (expiration - as_of).days <= config.max_dte
+    ]
+    chains = {expiration: client.fetch_option_chain(symbol, expiration) for expiration in expirations}
+    option_volume = _safe_option_volume(client, symbol)
+    return OPTIONS_SERVICE.scan_sell_put(
+        symbol=symbol,
+        underlying_price=underlying_price,
+        as_of=as_of,
+        account=account,
+        expirations=expirations,
+        chains_by_expiration=chains,
+        option_volume_payload=option_volume,
+        config=config,
+    )
+
+
+def _safe_option_volume(client: LongbridgeCLIClient, symbol: str) -> dict[str, object] | None:
+    try:
+        return client.fetch_option_volume(symbol)
+    except Exception:  # noqa: BLE001 - option volume is useful context, not required for the scan.
+        return None
 
 
 def _required_float(value: object, field_name: str) -> float:

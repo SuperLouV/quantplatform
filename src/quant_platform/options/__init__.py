@@ -5,6 +5,10 @@ from quant_platform.options.models import (
     OptionContract,
     OptionEvaluation,
     OptionStrategyRequest,
+    OptionVolumeSnapshot,
+    SellPutCandidate,
+    SellPutScanConfig,
+    SellPutScanResult,
     StockOptionContext,
 )
 from quant_platform.options.service import OptionsAssistantService
@@ -14,6 +18,10 @@ __all__ = [
     "OptionContract",
     "OptionEvaluation",
     "OptionStrategyRequest",
+    "OptionVolumeSnapshot",
     "OptionsAssistantService",
+    "SellPutCandidate",
+    "SellPutScanConfig",
+    "SellPutScanResult",
     "StockOptionContext",
 ]

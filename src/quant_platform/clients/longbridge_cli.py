@@ -36,7 +36,63 @@ class LongbridgeCLIClient:
 
     def fetch_quote(self, symbol: str) -> dict[str, Any]:
         provider_symbol = to_longbridge_symbol(symbol)
-        command = [self.binary, "quote", provider_symbol, "--format", "json"]
+        payload = self._run_json(["quote", provider_symbol], label=f"quote {provider_symbol}")
+        if not isinstance(payload, list) or not payload or not isinstance(payload[0], dict):
+            raise LongbridgeCLIError("Longbridge CLI quote output must be a non-empty JSON array.")
+        return payload[0]
+
+    def fetch_assets(self, currency: str = "USD") -> dict[str, Any]:
+        payload = self._run_json(["assets", "--currency", currency.upper()], label=f"assets {currency.upper()}")
+        if not isinstance(payload, dict):
+            raise LongbridgeCLIError("Longbridge CLI assets output must be a JSON object.")
+        return payload
+
+    def fetch_portfolio(self) -> dict[str, Any]:
+        payload = self._run_json(["portfolio"], label="portfolio")
+        if not isinstance(payload, dict):
+            raise LongbridgeCLIError("Longbridge CLI portfolio output must be a JSON object.")
+        return payload
+
+    def fetch_positions(self) -> list[dict[str, Any]]:
+        payload = self._run_json(["positions"], label="positions")
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI positions output must be a JSON array.")
+        return [item for item in payload if isinstance(item, dict)]
+
+    def fetch_option_expirations(self, symbol: str) -> list[date]:
+        provider_symbol = to_longbridge_symbol(symbol)
+        payload = self._run_json(["option", "chain", provider_symbol], label=f"option chain {provider_symbol}")
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI option chain expirations output must be a JSON array.")
+        expirations: list[date] = []
+        for item in payload:
+            if not isinstance(item, dict) or not item.get("expiry_date"):
+                continue
+            try:
+                expirations.append(date.fromisoformat(str(item["expiry_date"])))
+            except ValueError:
+                continue
+        return expirations
+
+    def fetch_option_chain(self, symbol: str, expiration: date) -> list[dict[str, Any]]:
+        provider_symbol = to_longbridge_symbol(symbol)
+        payload = self._run_json(
+            ["option", "chain", provider_symbol, "--date", expiration.isoformat()],
+            label=f"option chain {provider_symbol} {expiration.isoformat()}",
+        )
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI option chain output must be a JSON array.")
+        return [item for item in payload if isinstance(item, dict)]
+
+    def fetch_option_volume(self, symbol: str) -> dict[str, Any]:
+        provider_symbol = to_longbridge_symbol(symbol)
+        payload = self._run_json(["option", "volume", provider_symbol], label=f"option volume {provider_symbol}")
+        if not isinstance(payload, dict):
+            raise LongbridgeCLIError("Longbridge CLI option volume output must be a JSON object.")
+        return payload
+
+    def _run_json(self, args: list[str], *, label: str) -> Any:
+        command = [self.binary, *args, "--format", "json"]
         try:
             result = subprocess.run(
                 command,
@@ -50,20 +106,16 @@ class LongbridgeCLIClient:
                 f"Longbridge CLI not found: {self.binary}. Install longbridge-terminal and run auth login."
             ) from exc
         except subprocess.TimeoutExpired as exc:
-            raise LongbridgeCLIError(f"Longbridge CLI quote timed out for {provider_symbol}.") from exc
+            raise LongbridgeCLIError(f"Longbridge CLI command timed out: {label}.") from exc
 
         if result.returncode != 0:
             detail = (result.stderr or result.stdout or "").strip()
-            raise LongbridgeCLIError(f"Longbridge CLI quote failed for {provider_symbol}: {detail}")
+            raise LongbridgeCLIError(f"Longbridge CLI command failed for {label}: {detail}")
 
         try:
-            payload = json.loads(result.stdout)
+            return json.loads(result.stdout)
         except json.JSONDecodeError as exc:
-            raise LongbridgeCLIError("Longbridge CLI returned non-JSON quote output.") from exc
-
-        if not isinstance(payload, list) or not payload or not isinstance(payload[0], dict):
-            raise LongbridgeCLIError("Longbridge CLI quote output must be a non-empty JSON array.")
-        return payload[0]
+            raise LongbridgeCLIError(f"Longbridge CLI returned non-JSON output for {label}.") from exc
 
 
 def to_longbridge_symbol(symbol: str) -> str:

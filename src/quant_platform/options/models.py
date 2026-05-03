@@ -10,6 +10,7 @@ from typing import Any, Literal
 OptionType = Literal["put", "call"]
 OptionStrategy = Literal["cash_secured_put", "covered_call"]
 OptionDecision = Literal["符合策略", "继续观察", "不适合"]
+OptionCandidateStatus = Literal["candidate", "watch", "blocked"]
 
 
 @dataclass(slots=True)
@@ -137,3 +138,91 @@ class OptionEvaluation:
 
 def _round_optional(value: float | None) -> float | None:
     return None if value is None else round(value, 2)
+
+
+@dataclass(slots=True)
+class SellPutScanConfig:
+    min_dte: int = 14
+    max_dte: int = 45
+    min_otm_pct: float = 0.05
+    max_otm_pct: float = 0.30
+    max_cash_per_trade_pct: float = 0.4
+    max_candidates_per_symbol: int = 12
+    include_non_standard: bool = False
+    leveraged_symbols: set[str] = field(default_factory=lambda: {"TQQQ", "SQQQ", "SOXL", "SOXS", "NVDL", "TSLL"})
+
+
+@dataclass(slots=True)
+class OptionVolumeSnapshot:
+    call_volume: int | None = None
+    put_volume: int | None = None
+
+    @property
+    def put_call_ratio(self) -> float | None:
+        if self.call_volume in (None, 0) or self.put_volume is None:
+            return None
+        return self.put_volume / self.call_volume
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "call_volume": self.call_volume,
+            "put_volume": self.put_volume,
+            "put_call_ratio": _round_optional(self.put_call_ratio),
+        }
+
+
+@dataclass(slots=True)
+class SellPutCandidate:
+    symbol: str
+    underlying_price: float
+    expiration: date
+    dte: int
+    strike: float
+    put_symbol: str
+    cash_required: float
+    cash_required_pct: float
+    otm_pct: float
+    status: OptionCandidateStatus
+    reasons: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    quote_required: bool = True
+    quote_access: str = "missing"
+    option_volume: OptionVolumeSnapshot | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "symbol": self.symbol,
+            "underlying_price": round(self.underlying_price, 2),
+            "expiration": self.expiration.isoformat(),
+            "dte": self.dte,
+            "strike": round(self.strike, 2),
+            "put_symbol": self.put_symbol,
+            "cash_required": round(self.cash_required, 2),
+            "cash_required_pct": round(self.cash_required_pct, 2),
+            "otm_pct": round(self.otm_pct, 2),
+            "status": self.status,
+            "reasons": self.reasons,
+            "warnings": self.warnings,
+            "quote_required": self.quote_required,
+            "quote_access": self.quote_access,
+            "option_volume": self.option_volume.to_dict() if self.option_volume else None,
+        }
+
+
+@dataclass(slots=True)
+class SellPutScanResult:
+    symbol: str
+    generated_at_beijing: str
+    candidates: list[SellPutCandidate]
+    rejected_count: int
+    notes: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "symbol": self.symbol,
+            "generated_at_beijing": self.generated_at_beijing,
+            "candidate_count": len(self.candidates),
+            "rejected_count": self.rejected_count,
+            "notes": self.notes,
+            "candidates": [candidate.to_dict() for candidate in self.candidates],
+        }

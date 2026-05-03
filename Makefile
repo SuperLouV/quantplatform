@@ -8,10 +8,11 @@ YEARS ?= 10
 OPTION_STRATEGY ?= cash_secured_put
 OPTION_ARGS ?= --help
 LONGBRIDGE_SYMBOL ?= AAPL
+OPTION_SCAN_SYMBOL ?= AAPL
 LOG_TO_CONSOLE ?= 0
 CONSOLE_LOG_ENV = QP_LOG_TO_CONSOLE=$(LOG_TO_CONSOLE)
 
-.PHONY: ui check events history history-full option-evaluate longbridge-quote market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
+.PHONY: ui check events history history-full option-evaluate option-scan-symbol longbridge-quote market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
 
 ui:
 	@$(CONSOLE_LOG_ENV) $(PYTHON) scripts/serve_ui.py $(PORT)
@@ -32,6 +33,9 @@ history-full:
 
 option-evaluate:
 	@PYTHONPATH=src $(PYTHON) scripts/evaluate_option_strategy.py $(OPTION_ARGS)
+
+option-scan-symbol:
+	@PYTHONPATH=src $(PYTHON) scripts/scan_sell_put_candidates.py $(OPTION_SCAN_SYMBOL)
 
 longbridge-quote:
 	@PYTHONPATH=src $(PYTHON) scripts/query_longbridge_quote.py $(LONGBRIDGE_SYMBOL)

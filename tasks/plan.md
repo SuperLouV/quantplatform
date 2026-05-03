@@ -71,6 +71,7 @@
 - 市场状态过滤：SPY/QQQ/VIX/市场宽度
 - provider fallback 和更可靠行情源
 - 期权助手 V2：Longbridge 当前可读期权链和成交量统计，但具体合约 `option quote` 可能受行情权限限制，因此要先设计无报价权限也能运行的候选扫描骨架
+- UI/架构拆分：参考 Longbridge 深蓝黑纯色工作台风格，后续拆分 `ui/index.html`、`scripts/serve_ui.py` 和 `UIDataService`
 
 ## 优化后的执行路线
 
@@ -284,9 +285,9 @@
 
 接下来优先做：
 
-1. Longbridge 只读账户信息：接 `assets / portfolio / positions`，用于期权助手自动读取现金、购买力、持仓股数和成本价。
-2. Longbridge 期权链 V2A：接 `option chain` 和 `option volume`，先做无具体合约报价权限也能运行的 SELL PUT 候选扫描骨架。
-3. 将期权助手 UI 从复杂手工表单改成“扫描任务 + 候选列表”，报价字段缺失时明确提示需要手工确认 bid/ask。
+1. 完成期权助手 V2A 前端体验：候选点击填入合约检查表单、默认池扫描、明确缺少 bid/ask。
+2. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
+3. Longbridge 只读账户信息：接 `assets / portfolio / positions`，用于期权助手自动读取现金、购买力、持仓股数和成本价。
 4. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险。
 5. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
 6. 扩展市场概览数据更新范围：DIA、^VIX 和 11 个 SPDR sector ETF。

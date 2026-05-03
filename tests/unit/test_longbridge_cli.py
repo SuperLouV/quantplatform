@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import unittest
+from datetime import date
 from unittest.mock import patch
 
 from quant_platform.clients.longbridge_cli import LongbridgeCLIClient, normalize_quote_snapshot, to_longbridge_symbol
@@ -77,6 +78,60 @@ class LongbridgeCLITest(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 7)
         self.assertEqual(payload["symbol"], "AAPL")
         self.assertEqual(payload["current_price"], 280.07)
+
+    @patch("quant_platform.clients.longbridge_cli.subprocess.run")
+    def test_fetch_option_expirations_and_chain_use_read_only_commands(self, run) -> None:
+        run.side_effect = [
+            subprocess.CompletedProcess(
+                args=["longbridge"],
+                returncode=0,
+                stdout=json.dumps([{"expiry_date": "2026-05-15"}]),
+                stderr="",
+            ),
+            subprocess.CompletedProcess(
+                args=["longbridge"],
+                returncode=0,
+                stdout=json.dumps(
+                    [
+                        {
+                            "call_symbol": "AAPL260515C250000.US",
+                            "put_symbol": "AAPL260515P250000.US",
+                            "standard": "true",
+                            "strike": "250",
+                        }
+                    ]
+                ),
+                stderr="",
+            ),
+        ]
+        client = LongbridgeCLIClient(binary="longbridge", timeout_seconds=7)
+
+        expirations = client.fetch_option_expirations("AAPL")
+        chain = client.fetch_option_chain("AAPL", date(2026, 5, 15))
+
+        self.assertEqual(expirations, [date(2026, 5, 15)])
+        self.assertEqual(chain[0]["put_symbol"], "AAPL260515P250000.US")
+        commands = [call.args[0] for call in run.call_args_list]
+        self.assertEqual(commands[0], ["longbridge", "option", "chain", "AAPL.US", "--format", "json"])
+        self.assertEqual(
+            commands[1],
+            ["longbridge", "option", "chain", "AAPL.US", "--date", "2026-05-15", "--format", "json"],
+        )
+
+    @patch("quant_platform.clients.longbridge_cli.subprocess.run")
+    def test_fetch_option_volume(self, run) -> None:
+        run.return_value = subprocess.CompletedProcess(
+            args=["longbridge"],
+            returncode=0,
+            stdout=json.dumps({"c": "1869283", "p": "708902"}),
+            stderr="",
+        )
+
+        payload = LongbridgeCLIClient(binary="longbridge", timeout_seconds=7).fetch_option_volume("AAPL")
+
+        self.assertEqual(payload["c"], "1869283")
+        self.assertEqual(payload["p"], "708902")
+        self.assertEqual(run.call_args.args[0], ["longbridge", "option", "volume", "AAPL.US", "--format", "json"])
 
 
 if __name__ == "__main__":

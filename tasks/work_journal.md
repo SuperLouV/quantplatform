@@ -152,3 +152,8 @@
 - 明确项目执行边界：Longbridge / broker 后续只读账户、现金、购买力、持仓和期权链等信息用于分析，禁止实现真实下单、撤单、改单或自动执行交易动作
 - 阅读 Longbridge 社区示例《用 AI 扫描期权机会，39 个合约年化收益最高 423%》，记录期权助手 V2 方向：从复杂合约表单改为 SELL PUT/Wheel 扫描任务、候选列表、少量关键指标和显眼风险提示
 - 确认 Longbridge 期权能力存在权限分层：当前可优先使用 `option chain` 和 `option volume` 做候选发现；如果 `option quote` 返回 `no quote access`，则不能计算精确权利金、IV、delta、open interest 和 ROI，期权助手 V2A 需要按“报价缺失可降级”的方式设计
+- 新增 Longbridge 只读期权链扫描骨架：`LongbridgeCLIClient` 支持 `assets / portfolio / positions / option chain / option volume`，新增 `SellPutScanConfig / SellPutCandidate / SellPutScanResult` 和 `scan_sell_put_candidates`
+- 新增 `scripts/scan_sell_put_candidates.py`、`make option-scan-symbol` 和本地 API `POST /api/options/scan-sell-put`，SELL PUT V2A 可以在没有具体合约 `option quote` 权限时扫描 DTE、OTM 和现金担保候选
+- 期权助手 UI 新增“扫描 SELL PUT”入口，输出候选合约、资金占用、OTM、DTE、报价缺失提示和 Longbridge option volume 的 put/call 统计
+- 参考桌面 Longbridge 账户截图，调整本地 UI 为更专业的深蓝黑纯色工作台风格，并把 K 线和成交量涨跌色调整为更高对比度
+- 新增 `docs/architecture/ui-architecture-review-2026-05-03.md`，记录 `ui/index.html`、`scripts/serve_ui.py`、`UIDataService` 的复杂度问题和后续拆分计划

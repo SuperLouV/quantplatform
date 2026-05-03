@@ -6,21 +6,21 @@
   <title>QuantPlatform Research Desk</title>
   <style>
     :root {
-      --bg: #090a0b;
-      --surface: #101113;
-      --surface-2: #15171a;
-      --surface-3: #0c0d0f;
-      --line: #24272c;
-      --line-strong: #343943;
-      --text: #eef1f4;
-      --soft: #c8ced6;
-      --muted: #858d98;
-      --faint: #5f6773;
-      --accent: #50d6c9;
-      --accent-2: #7aa8ff;
-      --green: #00e08a;
-      --red: #ff3b30;
-      --amber: #e7b75f;
+      --bg: #071018;
+      --surface: #111d26;
+      --surface-2: #172630;
+      --surface-3: #0b151d;
+      --line: #263642;
+      --line-strong: #3a4c58;
+      --text: #f5f8fb;
+      --soft: #cbd3da;
+      --muted: #8a96a2;
+      --faint: #5f6d78;
+      --accent: #139cff;
+      --accent-2: #4f83ff;
+      --green: #00c7a4;
+      --red: #ff4b0b;
+      --amber: #f5c14d;
       --purple: #b59cff;
       --watch-width: 312px;
       --watch-min-width: 190px;
@@ -64,7 +64,7 @@
       min-height: 0;
       display: grid;
       grid-template-rows: 48px minmax(0, 1fr);
-      background: #090a0b;
+      background: var(--bg);
     }
 
     .topbar {
@@ -72,7 +72,7 @@
       grid-template-columns: var(--watch-width) minmax(0, 1fr) var(--context-width);
       align-items: center;
       border-bottom: 1px solid var(--line);
-      background: #0d0e10;
+      background: #0a151d;
     }
 
     .brand,
@@ -93,7 +93,7 @@
     .brand-mark {
       width: 20px;
       height: 20px;
-      border: 1px solid #347d78;
+      border: 1px solid var(--accent);
       border-radius: 5px;
       position: relative;
     }
@@ -159,7 +159,7 @@
       padding: 3px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: #090a0b;
+      background: #071018;
     }
 
     .view-btn {
@@ -175,7 +175,7 @@
 
     .view-btn.active {
       color: var(--text);
-      background: #1b1e23;
+      background: #182734;
       border-color: var(--line);
     }
 
@@ -197,7 +197,7 @@
     .workspace,
     .context {
       min-height: 0;
-      background: #101113;
+      background: var(--surface);
     }
 
     .watch {
@@ -228,7 +228,7 @@
 
     .scanner-workspace {
       grid-template-rows: auto minmax(0, 1fr);
-      background: #101113;
+      background: var(--surface);
     }
 
     .context {
@@ -241,7 +241,7 @@
     .splitter {
       cursor: col-resize;
       position: relative;
-      background: #0c0d0f;
+      background: #08131b;
     }
 
     .splitter::after {
@@ -258,7 +258,7 @@
 
     .splitter:hover,
     .splitter.dragging {
-      background: #122320;
+      background: #0b2635;
     }
 
     .section-head {
@@ -329,7 +329,7 @@
 
     .pool-chip.active {
       color: var(--text);
-      background: #1b1e23;
+      background: #182734;
       border-color: var(--line);
     }
 
@@ -345,12 +345,12 @@
       border: 1px solid var(--line);
       border-radius: var(--radius);
       outline: 0;
-      background: #0b0c0e;
+      background: #0a151d;
       color: var(--text);
     }
 
     .search-box input:focus {
-      border-color: #347d78;
+      border-color: var(--accent);
     }
 
     .search-results {
@@ -364,7 +364,7 @@
       overflow: auto;
       border: 1px solid var(--line-strong);
       border-radius: var(--radius);
-      background: #111316;
+      background: #101c25;
       box-shadow: 0 12px 24px #050506;
     }
 
@@ -411,7 +411,7 @@
       padding: 0 10px;
       border-radius: 6px;
       color: var(--accent);
-      background: #10211f;
+      background: #09243a;
     }
 
     .stock-list {
@@ -432,16 +432,16 @@
     }
 
     .stock-item:hover {
-      background: #17191d;
+      background: #15232d;
     }
 
     .stock-item.active {
-      background: #19201f;
-      box-shadow: inset 2px 0 0 var(--accent);
+      background: #142b33;
+      box-shadow: inset 3px 0 0 var(--accent);
     }
 
     .stock-item.refreshing {
-      background: #171b20;
+      background: #172734;
     }
 
     .stock-main {
@@ -508,7 +508,7 @@
     }
 
     .stock-refreshing {
-      color: var(--blue);
+      color: var(--accent);
     }
 
     @container watch (max-width: 230px) {
@@ -560,7 +560,7 @@
       align-items: end;
       padding: 10px 18px;
       border-bottom: 1px solid var(--line);
-      background: #111315;
+      background: #101d26;
     }
 
     .quote-main {
@@ -609,7 +609,7 @@
       padding: 4px 8px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #0d0e10;
+      background: #0b151d;
       white-space: nowrap;
     }
 
@@ -647,14 +647,14 @@
       padding: 0 10px;
       border: 1px solid var(--line-strong);
       border-radius: 6px;
-      background: #17191d;
+      background: #15232d;
       color: var(--soft);
       font-size: 12px;
       cursor: pointer;
     }
 
     .refresh-btn:hover {
-      border-color: #3d8f88;
+      border-color: var(--accent);
       color: var(--text);
     }
 
@@ -669,7 +669,7 @@
       padding: 0 10px;
       border: 1px solid var(--line-strong);
       border-radius: 6px;
-      background: #17191d;
+      background: #15232d;
       color: var(--soft);
       font-size: 12px;
       cursor: pointer;
@@ -677,7 +677,7 @@
     }
 
     .context-action-btn:hover {
-      border-color: #3d8f88;
+      border-color: var(--accent);
       color: var(--text);
     }
 
@@ -731,7 +731,7 @@
       padding: 3px 4px 3px 8px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: #0b0c0e;
+      background: #0a151d;
     }
 
     .series-toolbar-label {
@@ -772,13 +772,13 @@
     }
 
     .series-toggle:hover {
-      background: #15171a;
+      background: #172630;
       color: var(--soft);
     }
 
     .series-toggle.active {
-      border-color: color-mix(in srgb, var(--series-color) 60%, #24272c);
-      background: #17191d;
+      border-color: color-mix(in srgb, var(--series-color) 60%, #263642);
+      background: #15232d;
       color: var(--text);
     }
 
@@ -791,7 +791,7 @@
       display: grid;
       grid-template-columns: 168px repeat(7, minmax(82px, 1fr));
       border-bottom: 1px solid var(--line);
-      background: #0d0e10;
+      background: #0b151d;
       overflow-x: auto;
     }
 
@@ -825,7 +825,7 @@
       padding: 3px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: #0b0c0e;
+      background: #0a151d;
     }
 
     .range-btn {
@@ -862,7 +862,7 @@
 
     #rsiContainer {
       border-top: 1px solid var(--line);
-      background: #0c0d0f;
+      background: #0b151d;
       overflow: hidden;
     }
 
@@ -876,7 +876,7 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       border-bottom: 1px solid var(--line);
-      background: #101113;
+      background: var(--surface);
       overflow: auto;
     }
 
@@ -887,7 +887,7 @@
       gap: 18px;
       padding: 16px 18px;
       border-bottom: 1px solid var(--line);
-      background: #111315;
+      background: #101d26;
     }
 
     .scanner-title h2 {
@@ -915,7 +915,7 @@
       padding: 8px 10px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #0d0e10;
+      background: #0b151d;
     }
 
     .scanner-kpi span {
@@ -965,7 +965,7 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      background: #0d0e10;
+      background: #0b151d;
       color: var(--faint);
       font-size: 10px;
       font-weight: 560;
@@ -980,7 +980,7 @@
 
     .scanner-row:hover,
     .scanner-row.active {
-      background: #17191d;
+      background: #15232d;
     }
 
     .scanner-row.active {
@@ -1010,7 +1010,7 @@
       border: 1px solid var(--line);
       border-radius: 5px;
       color: var(--muted);
-      background: #0d0e10;
+      background: #0b151d;
     }
 
     .scan-pill.buy,
@@ -1039,7 +1039,7 @@
     .scanner-detail {
       min-width: 0;
       border-left: 1px solid var(--line);
-      background: #0d0e10;
+      background: #0b151d;
       overflow: auto;
     }
 
@@ -1100,7 +1100,7 @@
     .vertical-splitter {
       cursor: row-resize;
       position: relative;
-      background: #0c0d0f;
+      background: #0b151d;
       border-bottom: 1px solid var(--line);
     }
 
@@ -1286,7 +1286,7 @@
       gap: 12px;
       padding: 0 16px;
       border-bottom: 1px solid var(--line);
-      background: #0d0e10;
+      background: #0b151d;
     }
 
     .context-head strong {
@@ -1350,8 +1350,8 @@
 
     .action-pill.watch {
       color: #c8ced6;
-      border-color: #343943;
-      background: #15171a;
+      border-color: var(--line-strong);
+      background: #172630;
     }
 
     .action-pill.avoid {
@@ -1364,6 +1364,12 @@
       color: #f9db9a;
       border-color: #675332;
       background: #211b10;
+    }
+
+    .action-pill.neutral {
+      color: #9fd8ff;
+      border-color: #155c8e;
+      background: #0c2233;
     }
 
     .risk-line {
@@ -1549,7 +1555,7 @@
       grid-template-rows: auto minmax(0, 1fr);
       border: 1px solid var(--line-strong);
       border-radius: var(--radius);
-      background: #101113;
+      background: var(--surface);
       box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
       overflow: hidden;
     }
@@ -1561,7 +1567,7 @@
       gap: 16px;
       padding: 16px 18px;
       border-bottom: 1px solid var(--line);
-      background: #0d0e10;
+      background: #0b151d;
     }
 
     .options-modal-head h2 {
@@ -1575,7 +1581,7 @@
       height: 32px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #17191d;
+      background: #15232d;
       color: var(--muted);
       cursor: pointer;
     }
@@ -1637,14 +1643,14 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       outline: 0;
-      background: #0b0c0e;
+      background: #0a151d;
       color: var(--text);
       font-size: 12px;
     }
 
     .options-field input:focus,
     .options-field select:focus {
-      border-color: #3d8f88;
+      border-color: var(--accent);
     }
 
     .options-form-actions {
@@ -1655,10 +1661,11 @@
       padding-top: 4px;
     }
 
-    .options-submit {
+    .options-submit,
+    .options-scan {
       min-height: 34px;
       padding: 0 14px;
-      border: 1px solid #347d78;
+      border: 1px solid var(--accent);
       border-radius: 6px;
       background: #10211f;
       color: var(--text);
@@ -1667,18 +1674,31 @@
       cursor: pointer;
     }
 
-    .options-submit:disabled {
+    .options-scan {
+      border-color: #155c8e;
+      background: #0c2233;
+      color: #9fd8ff;
+    }
+
+    .options-submit:hover,
+    .options-scan:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .options-submit:disabled,
+    .options-scan:disabled {
       cursor: progress;
       color: var(--faint);
       border-color: var(--line);
-      background: #15171a;
+      background: #172630;
     }
 
     .options-result {
       min-width: 0;
       overflow: auto;
       padding: 18px;
-      background: #0d0e10;
+      background: #0b151d;
     }
 
     .options-result h3 {
@@ -1698,7 +1718,7 @@
       padding: 9px 10px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      background: #101113;
+      background: var(--surface);
     }
 
     .options-metric span {
@@ -1730,13 +1750,81 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       color: var(--muted);
-      background: #101113;
+      background: var(--surface);
       font-size: 12px;
       line-height: 1.5;
     }
 
     .options-block {
       margin-top: 16px;
+    }
+
+    .options-candidates {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .options-candidate {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #111d26;
+    }
+
+    .options-candidate-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .options-candidate-head strong {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .options-status {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .options-status.candidate {
+      color: #d6fff2;
+      border-color: #1c6c5c;
+      background: #09241f;
+    }
+
+    .options-status.watch {
+      color: #ffe4a3;
+      border-color: #6c5521;
+      background: #261d08;
+    }
+
+    .options-status.blocked {
+      color: #ffc9b8;
+      border-color: #743920;
+      background: #2a1208;
+    }
+
+    .options-candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .options-candidate-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .empty {
@@ -2211,6 +2299,32 @@
           </fieldset>
 
           <fieldset class="options-fieldset">
+            <legend>SELL PUT 扫描</legend>
+            <div class="options-grid">
+              <div class="options-field">
+                <label for="optionScanMinDte">最短 DTE</label>
+                <input id="optionScanMinDte" name="scan_min_dte" type="number" min="0" step="1" value="14" />
+              </div>
+              <div class="options-field">
+                <label for="optionScanMaxDte">最长 DTE</label>
+                <input id="optionScanMaxDte" name="scan_max_dte" type="number" min="1" step="1" value="45" />
+              </div>
+              <div class="options-field">
+                <label for="optionScanMinOtm">最小 OTM%</label>
+                <input id="optionScanMinOtm" name="scan_min_otm" type="number" min="0" step="1" value="5" />
+              </div>
+              <div class="options-field">
+                <label for="optionScanMaxOtm">最大 OTM%</label>
+                <input id="optionScanMaxOtm" name="scan_max_otm" type="number" min="1" step="1" value="30" />
+              </div>
+              <div class="options-field">
+                <label for="optionScanLimit">候选上限</label>
+                <input id="optionScanLimit" name="scan_limit" type="number" min="1" max="40" step="1" value="12" />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="options-fieldset">
             <legend>股票上下文</legend>
             <div class="options-grid">
               <div class="options-field">
@@ -2282,6 +2396,7 @@
           </fieldset>
 
           <div class="options-form-actions">
+            <button class="options-scan" id="scanSellPutOptions" type="button">扫描 SELL PUT</button>
             <button class="context-action-btn" id="resetOptionsForm" type="button">重置</button>
             <button class="options-submit" id="submitOptionsForm" type="submit">检查策略</button>
           </div>
@@ -3144,7 +3259,7 @@
         .map(point => ({
           time: toChartTime(point.timestamp),
           value: Number(point.volume),
-          color: Number(point.close) >= Number(point.open) ? "#00e08a" : "#ff3b30",
+          color: Number(point.close) >= Number(point.open) ? "#00c7a4" : "#ff4b0b",
         }));
 
       const bars = candleData.map((bar, index) => {
@@ -3304,33 +3419,33 @@
 
       state.chart = LightweightCharts.createChart(host, {
         layout: {
-          background: { color: "#0c0d0f" },
-          textColor: "#858d98",
+          background: { color: "#0b151d" },
+          textColor: "#8a96a2",
           attributionLogo: false,
         },
         grid: {
-          vertLines: { color: "#171a1f" },
-          horzLines: { color: "#1d2026" },
+          vertLines: { color: "#14232d" },
+          horzLines: { color: "#1b2b36" },
         },
         crosshair: {
           mode: LightweightCharts.CrosshairMode.Normal,
           vertLine: {
-            color: "#347d78",
+            color: "#139cff",
             width: 1,
-            labelBackgroundColor: "#1b625d",
+            labelBackgroundColor: "#0f5f91",
           },
           horzLine: {
-            color: "#347d78",
+            color: "#139cff",
             width: 1,
-            labelBackgroundColor: "#1b625d",
+            labelBackgroundColor: "#0f5f91",
           },
         },
         rightPriceScale: {
-          borderColor: "#24272c",
+          borderColor: "#263642",
           scaleMargins: { top: 0.08, bottom: 0.28 },
         },
         timeScale: {
-          borderColor: "#24272c",
+          borderColor: "#263642",
           timeVisible: false,
           secondsVisible: false,
           rightOffset: 0,
@@ -3352,11 +3467,11 @@
       });
 
       state.candleSeries = state.chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: "#00e08a",
-        downColor: "#ff3b30",
+        upColor: "#00c7a4",
+        downColor: "#ff4b0b",
         borderVisible: false,
-        wickUpColor: "#00e08a",
-        wickDownColor: "#ff3b30",
+        wickUpColor: "#00c7a4",
+        wickDownColor: "#ff4b0b",
         priceLineVisible: false,
       });
 
@@ -3375,20 +3490,20 @@
       if (rsiHost) {
         state.rsiChart = LightweightCharts.createChart(rsiHost, {
           layout: {
-            background: { color: "#0c0d0f" },
-            textColor: "#858d98",
+            background: { color: "#0b151d" },
+            textColor: "#8a96a2",
             attributionLogo: false,
           },
           grid: {
-            vertLines: { color: "#171a1f" },
-            horzLines: { color: "#1d2026" },
+            vertLines: { color: "#14232d" },
+            horzLines: { color: "#1b2b36" },
           },
           rightPriceScale: {
-            borderColor: "#24272c",
+            borderColor: "#263642",
             scaleMargins: { top: 0.12, bottom: 0.12 },
           },
           timeScale: {
-            borderColor: "#24272c",
+            borderColor: "#263642",
             timeVisible: false,
             secondsVisible: false,
             rightOffset: 0,
@@ -3639,6 +3754,9 @@
         renderOptionsPlaceholder();
       });
       document.getElementById("optionStrategy").addEventListener("change", syncOptionsStrategyFields);
+      document.getElementById("scanSellPutOptions").addEventListener("click", () => {
+        submitSellPutScan().catch(error => renderOptionsError(error));
+      });
       document.getElementById("optionsForm").addEventListener("submit", event => {
         event.preventDefault();
         submitOptionsForm().catch(error => renderOptionsError(error));
@@ -3650,7 +3768,7 @@
       populateOptionsForm();
       renderOptionsPlaceholder();
       document.getElementById("optionsModal").hidden = false;
-      setTimeout(() => document.getElementById("optionStrike").focus(), 0);
+      setTimeout(() => document.getElementById("scanSellPutOptions").focus(), 0);
     }
 
     function closeOptionsAssistant() {
@@ -3694,6 +3812,21 @@
       }
     }
 
+    async function submitSellPutScan() {
+      const scan = document.getElementById("scanSellPutOptions");
+      scan.disabled = true;
+      scan.textContent = "扫描中";
+      renderOptionsLoading("正在读取 Longbridge 正股行情、期权链和成交量统计。");
+      try {
+        const payload = buildSellPutScanPayload();
+        const result = await apiJson("/api/options/scan-sell-put", payload);
+        renderSellPutScanResult(result.scan);
+      } finally {
+        scan.disabled = false;
+        scan.textContent = "扫描 SELL PUT";
+      }
+    }
+
     function buildOptionsPayload() {
       const strategy = inputValue("optionStrategy");
       const symbol = inputValue("optionSymbol").toUpperCase();
@@ -3730,11 +3863,90 @@
       };
     }
 
+    function buildSellPutScanPayload() {
+      const symbol = inputValue("optionSymbol").toUpperCase();
+      const underlyingPrice = requiredNumber("optionUnderlying", "当前价格");
+      return {
+        symbol,
+        underlying_price: underlyingPrice,
+        as_of: inputValue("optionAsOf") || todayDateKey(),
+        account: {
+          equity: numberValue("optionEquity") ?? 5000,
+          cash: numberValue("optionCash") ?? 5000,
+        },
+        config: {
+          min_dte: numberValue("optionScanMinDte") ?? 14,
+          max_dte: numberValue("optionScanMaxDte") ?? 45,
+          min_otm_pct: (numberValue("optionScanMinOtm") ?? 5) / 100,
+          max_otm_pct: (numberValue("optionScanMaxOtm") ?? 30) / 100,
+          max_cash_per_trade_pct: (numberValue("optionMaxCashPct") ?? 40) / 100,
+          max_candidates_per_symbol: numberValue("optionScanLimit") ?? 12,
+        },
+      };
+    }
+
     function renderOptionsPlaceholder() {
       document.getElementById("optionsResult").innerHTML = `
         <p class="label">Result</p>
         <h3>${escapeHtml(state.activeItem?.symbol || "-")} 期权检查</h3>
-        <p class="analysis-summary">输入期权合约后，这里会显示资金占用、盈亏平衡、硬性风险和观察项。</p>
+        <p class="analysis-summary">可以先扫描 SELL PUT 候选；如果你手工填入 bid/ask，也可以继续做合约级策略检查。</p>
+      `;
+    }
+
+    function renderOptionsLoading(message) {
+      document.getElementById("optionsResult").innerHTML = `
+        <p class="label">Result</p>
+        <h3>正在处理</h3>
+        <p class="analysis-summary">${escapeHtml(message)}</p>
+      `;
+    }
+
+    function renderSellPutScanResult(scan) {
+      const candidates = scan?.candidates || [];
+      const optionVolume = candidates.find(item => item.option_volume)?.option_volume || null;
+      const volumeText = optionVolume
+        ? `Put/Call ${optionVolume.put_call_ratio == null ? "-" : plainNumber(optionVolume.put_call_ratio)} · Call ${integerNumber(optionVolume.call_volume)} · Put ${integerNumber(optionVolume.put_volume)}`
+        : "期权成交量统计暂无";
+      const rows = candidates.length
+        ? candidates.map(renderSellPutCandidate).join("")
+        : `<p class="analysis-summary">没有找到符合当前 DTE、OTM 和资金约束的候选。</p>`;
+      document.getElementById("optionsResult").innerHTML = `
+        <p class="label">Sell Put Scan</p>
+        <div class="decision-action">
+          <h3>${escapeHtml(scan?.symbol || "-")} 候选 ${integerNumber(scan?.candidate_count || 0)}</h3>
+          <div class="action-pill neutral">${escapeHtml(scan?.generated_at_beijing || "-")}</div>
+        </div>
+        <div class="options-summary">
+          ${optionMetric("正股价格", money(candidates[0]?.underlying_price ?? numberValue("optionUnderlying")))}
+          ${optionMetric("被过滤", integerNumber(scan?.rejected_count))}
+          ${optionMetric("报价权限", "缺少合约 quote")}
+          ${optionMetric("成交量", volumeText)}
+        </div>
+        <div class="options-candidates">${rows}</div>
+        ${optionList("扫描说明", scan?.notes || [], "暂无说明。")}
+      `;
+    }
+
+    function renderSellPutCandidate(candidate) {
+      const warnings = (candidate.warnings || []).slice(0, 2).join(" ");
+      const reasons = (candidate.reasons || []).join(" ");
+      return `
+        <article class="options-candidate">
+          <div class="options-candidate-head">
+            <strong>${escapeHtml(candidate.put_symbol || "-")}</strong>
+            <span class="options-status ${optionStatusClass(candidate.status)}">${optionStatusLabel(candidate.status)}</span>
+          </div>
+          <div class="options-candidate-grid">
+            ${optionMetric("到期 / DTE", `${escapeHtml(candidate.expiration || "-")} / ${integerNumber(candidate.dte)}`)}
+            ${optionMetric("Strike", money(candidate.strike))}
+            ${optionMetric("OTM", `${plainNumber(candidate.otm_pct)}%`)}
+            ${optionMetric("现金担保", money(candidate.cash_required))}
+            ${optionMetric("资金占用", `${plainNumber(candidate.cash_required_pct)}%`)}
+            ${optionMetric("报价", candidate.quote_required ? "需手工确认 bid/ask" : "-")}
+          </div>
+          <p class="options-candidate-note">${escapeHtml(reasons || "符合基础扫描条件。")}</p>
+          ${warnings ? `<p class="options-candidate-note">${escapeHtml(warnings)}</p>` : ""}
+        </article>
       `;
     }
 
@@ -3787,6 +3999,18 @@
           <ul class="options-list">${rows}</ul>
         </div>
       `;
+    }
+
+    function optionStatusClass(value) {
+      return ["candidate", "watch", "blocked"].includes(value) ? value : "watch";
+    }
+
+    function optionStatusLabel(value) {
+      return {
+        candidate: "候选",
+        watch: "观察",
+        blocked: "不通过",
+      }[value] || "观察";
     }
 
     function positionMetricTooltip(target) {

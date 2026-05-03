@@ -98,6 +98,16 @@
 
 ## UI 后续
 
+- 按 `docs/architecture/ui-architecture-review-2026-05-03.md` 拆分单文件 UI：
+  - `ui/styles.css`
+  - `ui/app.js`
+  - `ui/options.js`
+  - `ui/scanner.js`
+  - `ui/chart.js`
+- 期权助手 V2A 前端增强：
+  - 候选点击后自动填入合约检查表单
+  - 支持当前股票、默认池、自定义列表扫描
+  - 缺少 `option quote` 权限时明确要求手工确认 bid/ask
 - 每日报告页面。
 - Scanner 候选详情页。
 - 风控建议展示：建议仓位、止损、风险金额。
