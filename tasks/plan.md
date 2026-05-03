@@ -286,11 +286,11 @@
 接下来优先做：
 
 1. 完成期权助手 V2A 前端体验：候选点击填入合约检查表单、默认池扫描、明确缺少 bid/ask。
-2. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
-3. Longbridge 只读账户信息：接 `assets / portfolio / positions`，用于期权助手自动读取现金、购买力、持仓股数和成本价。
-4. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险。
-5. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
-6. 扩展市场概览数据更新范围：DIA、^VIX 和 11 个 SPDR sector ETF。
+2. 把 Longbridge 只读账户摘要接入 UI：账户净值、保守 CSP 现金、当前股票持仓、成本价。
+3. 完成 DeepSeek 分析层最小闭环：股票基础分析、市场情绪摘要、期权策略解释，所有 prompt 读取后端结构化上下文。
+4. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
+5. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险，并读取真实账户净值和持仓作为输入。
+6. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
 7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 
 暂缓：

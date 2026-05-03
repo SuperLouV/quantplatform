@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ast import literal_eval
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from pathlib import Path
 from typing import Any
@@ -54,11 +54,21 @@ class SchedulerConfig:
 
 
 @dataclass(slots=True)
+class AIConfig:
+    provider: str = "deepseek"
+    deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-v4-flash"
+    request_timeout_seconds: float = 30.0
+
+
+@dataclass(slots=True)
 class Settings:
     app: AppConfig
     data: DataConfig
     storage: StorageConfig
     scheduler: SchedulerConfig
+    ai: AIConfig = field(default_factory=AIConfig)
 
 
 def load_mapping_file(path: str | Path) -> dict[str, Any]:
@@ -136,6 +146,7 @@ def load_settings(path: str | Path) -> Settings:
     market_data = data.get("data", {})
     storage = data.get("storage", {})
     scheduler = data.get("scheduler", {})
+    ai = data.get("ai", {})
     base_dir = config_path.parent.parent
 
     return Settings(
@@ -188,6 +199,16 @@ def load_settings(path: str | Path) -> Settings:
             poll_interval_seconds=int(
                 os.environ.get("QP_SCHEDULER_POLL_INTERVAL_SECONDS")
                 or scheduler.get("poll_interval_seconds", 60)
+            ),
+        ),
+        ai=AIConfig(
+            provider=os.environ.get("QP_AI_PROVIDER") or ai.get("provider", "deepseek"),
+            deepseek_api_key=os.environ.get("DEEPSEEK_API_KEY") or ai.get("deepseek_api_key", ""),
+            deepseek_base_url=os.environ.get("DEEPSEEK_BASE_URL") or ai.get("deepseek_base_url", "https://api.deepseek.com"),
+            deepseek_model=os.environ.get("DEEPSEEK_MODEL") or ai.get("deepseek_model", "deepseek-v4-flash"),
+            request_timeout_seconds=float(
+                os.environ.get("QP_AI_REQUEST_TIMEOUT_SECONDS")
+                or ai.get("request_timeout_seconds", 30.0)
             ),
         ),
     )

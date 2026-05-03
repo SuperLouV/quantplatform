@@ -34,6 +34,32 @@
 
     * { box-sizing: border-box; }
 
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #405463 transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: #405463;
+      background-clip: padding-box;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: #5a7080;
+      background-clip: padding-box;
+    }
+
     html,
     body {
       margin: 0;
@@ -844,7 +870,7 @@
       min-height: 0;
       position: relative;
       display: grid;
-      grid-template-rows: minmax(0, 1fr) 112px;
+      grid-template-rows: minmax(0, 1fr) 138px;
       background: var(--surface-3);
       overflow: hidden;
     }
@@ -854,19 +880,45 @@
     }
 
     #chartContainer,
-    #rsiContainer {
+    #rsiContainer,
+    .indicator-subpanel {
       width: 100%;
       height: 100%;
       min-height: 0;
     }
 
-    #rsiContainer {
-      border-top: 1px solid var(--line);
+    .indicator-subpanel {
+      display: grid;
+      grid-template-rows: 28px minmax(0, 1fr);
+      border-top: 1px solid var(--line-strong);
       background: #0b151d;
       overflow: hidden;
     }
 
-    .chart-wrap.rsi-hidden #rsiContainer {
+    .indicator-subpanel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      background: #0e1a23;
+    }
+
+    .indicator-subpanel-head strong {
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 620;
+    }
+
+    #rsiContainer {
+      background: #0b151d;
+      overflow: hidden;
+    }
+
+    .chart-wrap.rsi-hidden .indicator-subpanel {
       border-top: 0;
       visibility: hidden;
     }
@@ -1618,6 +1670,13 @@
       font-weight: 620;
     }
 
+    .options-account-status {
+      margin: -2px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .options-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2133,7 +2192,13 @@
             </div>
             <div class="chart-wrap">
               <div id="chartContainer"></div>
-              <div id="rsiContainer"></div>
+              <div class="indicator-subpanel" id="rsiPanel">
+                <div class="indicator-subpanel-head">
+                  <strong>RSI</strong>
+                  <span>6 / 12 / 24</span>
+                </div>
+                <div id="rsiContainer"></div>
+              </div>
             </div>
           </div>
 
@@ -2267,6 +2332,7 @@
         <form class="options-form" id="optionsForm">
           <fieldset class="options-fieldset">
             <legend>策略与账户</legend>
+            <p class="options-account-status" id="optionsAccountStatus">默认使用手工账户参数。</p>
             <div class="options-grid">
               <div class="options-field">
                 <label for="optionStrategy">策略</label>
@@ -2436,6 +2502,7 @@
       latestChartBar: null,
       marketEvents: [],
       schedulerStatus: null,
+      accountSummary: null,
       visibleSnapshots: [],
       refreshingSymbols: new Set(),
       selectionRequestId: 0,
@@ -3769,6 +3836,9 @@
       renderOptionsPlaceholder();
       document.getElementById("optionsModal").hidden = false;
       setTimeout(() => document.getElementById("scanSellPutOptions").focus(), 0);
+      hydrateOptionsAccount().catch(error => {
+        setOptionsAccountStatus(`Longbridge 账户读取失败，继续使用手工输入。${error.message || error}`);
+      });
     }
 
     function closeOptionsAssistant() {
@@ -3785,7 +3855,33 @@
       setInputValue("optionSupport", priceInputValue(indicators.bbands_lower));
       setInputValue("optionEarningsDays", item.next_earnings_date ? daysUntil(item.next_earnings_date) : "");
       setInputValue("optionMarketRisk", "Neutral");
+      setOptionsAccountStatus("正在读取 Longbridge 只读账户数据...");
       syncOptionsStrategyFields();
+    }
+
+    async function hydrateOptionsAccount() {
+      const symbol = inputValue("optionSymbol").toUpperCase();
+      if (!symbol) return;
+      const payload = await api(`/api/account/summary?symbol=${encodeURIComponent(symbol)}`);
+      state.accountSummary = payload.account || null;
+      const account = payload.options_account || {};
+      const position = payload.matched_position || null;
+      if (account.equity != null) setInputValue("optionEquity", priceInputValue(account.equity));
+      if (account.cash != null) setInputValue("optionCash", priceInputValue(account.cash));
+      if (account.stock_shares != null) setInputValue("optionShares", account.stock_shares);
+      if (account.stock_cost_basis != null) setInputValue("optionCostBasis", priceInputValue(account.stock_cost_basis));
+      const summary = payload.account || {};
+      const positionText = position
+        ? `${symbol} 持仓 ${integerNumber(position.available_quantity)} 股，成本 ${money(position.cost_price)}`
+        : `${symbol} 当前无可用持仓`;
+      setOptionsAccountStatus(
+        `Longbridge 只读账户 · 净值 ${money(summary.net_assets || summary.total_asset)} · CSP现金 ${money(summary.cash_for_cash_secured_put)} · ${positionText}`
+      );
+    }
+
+    function setOptionsAccountStatus(message) {
+      const node = document.getElementById("optionsAccountStatus");
+      if (node) node.textContent = message;
     }
 
     function syncOptionsStrategyFields() {

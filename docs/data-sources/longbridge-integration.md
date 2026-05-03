@@ -1,6 +1,6 @@
 # Longbridge Integration
 
-日期：2026-05-02
+日期：2026-05-03
 
 ## 定位
 
@@ -38,6 +38,7 @@ longbridge quote AAPL.US --format json
 
 ```bash
 make longbridge-quote LONGBRIDGE_SYMBOL=AAPL
+make option-scan-symbol OPTION_SCAN_SYMBOL=AAPL
 ```
 
 代码入口：
@@ -47,7 +48,16 @@ make longbridge-quote LONGBRIDGE_SYMBOL=AAPL
 
 ## 当前已支持
 
-第一版只封装 `quote`，并归一化为项目现有 `StockSnapshot` 风格字段：
+已封装的只读能力：
+
+- `quote`
+- `assets`
+- `portfolio`
+- `positions`
+- `option chain`
+- `option volume`
+
+`quote` 会归一化为项目现有 `StockSnapshot` 风格字段：
 
 - `open_price`
 - `high_price`
@@ -64,6 +74,19 @@ make longbridge-quote LONGBRIDGE_SYMBOL=AAPL
 - `snapshot_refreshed_at_beijing`
 
 这样后续 UI、每日刷新、期权助手可以复用统一字段。
+
+账户数据会归一化为 `AccountSnapshot`：
+
+- 账户净值
+- 总现金
+- 保守 cash-secured put 可用现金
+- buying power
+- 持仓市值
+- 当日盈亏和总盈亏
+- 风险等级
+- 持仓股数、可用股数、成本价、当前价
+
+注意：`buy_power` 可能包含融资能力，期权助手默认不会把它当成 cash-secured put 的现金担保来源。CSP 默认使用 `available_cash` / `total_cash` 的保守口径。
 
 ## 当前项目接入方式
 
@@ -90,17 +113,8 @@ data:
 ## 后续优先级
 
 1. 接 `market_status` 和 `trading_days`，替代本地简化交易日判断。
-2. 接只读账户信息：
-   - `assets`
-   - `portfolio`
-   - `positions`
-   - 用于期权助手自动判断现金担保、购买力、持股数量和成本价
-3. 接期权链和成交量统计：
-   - expiration 列表
-   - 指定日期 option chain
-   - call/put 合约代码
-   - option volume
-   - put/call ratio
+2. 完成账户数据 UI 化：账户摘要、持仓风险、期权助手自动账户参数。
+3. 扩展期权助手 V2A：支持当前股票、默认池、自定义列表扫描。
 4. 在没有 `option quote` 权限时，先做基础候选扫描，并提示用户手工确认具体合约 bid/ask。
 5. 如果后续开通具体期权报价权限，再接 `option quote`：
    - bid / ask
@@ -109,6 +123,23 @@ data:
    - greeks
 6. 将期权助手从手工输入升级为自动读取候选合约。
 7. 评估 SDK Provider，降低 CLI subprocess 依赖。
+
+## 账户接口边界
+
+账户接口当前只允许读取：
+
+- `longbridge assets`
+- `longbridge portfolio`
+- `longbridge positions`
+
+这些数据用于：
+
+- 期权助手自动填充账户净值、现金、持仓股数和成本价
+- covered call 判断是否有 100 股
+- cash-secured put 判断现金担保是否足够
+- 后续风控模块计算集中度、单笔风险和组合风险
+
+账户金额和持仓明细不提交 Git。运行日志只记录读取成功/失败、持仓数量和风险等级，不记录账户金额明细。
 
 ## 期权权限分层
 

@@ -13,6 +13,7 @@
 - 参考 TradingAgents-CN 设计，但不复制源码：
   - 报告模块拆分：技术、基本面、新闻、情绪、风控、最终建议
   - 轻量 AI 研判接口：读取本地日报和扫描结果，输出结构化解释
+  - DeepSeek/OpenAI-compatible 分析层：股票基础分析、市场情绪摘要、期权策略解释
   - 新闻/舆情 relevance_score 过滤
   - LLM provider 抽象：quick model / deep model
 - 扩展日报市场概览所需历史数据：
@@ -35,7 +36,8 @@
   - 期权链数据源评估：Longbridge、IBKR、Polygon、Tradier、yfinance fallback
   - 飞书 / Telegram channel adapter
 - Longbridge 数据源后续：
-  - 只读账户信息：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
+  - 账户摘要 UI：净值、保守 CSP 现金、持仓市值、总盈亏、当日盈亏、风险等级
+  - 只读账户信息已接：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
   - 接 Longbridge `market_status` / `trading_days`
   - 接 Longbridge 期权链、期权成交量统计；具体合约 `option quote` 作为权限可用后的增强
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖
@@ -98,6 +100,10 @@
 
 ## UI 后续
 
+- 修复研究台基础可用性：
+  - 三大模块滚动条保持细窄，不占用主要信息区域
+  - 主图、成交量、RSI、MACD、ATR 等副图有清晰分隔
+  - 指标控制用可扩展标签/分组，不做只服务 RSI 的一次性按钮
 - 按 `docs/architecture/ui-architecture-review-2026-05-03.md` 拆分单文件 UI：
   - `ui/styles.css`
   - `ui/app.js`

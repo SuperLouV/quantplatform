@@ -157,3 +157,7 @@
 - 期权助手 UI 新增“扫描 SELL PUT”入口，输出候选合约、资金占用、OTM、DTE、报价缺失提示和 Longbridge option volume 的 put/call 统计
 - 参考桌面 Longbridge 账户截图，调整本地 UI 为更专业的深蓝黑纯色工作台风格，并把 K 线和成交量涨跌色调整为更高对比度
 - 新增 `docs/architecture/ui-architecture-review-2026-05-03.md`，记录 `ui/index.html`、`scripts/serve_ui.py`、`UIDataService` 的复杂度问题和后续拆分计划
+- 新增 Longbridge 只读账户摘要服务：`AccountSnapshot / AccountPosition / CashBalance` 归一化 `assets / portfolio / positions`，本地 API `/api/account/summary` 可为期权助手自动填充账户净值、保守 CSP 现金、持仓股数和成本价
+- 更新 `AGENTS.md` 和 `PROJECT_MEMORY.md`，固化用户对项目经理/架构师工作方式、专业纯色 UI、敏感信息保护、AI 保守分析和禁止自动交易的长期要求
+- 修复 UI 滚动条和图表副图结构：全局滚动条改为细窄样式，RSI 副图增加独立标题栏和边界，为后续 MACD/ATR 等指标副图扩展留出一致模式
+- 新增 DeepSeek OpenAI-compatible 客户端骨架和 `docs/architecture/ai-analysis-design.md`，默认使用官方当前 `https://api.deepseek.com` 与 `deepseek-v4-flash`，API key 只从本地环境读取

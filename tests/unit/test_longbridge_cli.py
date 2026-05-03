@@ -133,6 +133,24 @@ class LongbridgeCLITest(unittest.TestCase):
         self.assertEqual(payload["p"], "708902")
         self.assertEqual(run.call_args.args[0], ["longbridge", "option", "volume", "AAPL.US", "--format", "json"])
 
+    @patch("quant_platform.clients.longbridge_cli.subprocess.run")
+    def test_fetch_account_commands_are_read_only(self, run) -> None:
+        run.side_effect = [
+            subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps([{"net_assets": "100"}]), stderr=""),
+            subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps({"overview": {}}), stderr=""),
+            subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps([{"symbol": "AAPL.US"}]), stderr=""),
+        ]
+        client = LongbridgeCLIClient(binary="longbridge", timeout_seconds=7)
+
+        self.assertEqual(client.fetch_assets()["net_assets"], "100")
+        self.assertEqual(client.fetch_portfolio()["overview"], {})
+        self.assertEqual(client.fetch_positions()[0]["symbol"], "AAPL.US")
+
+        commands = [call.args[0] for call in run.call_args_list]
+        self.assertEqual(commands[0], ["longbridge", "assets", "--currency", "USD", "--format", "json"])
+        self.assertEqual(commands[1], ["longbridge", "portfolio", "--format", "json"])
+        self.assertEqual(commands[2], ["longbridge", "positions", "--format", "json"])
+
 
 if __name__ == "__main__":
     unittest.main()

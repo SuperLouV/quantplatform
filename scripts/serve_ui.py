@@ -27,11 +27,12 @@ from quant_platform.options import (
     SellPutScanConfig,
     StockOptionContext,
 )
-from quant_platform.services import DailyRefreshScheduler, UIDataService
+from quant_platform.services import DailyRefreshScheduler, LongbridgeAccountService, UIDataService
 
 SETTINGS = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
 UI_SERVICE = UIDataService(SETTINGS)
 OPTIONS_SERVICE = OptionsAssistantService()
+ACCOUNT_SERVICE = LongbridgeAccountService(SETTINGS)
 SCHEDULER = DailyRefreshScheduler(SETTINGS, project_root=PROJECT_ROOT)
 
 
@@ -115,6 +116,17 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 return
             if parsed.path == "/api/scheduler":
                 self._respond_json(SCHEDULER.status())
+                return
+            if parsed.path == "/api/account/summary":
+                symbol = query.get("symbol", [""])[0].upper() or None
+                with quiet_known_native_stderr():
+                    snapshot = ACCOUNT_SERVICE.snapshot()
+                payload: dict[str, object] = {"account": snapshot.to_dict()}
+                if symbol:
+                    payload["options_account"] = snapshot.to_options_account(symbol).to_dict()
+                    position = snapshot.position_for(symbol)
+                    payload["matched_position"] = position.to_dict() if position else None
+                self._respond_json(payload)
                 return
             self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
         except Exception as exc:  # noqa: BLE001

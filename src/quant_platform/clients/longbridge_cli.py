@@ -43,6 +43,8 @@ class LongbridgeCLIClient:
 
     def fetch_assets(self, currency: str = "USD") -> dict[str, Any]:
         payload = self._run_json(["assets", "--currency", currency.upper()], label=f"assets {currency.upper()}")
+        if isinstance(payload, list):
+            payload = next((item for item in payload if isinstance(item, dict)), None)
         if not isinstance(payload, dict):
             raise LongbridgeCLIError("Longbridge CLI assets output must be a JSON object.")
         return payload

@@ -1,6 +1,7 @@
 """Application service layer."""
 
 from quant_platform.services.ai_analysis import AIAnalysisService
+from quant_platform.services.account import LongbridgeAccountService
 from quant_platform.services.bootstrap import BootstrapArtifacts, bootstrap_local_state
 from quant_platform.services.daily_refresh import DailyRefreshResult, DailyRefreshService
 from quant_platform.services.daily_report import DailyReportResult, DailyReportService
@@ -23,6 +24,7 @@ __all__ = [
     "DailyRefreshService",
     "DailyReportResult",
     "DailyReportService",
+    "LongbridgeAccountService",
     "MarketEventService",
     "MarketEventUpdateResult",
     "MarketOverview",

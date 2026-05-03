@@ -13,12 +13,14 @@ Current product stage:
 - Daily data update and snapshot system
 - Manual trading decision support
 - Not a real-money automatic trading system yet
+- Learning-stage quant project: be useful, but do not overstate prediction accuracy
 
 Hard execution boundary:
 
 - Do not implement real-money order placement, cancellation, replacement, or automatic trade execution.
 - Longbridge / broker integrations are read-only for market data, account cash, buying power, positions, and options chains.
 - Any trading action must remain a manual user action in the brokerage interface.
+- AI analysis can explain, compare, summarize, and flag risk; it must not become an auto-execution authority.
 
 Current design direction:
 
@@ -26,6 +28,23 @@ Current design direction:
 - AI is an analysis layer that reads structured reports.
 - Trading signals, risk rules, reports, and backtests must be deterministic and reproducible.
 - The first strategy family is daily-bar swing trading, not intraday or high-frequency trading.
+- The product should behave like a serious research desk: scanner, watchlist, market context, risk, options assistant, report, and later AI chat.
+
+## User Requirements
+
+The user expects Codex to act as both senior engineer and pragmatic project manager:
+
+- Keep the roadmap current before and after implementation.
+- Make architecture decisions, document tradeoffs, then implement without repeatedly asking for confirmation when the direction is clear.
+- Preserve project momentum: design, code, test, document, commit, and push when meaningful work is complete.
+- Explain important financial concepts in clear Chinese when the user asks, especially strategy, risk, data freshness, and API limitations.
+- Treat all account data, API keys, OAuth state, logs, generated datasets, and screenshots as sensitive unless they are intentionally committed examples.
+- Do not put real API keys, real account values, OAuth tokens, or full account snapshots into Git.
+- If sample account data is needed in tests or docs, use obviously fake values.
+- Prefer Beijing time in UI and logs. Use clearly named US/Eastern fields only when market logic needs it.
+- The user often keeps the local UI server running; do not start or stop port `8000` unless explicitly asked.
+- The user prefers professional pure-color UI, inspired by Longbridge: deep blue-black surfaces, high information density, strong orange-red/teal-green contrast, restrained borders, and useful layout over decorative effects.
+- UI issues that affect daily use should be treated as real product work, not cosmetic polish. Current known pain points include oversized scrollbars, unclear separation between main chart and RSI/indicator subpanels, and scaling future indicator tabs beyond RSI.
 
 ## Startup Reading Order
 
@@ -86,16 +105,27 @@ Already available:
 - Market event calendar from Fed, Census, and FRED release calendar
 - Scanner page and backend `MarketScanner`
 - `Scanner Strategy V1` with cross-sectional momentum rank and local parquet indicator fallback
+- Longbridge Terminal CLI read-only integration:
+  - quote snapshots
+  - assets / portfolio / positions
+  - option chain / option volume
+  - SELL PUT V2A scanner without concrete option quote permission
+- Options assistant MVP:
+  - manual cash-secured put / covered call rule check
+  - SELL PUT candidate scan
+  - account-aware inputs using read-only Longbridge account summary
 
 Main missing pieces:
 
 - Signal integration into daily reports and backtests
 - Position sizing and risk advice
-- Daily report generator
 - Minimal signal-driven backtest
 - Provider fallback beyond `yfinance`
 - Market regime filter using SPY/QQQ/VIX/breadth
 - Strategy-enhancing data sources such as SEC 13F and FINRA short interest
+- DeepSeek/OpenAI-compatible AI analysis layer that reads structured local data and produces conservative explanations
+- News/sentiment layer using Longbridge news first, then other sources later
+- UI decomposition: `ui/index.html` is still too large and should be split after the current user-facing fixes
 
 ## Repository Structure
 
@@ -185,6 +215,8 @@ python3 scripts/serve_ui.py
 - Use pandas for indicators and backtests; do not introduce TA-Lib or heavy dependencies unless explicitly approved.
 - Keep account size and risk parameters configurable; do not hard-code the `5,000 USD` IBKR account.
 - Treat `yfinance` as a research/prototype source, not production-grade market data.
+- Treat Longbridge account and quote data as more current, but still validate provider limitations and permissions.
+- For cash-secured put analysis, do not treat margin buying power as conservative cash unless the user explicitly chooses a margin-aware mode.
 - A single symbol failure must not break a pool-level or daily pipeline run.
 - Do not mix stale local bars into current snapshots; stale indicators should become warnings, not fake values.
 - Every signal should be traceable to data, indicators, and a named rule.
@@ -193,6 +225,25 @@ python3 scripts/serve_ui.py
 - Treat `Scanner Strategy` and `Trading Strategy` as different layers. Scanner outputs watch candidates; trading strategy outputs buy/sell/size/stop and requires backtesting.
 - Default user-facing timestamps should be Beijing time. Use explicitly named US/Eastern fields when market-calendar logic requires it.
 - Do not start or stop the user's local UI server unless explicitly asked.
+- For AI features, keep deterministic preprocessing in code and feed the model structured context. AI output must include uncertainty and risk, especially because market prediction from historical data is limited.
+
+## UI Product Rules
+
+- The local UI is a working research terminal, not a landing page.
+- Prefer compact, professional, pure-color layouts over glassmorphism, gradients, and decorative cards.
+- Major panels must have usable vertical scrolling without oversized browser-default scrollbars dominating the interface.
+- Main chart, volume, RSI, MACD, and future indicator subpanels should have clear visual separation and consistent tab/toolbar patterns.
+- RSI is only one indicator tab. Design indicator controls as scalable groups, not one-off buttons.
+- Chart colors must keep strong contrast and avoid conflicting with indicator series colors.
+- Do not let UI JavaScript become the strategy engine; frontend can render, select, and request backend analysis only.
+
+## AI Integration Rules
+
+- DeepSeek/OpenAI-compatible API keys must stay local in `.env` or user config and must not be committed.
+- AI modules should read structured artifacts: account summary, snapshots, scanner results, market overview, news, events, risk checks, and report sections.
+- AI should produce conservative analysis: bull case, bear case, key risks, invalidation points, missing data, and questions for the user.
+- No AI-generated automatic order instructions. Wording should support manual review, not execution.
+- Longbridge news should be the first news source when available. Store only normalized metadata or user-approved summaries, not sensitive account data.
 
 ## Documentation Maintenance
 
