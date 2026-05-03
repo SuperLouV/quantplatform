@@ -161,3 +161,4 @@
 - 更新 `AGENTS.md` 和 `PROJECT_MEMORY.md`，固化用户对项目经理/架构师工作方式、专业纯色 UI、敏感信息保护、AI 保守分析和禁止自动交易的长期要求
 - 修复 UI 滚动条和图表副图结构：全局滚动条改为细窄样式，RSI 副图增加独立标题栏和边界，为后续 MACD/ATR 等指标副图扩展留出一致模式
 - 新增 DeepSeek OpenAI-compatible 客户端骨架和 `docs/architecture/ai-analysis-design.md`，默认使用官方当前 `https://api.deepseek.com` 与 `deepseek-v4-flash`，API key 只从本地环境读取
+- 重构图表指标 UI：默认 K 线图高度提升到接近最大状态；SMA20/SMA50/SMA200/Bollinger 作为主图覆盖指标，RSI6/12/24 作为可选副图指标；副图可单独上下拖动，RSI 不再作为特殊唯一指标

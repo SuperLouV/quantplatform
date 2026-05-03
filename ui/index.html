@@ -25,7 +25,8 @@
       --watch-width: 312px;
       --watch-min-width: 190px;
       --context-width: 372px;
-      --chart-height: 360px;
+      --chart-height: 520px;
+      --subchart-height: 118px;
       --trade-height: 220px;
       --radius: 8px;
       --mono: "SFMono-Regular", "Roboto Mono", Consolas, monospace;
@@ -770,6 +771,7 @@
 
     .series-switch {
       display: flex;
+      flex-wrap: wrap;
       gap: 3px;
     }
 
@@ -870,13 +872,13 @@
       min-height: 0;
       position: relative;
       display: grid;
-      grid-template-rows: minmax(0, 1fr) 138px;
+      grid-template-rows: minmax(0, 1fr) 7px var(--subchart-height);
       background: var(--surface-3);
       overflow: hidden;
     }
 
     .chart-wrap.rsi-hidden {
-      grid-template-rows: minmax(0, 1fr) 0;
+      grid-template-rows: minmax(0, 1fr) 0 0;
     }
 
     #chartContainer,
@@ -893,6 +895,30 @@
       border-top: 1px solid var(--line-strong);
       background: #0b151d;
       overflow: hidden;
+    }
+
+    .chart-sub-splitter {
+      cursor: row-resize;
+      position: relative;
+      background: #08131b;
+      border-top: 1px solid var(--line);
+    }
+
+    .chart-sub-splitter::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 48px;
+      height: 2px;
+      border-radius: 999px;
+      background: #405463;
+      transform: translate(-50%, -50%);
+    }
+
+    .chart-sub-splitter:hover,
+    .chart-sub-splitter.dragging {
+      background: #0b2635;
     }
 
     .indicator-subpanel-head {
@@ -918,7 +944,8 @@
       overflow: hidden;
     }
 
-    .chart-wrap.rsi-hidden .indicator-subpanel {
+    .chart-wrap.rsi-hidden .indicator-subpanel,
+    .chart-wrap.rsi-hidden .chart-sub-splitter {
       border-top: 0;
       visibility: hidden;
     }
@@ -2141,11 +2168,20 @@
               <div class="chart-head-spacer" id="chartMeta">历史游标显示所选交易日</div>
               <div class="chart-controls">
                 <div class="series-toolbar" aria-label="图表指标">
-                  <span class="series-toolbar-label">指标</span>
+                  <span class="series-toolbar-label">覆盖</span>
                   <div class="series-switch" id="indicatorSwitch">
-                    <button class="series-toggle active" style="--series-color: #f2c14e;" data-indicator="rsi6">RSI 6</button>
-                    <button class="series-toggle active" style="--series-color: #5aa7ff;" data-indicator="rsi12">RSI 12</button>
-                    <button class="series-toggle active" style="--series-color: #b58cff;" data-indicator="rsi24">RSI 24</button>
+                    <button class="series-toggle active" style="--series-color: #f2c14e;" data-indicator="sma20">SMA20</button>
+                    <button class="series-toggle active" style="--series-color: #5aa7ff;" data-indicator="sma50">SMA50</button>
+                    <button class="series-toggle" style="--series-color: #c8ced6;" data-indicator="sma200">SMA200</button>
+                    <button class="series-toggle" style="--series-color: #9d7dff;" data-indicator="bbands">BOLL</button>
+                  </div>
+                </div>
+                <div class="series-toolbar" aria-label="副图指标">
+                  <span class="series-toolbar-label">副图</span>
+                  <div class="series-switch" id="subIndicatorSwitch">
+                    <button class="series-toggle" style="--series-color: #f2c14e;" data-indicator="rsi6">RSI 6</button>
+                    <button class="series-toggle" style="--series-color: #5aa7ff;" data-indicator="rsi12">RSI 12</button>
+                    <button class="series-toggle" style="--series-color: #b58cff;" data-indicator="rsi24">RSI 24</button>
                   </div>
                 </div>
                 <div class="range-switch" id="rangeSwitch">
@@ -2192,6 +2228,7 @@
             </div>
             <div class="chart-wrap">
               <div id="chartContainer"></div>
+              <div class="chart-sub-splitter" id="splitterSubChart" aria-hidden="true"></div>
               <div class="indicator-subpanel" id="rsiPanel">
                 <div class="indicator-subpanel-head">
                   <strong>RSI</strong>
@@ -2490,13 +2527,19 @@
       chart: null,
       candleSeries: null,
       volumeSeries: null,
+      overlaySeries: {},
+      overlaySeriesData: {},
       rsiChart: null,
       rsiSeries: {},
       rsiSeriesData: {},
       chartIndicators: {
-        rsi6: true,
-        rsi12: true,
-        rsi24: true,
+        sma20: true,
+        sma50: true,
+        sma200: false,
+        bbands: false,
+        rsi6: false,
+        rsi12: false,
+        rsi24: false,
       },
       chartBarsByTime: new Map(),
       latestChartBar: null,
@@ -2518,6 +2561,12 @@
     });
 
     const chartIndicatorConfig = {
+      sma20: { color: "#f2c14e", width: 1 },
+      sma50: { color: "#5aa7ff", width: 1 },
+      sma200: { color: "#c8ced6", width: 1 },
+      bbandsUpper: { color: "#9d7dff", width: 1 },
+      bbandsMiddle: { color: "#6f61c9", width: 1 },
+      bbandsLower: { color: "#9d7dff", width: 1 },
       rsi6: { color: "#f2c14e", width: 1 },
       rsi12: { color: "#5aa7ff", width: 1 },
       rsi24: { color: "#b58cff", width: 1 },
@@ -3291,6 +3340,7 @@
       if (!points.length) {
         state.candleSeries.setData([]);
         state.volumeSeries.setData([]);
+        state.overlaySeriesData = {};
         state.rsiSeriesData = {};
         updateChartIndicatorSeries();
         state.chartBarsByTime = new Map();
@@ -3343,6 +3393,7 @@
       });
       state.chartBarsByTime = new Map(bars.map(bar => [bar.key, bar]));
       state.latestChartBar = bars[bars.length - 1] || null;
+      state.overlaySeriesData = buildOverlaySeriesData(candleData);
       state.rsiSeriesData = buildRsiSeriesData(candleData);
 
       state.candleSeries.setData(candleData);
@@ -3353,6 +3404,50 @@
         state.rsiChart.timeScale().fitContent();
       }
       renderChartReadout(state.latestChartBar);
+    }
+
+    function buildOverlaySeriesData(candleData) {
+      return {
+        sma20: computeSmaSeries(candleData, 20),
+        sma50: computeSmaSeries(candleData, 50),
+        sma200: computeSmaSeries(candleData, 200),
+        ...computeBollingerSeries(candleData, 20, 2),
+      };
+    }
+
+    function computeSmaSeries(candleData, window) {
+      const result = [];
+      let rollingSum = 0;
+      for (let index = 0; index < candleData.length; index += 1) {
+        rollingSum += candleData[index].close;
+        if (index >= window) {
+          rollingSum -= candleData[index - window].close;
+        }
+        if (index >= window - 1) {
+          result.push({
+            time: candleData[index].time,
+            value: Number((rollingSum / window).toFixed(4)),
+          });
+        }
+      }
+      return result;
+    }
+
+    function computeBollingerSeries(candleData, window, deviations) {
+      const upper = [];
+      const middle = [];
+      const lower = [];
+      for (let index = window - 1; index < candleData.length; index += 1) {
+        const slice = candleData.slice(index - window + 1, index + 1).map(item => item.close);
+        const mean = slice.reduce((sum, value) => sum + value, 0) / window;
+        const variance = slice.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / window;
+        const band = Math.sqrt(variance) * deviations;
+        const time = candleData[index].time;
+        middle.push({ time, value: Number(mean.toFixed(4)) });
+        upper.push({ time, value: Number((mean + band).toFixed(4)) });
+        lower.push({ time, value: Number((mean - band).toFixed(4)) });
+      }
+      return { bbandsUpper: upper, bbandsMiddle: middle, bbandsLower: lower };
     }
 
     function buildRsiSeriesData(candleData) {
@@ -3453,6 +3548,15 @@
     }
 
     function updateChartIndicatorSeries() {
+      Object.entries(state.overlaySeries || {}).forEach(([key, series]) => {
+        let data = [];
+        if (key.startsWith("bbands")) {
+          data = state.chartIndicators.bbands ? (state.overlaySeriesData[key] || []) : [];
+        } else {
+          data = state.chartIndicators[key] ? (state.overlaySeriesData[key] || []) : [];
+        }
+        series.setData(data);
+      });
       Object.entries(state.rsiSeries || {}).forEach(([key, series]) => {
         const data = state.chartIndicators[key] ? (state.rsiSeriesData[key] || []) : [];
         series.setData(data);
@@ -3462,10 +3566,29 @@
       if (wrap) {
         wrap.classList.toggle("rsi-hidden", !hasActiveRsi);
       }
+      const label = document.querySelector("#rsiPanel .indicator-subpanel-head span");
+      if (label) {
+        const active = ["rsi6", "rsi12", "rsi24"]
+          .filter(key => state.chartIndicators[key])
+          .map(key => key.replace("rsi", ""));
+        label.textContent = active.length ? active.join(" / ") : "未启用";
+      }
       resizeChart();
     }
 
-    function createIndicatorLineSeries(key) {
+    function createChartLineSeries(key) {
+      const config = chartIndicatorConfig[key] || { color: "#5aa7ff", width: 1 };
+      return state.chart.addSeries(LightweightCharts.LineSeries, {
+        color: config.color,
+        lineWidth: config.width,
+        priceLineVisible: false,
+        lastValueVisible: true,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 3,
+      });
+    }
+
+    function createSubchartLineSeries(key) {
       const config = chartIndicatorConfig[key] || { color: "#5aa7ff", width: 1 };
       return state.rsiChart.addSeries(LightweightCharts.LineSeries, {
         color: config.color,
@@ -3554,6 +3677,15 @@
         },
       });
 
+      state.overlaySeries = {
+        sma20: createChartLineSeries("sma20"),
+        sma50: createChartLineSeries("sma50"),
+        sma200: createChartLineSeries("sma200"),
+        bbandsUpper: createChartLineSeries("bbandsUpper"),
+        bbandsMiddle: createChartLineSeries("bbandsMiddle"),
+        bbandsLower: createChartLineSeries("bbandsLower"),
+      };
+
       if (rsiHost) {
         state.rsiChart = LightweightCharts.createChart(rsiHost, {
           layout: {
@@ -3582,9 +3714,9 @@
           handleScale: false,
         });
         state.rsiSeries = {
-          rsi6: createIndicatorLineSeries("rsi6"),
-          rsi12: createIndicatorLineSeries("rsi12"),
-          rsi24: createIndicatorLineSeries("rsi24"),
+          rsi6: createSubchartLineSeries("rsi6"),
+          rsi12: createSubchartLineSeries("rsi12"),
+          rsi24: createSubchartLineSeries("rsi24"),
         };
       }
 
@@ -3615,6 +3747,10 @@
       if (window.ResizeObserver) {
         state.chartResizeObserver = new ResizeObserver(resize);
         state.chartResizeObserver.observe(host);
+        const subPanel = document.getElementById("rsiPanel");
+        if (subPanel) {
+          state.chartResizeObserver.observe(subPanel);
+        }
         if (rsiHost) {
           state.chartResizeObserver.observe(rsiHost);
         }
@@ -3634,6 +3770,7 @@
         inverse: true,
       });
       attachVerticalTradeResize();
+      attachSubchartResize();
     }
 
     function attachHorizontalResize(elementId, options) {
@@ -3699,6 +3836,35 @@
       });
     }
 
+    function attachSubchartResize() {
+      const splitter = document.getElementById("splitterSubChart");
+      const root = document.documentElement;
+      if (!splitter) return;
+
+      splitter.addEventListener("mousedown", event => {
+        event.preventDefault();
+        splitter.classList.add("dragging");
+        const startY = event.clientY;
+        const initial = parseFloat(getComputedStyle(root).getPropertyValue("--subchart-height")) || 118;
+
+        const onMove = moveEvent => {
+          const delta = startY - moveEvent.clientY;
+          const next = clamp(initial + delta, 76, 220);
+          root.style.setProperty("--subchart-height", `${next}px`);
+          resizeChart();
+        };
+
+        const onUp = () => {
+          splitter.classList.remove("dragging");
+          window.removeEventListener("mousemove", onMove);
+          window.removeEventListener("mouseup", onUp);
+        };
+
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
+      });
+    }
+
     function resizeChart() {
       if (!state.chart) return;
       const host = document.getElementById("chartContainer");
@@ -3739,6 +3905,14 @@
 
     function bindIndicatorSwitch() {
       document.getElementById("indicatorSwitch").addEventListener("click", event => {
+        const button = event.target.closest(".series-toggle");
+        if (!button) return;
+        const key = button.dataset.indicator;
+        state.chartIndicators[key] = !state.chartIndicators[key];
+        button.classList.toggle("active", state.chartIndicators[key]);
+        updateChartIndicatorSeries();
+      });
+      document.getElementById("subIndicatorSwitch").addEventListener("click", event => {
         const button = event.target.closest(".series-toggle");
         if (!button) return;
         const key = button.dataset.indicator;
@@ -4194,6 +4368,7 @@
       if (state.candleSeries) state.candleSeries.setData([]);
       if (state.volumeSeries) state.volumeSeries.setData([]);
       state.rsiSeriesData = {};
+      state.overlaySeriesData = {};
       updateChartIndicatorSeries();
       state.chartBarsByTime = new Map();
       state.latestChartBar = null;

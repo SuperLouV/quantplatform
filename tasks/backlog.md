@@ -104,6 +104,7 @@
   - 三大模块滚动条保持细窄，不占用主要信息区域
   - 主图、成交量、RSI、MACD、ATR 等副图有清晰分隔
   - 指标控制用可扩展标签/分组，不做只服务 RSI 的一次性按钮
+  - K 线图默认保持主视觉；SMA/EMA/Bollinger 等覆盖指标叠加在主图，RSI/MACD/ATR 等进入可开关、可调高度的副图
 - 按 `docs/architecture/ui-architecture-review-2026-05-03.md` 拆分单文件 UI：
   - `ui/styles.css`
   - `ui/app.js`

@@ -233,7 +233,10 @@ python3 scripts/serve_ui.py
 - Prefer compact, professional, pure-color layouts over glassmorphism, gradients, and decorative cards.
 - Major panels must have usable vertical scrolling without oversized browser-default scrollbars dominating the interface.
 - Main chart, volume, RSI, MACD, and future indicator subpanels should have clear visual separation and consistent tab/toolbar patterns.
-- RSI is only one indicator tab. Design indicator controls as scalable groups, not one-off buttons.
+- RSI is not a privileged indicator. It was the first visual indicator requested by the user, but chart and strategy architecture must treat it as one member of a broader indicator system.
+- Design indicator controls as scalable groups:
+  - overlay indicators on the candlestick chart, such as SMA/EMA/Bollinger
+  - lower-panel indicators, such as RSI/MACD/ATR/volume-derived signals
 - Chart colors must keep strong contrast and avoid conflicting with indicator series colors.
 - Do not let UI JavaScript become the strategy engine; frontend can render, select, and request backend analysis only.
 
