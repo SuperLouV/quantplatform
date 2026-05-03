@@ -95,13 +95,30 @@ data:
    - `portfolio`
    - `positions`
    - 用于期权助手自动判断现金担保、购买力、持股数量和成本价
-3. 接期权链：
+3. 接期权链和成交量统计：
    - expiration 列表
    - 指定日期 option chain
-   - option quote
-   - bid / ask / delta / IV / volume / open interest
-4. 将期权助手从手工输入升级为自动读取候选合约。
-5. 评估 SDK Provider，降低 CLI subprocess 依赖。
+   - call/put 合约代码
+   - option volume
+   - put/call ratio
+4. 在没有 `option quote` 权限时，先做基础候选扫描，并提示用户手工确认具体合约 bid/ask。
+5. 如果后续开通具体期权报价权限，再接 `option quote`：
+   - bid / ask
+   - delta / IV
+   - volume / open interest
+   - greeks
+6. 将期权助手从手工输入升级为自动读取候选合约。
+7. 评估 SDK Provider，降低 CLI subprocess 依赖。
+
+## 期权权限分层
+
+Longbridge CLI 的期权能力不是一个单一权限：
+
+- `longbridge option chain`：期权链结构，通常用于列出到期日、strike 和合约代码。
+- `longbridge option volume`：标的层面的 call/put 成交量和 put/call ratio。
+- `longbridge option quote`：具体期权合约的实时报价、IV、open interest、Greeks 等。
+
+如果 `option quote` 返回 `no quote access`，项目应视为“缺少具体合约报价权限”，而不是接口失败。此时可以继续使用 chain/volume 做候选发现，但不能声称已经完成可交易价格分析。
 
 ## 风控边界
 

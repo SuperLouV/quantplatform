@@ -1,6 +1,6 @@
 # Plan
 
-日期：2026-04-27
+日期：2026-05-03
 
 ## 项目目标
 
@@ -70,6 +70,7 @@
 - 最小回测框架
 - 市场状态过滤：SPY/QQQ/VIX/市场宽度
 - provider fallback 和更可靠行情源
+- 期权助手 V2：Longbridge 当前可读期权链和成交量统计，但具体合约 `option quote` 可能受行情权限限制，因此要先设计无报价权限也能运行的候选扫描骨架
 
 ## 优化后的执行路线
 
@@ -283,16 +284,19 @@
 
 接下来优先做：
 
-1. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
-2. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险。
-3. 扩展市场概览数据更新范围：DIA、^VIX 和 11 个 SPDR sector ETF。
-4. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
-5. 在核心闭环稳定后接入更多 API 和数据源。
+1. Longbridge 只读账户信息：接 `assets / portfolio / positions`，用于期权助手自动读取现金、购买力、持仓股数和成本价。
+2. Longbridge 期权链 V2A：接 `option chain` 和 `option volume`，先做无具体合约报价权限也能运行的 SELL PUT 候选扫描骨架。
+3. 将期权助手 UI 从复杂手工表单改成“扫描任务 + 候选列表”，报价字段缺失时明确提示需要手工确认 bid/ask。
+4. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险。
+5. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
+6. 扩展市场概览数据更新范围：DIA、^VIX 和 11 个 SPDR sector ETF。
+7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 
 暂缓：
 
 - 复杂 UI 页面数量扩展
 - 真实券商自动下单
+- 依赖 `option quote` 权限的实时权利金、IV、delta、open interest 和精确 ROI 扫描
 - 复杂宏观事件数据源
 - 复杂组合优化
 - 模型自动调用和付费 AI API

@@ -1,6 +1,6 @@
 # Backlog
 
-最后更新：2026-05-02
+最后更新：2026-05-03
 
 这个文件记录尚未实现、未来可能实现、以及需要评估的功能/API。进入开发前，应先从这里移动到 `tasks/plan.md` 的具体阶段。
 
@@ -27,6 +27,8 @@
   - 财报和重大事件风险
 - 期权助手后续：
   - 参考 Longbridge 社区 AI SELL PUT 扫描示例，将当前复杂表单改为“扫描任务 + 候选列表”体验
+  - V2A 不依赖 `option quote` 权限：只用 `option chain`、`option volume`、正股价格和账户现金做基础 SELL PUT 候选扫描
+  - 候选列表中明确显示 `quote_required`，提示缺少实时 bid/ask 时不能计算精确权利金和 ROI
   - 将期权助手从手工输入升级为自动读取期权链候选合约
   - 粘贴券商/期权链截图后的结构化解析
   - DeepSeek OpenAI-compatible API 接入
@@ -35,7 +37,7 @@
 - Longbridge 数据源后续：
   - 只读账户信息：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
   - 接 Longbridge `market_status` / `trading_days`
-  - 接 Longbridge 期权链、期权报价和期权成交持仓字段
+  - 接 Longbridge 期权链、期权成交量统计；具体合约 `option quote` 作为权限可用后的增强
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖
 - 禁止范围：
   - 不实现 Longbridge / broker 真实下单、撤单、改单或自动执行交易动作
