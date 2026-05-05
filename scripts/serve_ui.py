@@ -87,8 +87,7 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 self._respond_json({"status": "ok", "generated_at": iso_beijing()})
                 return
             if parsed.path == "/api/dashboard":
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.get_dashboard_data()
+                payload = UI_SERVICE.get_dashboard_data()
                 payload["scheduler"] = SCHEDULER.status()
                 payload["refresh"] = dict(REFRESH_STATE)
                 self._respond_json(payload)
@@ -104,56 +103,48 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/pools":
-                with quiet_known_native_stderr():
-                    payload = {"pools": UI_SERVICE.list_pools()}
+                payload = {"pools": UI_SERVICE.list_pools()}
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/pool":
                 pool_id = query.get("pool_id", [""])[0]
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.load_pool_dashboard(pool_id)
+                payload = UI_SERVICE.load_pool_dashboard(pool_id)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/search":
                 q = query.get("q", [""])[0]
-                with quiet_known_native_stderr():
-                    payload = {"results": UI_SERVICE.search(q)}
+                payload = {"results": UI_SERVICE.search(q)}
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/snapshot":
                 symbol = query.get("symbol", [""])[0].upper()
                 pool_id = query.get("pool_id", [""])[0] or None
                 force_refresh = query.get("force_refresh", ["0"])[0].lower() in {"1", "true", "yes"}
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.load_or_fetch_snapshot(symbol, pool_id=pool_id, force_refresh=force_refresh)
+                payload = UI_SERVICE.load_or_fetch_snapshot(symbol, pool_id=pool_id, force_refresh=force_refresh)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/history":
                 symbol = query.get("symbol", [""])[0].upper()
                 period = query.get("period", ["6mo"])[0]
                 interval = query.get("interval", ["1d"])[0]
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.history(symbol, period=period, interval=interval)
+                payload = UI_SERVICE.history(symbol, period=period, interval=interval)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/analysis":
                 symbol = query.get("symbol", [""])[0].upper()
                 pool_id = query.get("pool_id", [""])[0] or None
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.analysis(symbol, pool_id=pool_id)
+                payload = UI_SERVICE.analysis(symbol, pool_id=pool_id)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/scanner":
                 pool_id = query.get("pool_id", ["longbridge_core"])[0] or "longbridge_core"
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.scanner(pool_id)
+                payload = UI_SERVICE.scanner(pool_id)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/events/market":
                 start = _optional_date(query.get("from", [""])[0])
                 end = _optional_date(query.get("to", [""])[0])
-                with quiet_known_native_stderr():
-                    payload = UI_SERVICE.market_event_calendar(start=start, end=end)
+                payload = UI_SERVICE.market_event_calendar(start=start, end=end)
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/scheduler":
@@ -161,8 +152,7 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 return
             if parsed.path == "/api/account/summary":
                 symbol = query.get("symbol", [""])[0].upper() or None
-                with quiet_known_native_stderr():
-                    snapshot = ACCOUNT_SERVICE.snapshot()
+                snapshot = ACCOUNT_SERVICE.snapshot()
                 payload: dict[str, object] = {"account": snapshot.to_dict()}
                 if symbol:
                     payload["options_account"] = snapshot.to_options_account(symbol).to_dict()
