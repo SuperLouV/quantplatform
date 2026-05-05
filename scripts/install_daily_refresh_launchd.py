@@ -11,7 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LABEL = "com.louyilin.quantplatform.daily-refresh"
-DEFAULT_POOL = "data/reference/system/stock_pools/preset/default_core.json"
+DEFAULT_POOL = "data/reference/system/stock_pools/longbridge/longbridge_core.json"
 
 
 def main() -> None:

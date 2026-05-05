@@ -102,7 +102,7 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                 self._respond_json(payload)
                 return
             if parsed.path == "/api/scanner":
-                pool_id = query.get("pool_id", ["default_core"])[0] or "default_core"
+                pool_id = query.get("pool_id", ["longbridge_core"])[0] or "longbridge_core"
                 with quiet_known_native_stderr():
                     payload = UI_SERVICE.scanner(pool_id)
                 self._respond_json(payload)

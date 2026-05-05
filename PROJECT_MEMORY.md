@@ -1,6 +1,6 @@
 # Project Memory
 
-最后更新：2026-05-03
+最后更新：2026-05-05
 
 ## 项目一句话
 
@@ -72,9 +72,33 @@
 - Longbridge 只读接口：
   - quote snapshots
   - assets / portfolio / positions
+  - 真实 positions/watchlist 股票池同步
+  - 真实持仓健康度和自选关注度基本策略报告
   - option chain / option volume
   - 账户摘要可用于期权助手自动填充净值、现金、持仓股数和成本价
   - 当前仍禁止任何真实下单、撤单、改单或自动执行交易
+- 自动化 AI 分析层：
+  - `make analyze` 读取本地 `StockSnapshot`、指标和最新持仓健康度，输出 `data/reports/ai_analysis/` JSON + Markdown
+  - OpenAI-compatible provider 通过配置或环境变量选择；模型层失败不阻断确定性结构化报告
+  - AI 输出只做解释、风险提示和人工复核问题，不生成自动交易动作
+- 真实持仓期权建议：
+  - `make options-advice` 读取 Longbridge 只读持仓，yfinance 读取期权链
+  - 默认只扫描 AAPL、TSLA、NVDA、GOOGL/GOOG、TSM 等高流动性期权标的；ETF、BRK.B 和非白名单标的跳过并写入原因，避免全持仓期权链扫描超时
+  - 第一版只评估 covered call / cash-secured put，输出 strike、到期日、权利金收入和年化回报率
+  - Cash-secured put 只使用保守现金，不把 margin buying power 当成现金
+- 账户风控和健康度：
+  - `make account-health` 读取 Longbridge 只读账户、本地持仓快照和事件日历
+  - 输出单股集中度、行业敞口、HHI、现金比例、ATR 止损、PDT 门槛、事件风险、最大亏损检查和改善建议
+  - 保留 `BRK.B` 这类 class-share symbol；VOO/QQQ/EWT/EWJ/DRAM、BRK.B/CRCL/XE/NOK 有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标
+- 历史交易复盘：
+  - `make trade-review` 读取 Longbridge 只读订单/成交记录
+  - 第一版按股票多头 FIFO 统计胜率、盈亏比、平均持有时间、最大回撤、个股和月份表现
+- 自动扫描报告：
+  - `make auto-scan` 汇总 Scanner Strategy V1、真实持仓 covered call / cash-secured put 建议和 CSP 观察候选
+  - 自动扫描只输出研究报告，不生成订单动作
+- 期权截图解析：
+  - `make option-screenshot` 可解析 OCR 文本或本机 OCR 图片中的 expiry、strike、bid/ask
+  - 截图结果可用 yfinance 期权链交叉验证；仍需用户在券商界面人工确认
 
 ## Scanner 策略与交易策略
 
@@ -129,8 +153,9 @@
 
 当前最值得继续推进的顺序：
 
-1. 做风控建议：仓位、ATR 止损、PDT、财报事件。
-2. 持久化 scanner 结果，方便日报、UI 和回测复用。
+1. 在用户正常 Python/Longbridge 网络环境运行 `make account-health`、`make trade-review`、`make auto-scan`，用真实本地产物校验账户、成交和期权链权限。
+2. 将账户健康度、风控建议、交易复盘摘要、期权建议、自选关注度和 scanner 候选接入每日报告。
 3. 扩展市场概览历史数据：DIA、^VIX 和 11 个 SPDR sector ETF。
 4. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
-5. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。
+5. 扩展交易复盘口径：期权成交、费用、部分成交、转仓和做空。
+6. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。

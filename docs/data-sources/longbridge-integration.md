@@ -131,6 +131,7 @@ data:
 - `longbridge assets`
 - `longbridge portfolio`
 - `longbridge positions`
+- `longbridge watchlist`
 
 这些数据用于：
 
@@ -138,8 +139,18 @@ data:
 - covered call 判断是否有 100 股
 - cash-secured put 判断现金担保是否足够
 - 后续风控模块计算集中度、单笔风险和组合风险
+- 构建本地真实股票池 `longbridge_core`，替代早期虚拟/预设列表作为默认日常扫描范围
+- 输出真实持仓健康度和自选关注度 JSON + Markdown，供人工复盘和后续 AI 分析读取
 
 账户金额和持仓明细不提交 Git。运行日志只记录读取成功/失败、持仓数量和风险等级，不记录账户金额明细。
+
+本地真实产物路径：
+
+- `data/reference/system/stock_pools/longbridge/`
+- `data/reference/system/longbridge/`
+- `data/reports/portfolio_strategy/`
+
+这些目录包含真实持仓、自选和成本价相关信息，已经加入 `.gitignore`，不得提交。
 
 ## 期权权限分层
 

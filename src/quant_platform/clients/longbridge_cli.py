@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
@@ -22,12 +23,15 @@ class LongbridgeCLIClient:
 
     binary: str = "longbridge"
     timeout_seconds: float = 15.0
+    home: str = ""
+    extra_env: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_data_config(cls, config: DataConfig) -> "LongbridgeCLIClient":
         return cls(
             binary=config.longbridge_cli_binary,
             timeout_seconds=config.request_timeout_seconds,
+            home=config.longbridge_cli_home,
         )
 
     def fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
@@ -59,6 +63,12 @@ class LongbridgeCLIClient:
         payload = self._run_json(["positions"], label="positions")
         if not isinstance(payload, list):
             raise LongbridgeCLIError("Longbridge CLI positions output must be a JSON array.")
+        return [item for item in payload if isinstance(item, dict)]
+
+    def fetch_watchlists(self) -> list[dict[str, Any]]:
+        payload = self._run_json(["watchlist"], label="watchlist")
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI watchlist output must be a JSON array.")
         return [item for item in payload if isinstance(item, dict)]
 
     def fetch_option_expirations(self, symbol: str) -> list[date]:
@@ -93,8 +103,43 @@ class LongbridgeCLIClient:
             raise LongbridgeCLIError("Longbridge CLI option volume output must be a JSON object.")
         return payload
 
+    def fetch_history_orders(self, *, start: date | None = None, end: date | None = None) -> list[dict[str, Any]]:
+        args = _date_args(start=start, end=end)
+        payload = self._run_first_json(
+            [
+                ["statement", "orders", *args],
+                ["orders", *args],
+            ],
+            label="history orders",
+        )
+        if isinstance(payload, dict):
+            payload = payload.get("orders") or payload.get("data") or []
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI orders output must be a JSON array or object with orders/data.")
+        return [item for item in payload if isinstance(item, dict)]
+
+    def fetch_history_executions(self, *, start: date | None = None, end: date | None = None) -> list[dict[str, Any]]:
+        args = _date_args(start=start, end=end)
+        payload = self._run_first_json(
+            [
+                ["statement", "executions", *args],
+                ["statement", "trades", *args],
+                ["executions", *args],
+            ],
+            label="history executions",
+        )
+        if isinstance(payload, dict):
+            payload = payload.get("executions") or payload.get("trades") or payload.get("data") or []
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI executions output must be a JSON array or object with executions/trades/data.")
+        return [item for item in payload if isinstance(item, dict)]
+
     def _run_json(self, args: list[str], *, label: str) -> Any:
         command = [self.binary, *args, "--format", "json"]
+        env = os.environ.copy()
+        if self.home:
+            env["HOME"] = self.home
+        env.update(self.extra_env)
         try:
             result = subprocess.run(
                 command,
@@ -102,6 +147,7 @@ class LongbridgeCLIClient:
                 capture_output=True,
                 text=True,
                 timeout=self.timeout_seconds,
+                env=env,
             )
         except FileNotFoundError as exc:
             raise LongbridgeCLIError(
@@ -119,12 +165,22 @@ class LongbridgeCLIClient:
         except json.JSONDecodeError as exc:
             raise LongbridgeCLIError(f"Longbridge CLI returned non-JSON output for {label}.") from exc
 
+    def _run_first_json(self, commands: list[list[str]], *, label: str) -> Any:
+        errors: list[str] = []
+        for args in commands:
+            try:
+                return self._run_json(args, label=f"{label}: {' '.join(args)}")
+            except LongbridgeCLIError as exc:
+                errors.append(str(exc))
+        raise LongbridgeCLIError(f"Longbridge CLI command failed for {label}: {' | '.join(errors)}")
+
 
 def to_longbridge_symbol(symbol: str) -> str:
     normalized = symbol.strip().upper()
     if not normalized:
         raise LongbridgeCLIError("symbol is required")
-    if "." in normalized:
+    market_suffixes = {".US", ".HK", ".SH", ".SZ", ".SG", ".HAS"}
+    if any(normalized.endswith(suffix) for suffix in market_suffixes):
         return normalized
     return f"{normalized}.US"
 
@@ -239,10 +295,22 @@ def _date_from_timestamp(value: str) -> date | None:
 
 
 def _internal_symbol(symbol: str) -> str:
-    return symbol.split(".", 1)[0].upper()
+    normalized = symbol.strip().upper()
+    if normalized.endswith(".US"):
+        return normalized[:-3]
+    return normalized
 
 
 def _optional_float(value: Any) -> float | None:
     if value in (None, ""):
         return None
     return float(value)
+
+
+def _date_args(*, start: date | None, end: date | None) -> list[str]:
+    args: list[str] = []
+    if start is not None:
+        args.extend(["--start", start.isoformat()])
+    if end is not None:
+        args.extend(["--end", end.isoformat()])
+    return args

@@ -1,6 +1,6 @@
 # Plan
 
-日期：2026-05-03
+日期：2026-05-05
 
 ## 项目目标
 
@@ -61,17 +61,36 @@
 - 全市场重大事件日历：Fed FOMC、Census、FRED release calendar
 - 候选池扫描 MVP 和 `MarketScanner`
 - `Scanner Strategy V1` 初步落地：截面动量排名、跳过最近 5 日收益、RSI 变化、成交量 z-score、ATR 归一化趋势距离
+- Longbridge 真实股票池同步：只读 `positions/watchlist` 生成 `longbridge_positions / longbridge_watchlist / longbridge_core`
+- 真实持仓/自选基本策略分析：复用 indicators、signals、MarketScanner，输出持仓健康度和自选关注度 JSON + Markdown
+- 自动化 AI 分析层：读取本地 `StockSnapshot`、指标和最新持仓健康度，生成结构化 JSON + 中文 Markdown；可配置 OpenAI-compatible provider 追加模型综合摘要
+- 真实持仓期权建议：读取 Longbridge 只读持仓，使用 yfinance 期权链筛选 covered call / cash-secured put，输出 strike、到期日、权利金和年化回报；默认只扫描高流动性期权标的，ETF/BRK.B/非白名单持仓跳过并写明原因
+- 账户健康度报告：保留 `BRK.B` 等 class-share symbol，VOO/QQQ/EWT/EWJ/DRAM、BRK.B/CRCL/XE/NOK 有行业兜底，缺 ATR 时尝试补齐 yfinance 日线并即时计算指标，报告输出可量化控仓动作
+- 期权截图解析工具：从 OCR 文本或本机 OCR 图片中提取 expiry、strike、bid/ask，并支持 yfinance 交叉验证
 
 当前主要缺口：
 
 - 风控建议：仓位、止损、PDT、事件阻断
-- 每日 Markdown 报告
-- 扫描结果持久化和日报接入
+- 真实持仓健康度、自选关注度和风控建议接入每日报告
 - 最小回测框架
 - 市场状态过滤：SPY/QQQ/VIX/市场宽度
 - provider fallback 和更可靠行情源
-- 期权助手 V2：Longbridge 当前可读期权链和成交量统计，但具体合约 `option quote` 可能受行情权限限制，因此要先设计无报价权限也能运行的候选扫描骨架
+- 期权助手 V2 后续增强：把截图解析结果更深地接入建议报告，增加更严格的流动性、财报、IV 和组合风险检查
 - UI/架构拆分：参考 Longbridge 深蓝黑纯色工作台风格，后续拆分 `ui/index.html`、`scripts/serve_ui.py` 和 `UIDataService`
+
+## 2026-05-05 阶段落地：AI 分析与期权建议
+
+本阶段完成：
+
+- `make analyze`：基于本地结构化快照生成 AI 分析报告，模型层可通过 `QP_AI_PROVIDER / QP_AI_BASE_URL / QP_AI_MODEL / QP_AI_API_KEY` 或配置文件选择 OpenAI-compatible provider。
+- `make options-advice`：读取 Longbridge 真实持仓，用 yfinance 期权链给每只持仓股生成 covered call / cash-secured put 简单建议。
+- `make option-screenshot`：解析期权截图 OCR 文本或本机 OCR 图片，提取 strike、bid/ask、expiry，并可用 yfinance 验证。
+
+设计取舍：
+
+- AI 报告的确定性结构化层永远先生成；模型失败或未配置 API key 时只降级为规则层报告，不阻断流程。
+- 期权建议只做研究辅助，不生成订单，不把保证金购买力当成 cash-secured put 的保守现金。
+- yfinance 期权报价只视为研究数据，报告中明确要求在券商界面人工核对合约代码和 bid/ask。
 
 ## 优化后的执行路线
 
@@ -285,12 +304,12 @@
 
 接下来优先做：
 
-1. 完成期权助手 V2A 前端体验：候选点击填入合约检查表单、默认池扫描、明确缺少 bid/ask。
-2. 把 Longbridge 只读账户摘要接入 UI：账户净值、保守 CSP 现金、当前股票持仓、成本价。
+1. 在真实 Longbridge 网络环境下运行 `make account-health`、`make trade-review` 和 `make auto-scan`，校验账户、历史成交和期权链权限的真实产物。
+2. 将账户健康度、风控建议、历史复盘摘要、期权建议和 Scanner Strategy V1 输出接入每日报告。
 3. 完成 DeepSeek 分析层最小闭环：股票基础分析、市场情绪摘要、期权策略解释，所有 prompt 读取后端结构化上下文。
-4. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
-5. 实现 `Phase C` 风控建议：ATR 止损、仓位、PDT、财报/事件风险，并读取真实账户净值和持仓作为输入。
-6. 将 `Scanner Strategy V1` 输出接入日报和后续持久化扫描结果。
+4. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
+5. 完成期权助手 V2A 前端体验：候选点击填入合约检查表单、默认池扫描、明确缺少 bid/ask。
+6. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
 7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 
 暂缓：

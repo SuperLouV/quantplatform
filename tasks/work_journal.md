@@ -162,3 +162,18 @@
 - 修复 UI 滚动条和图表副图结构：全局滚动条改为细窄样式，RSI 副图增加独立标题栏和边界，为后续 MACD/ATR 等指标副图扩展留出一致模式
 - 新增 DeepSeek OpenAI-compatible 客户端骨架和 `docs/architecture/ai-analysis-design.md`，默认使用官方当前 `https://api.deepseek.com` 与 `deepseek-v4-flash`，API key 只从本地环境读取
 - 重构图表指标 UI：默认 K 线图高度提升到接近最大状态；SMA20/SMA50/SMA200/Bollinger 作为主图覆盖指标，RSI6/12/24 作为可选副图指标；副图可单独上下拖动，RSI 不再作为特殊唯一指标
+- 2026-05-05：新增 Longbridge 真实股票池同步：`scripts/sync_longbridge_stock_pool.py` 读取只读 `positions` 和 `watchlist`，过滤指数/期权/非 US 市场，生成本地敏感产物 `longbridge_positions / longbridge_watchlist / longbridge_core`，持仓元数据保留数量和成本价，自选元数据保留分组；相关目录已加入 `.gitignore`
+- 2026-05-05：新增真实持仓/自选基本策略分析：`PortfolioStrategyService` 复用 `IndicatorEngine`、`SignalDetector` 和 `MarketScanner`，Longbridge 负责实时行情，yfinance 本地 parquet 负责日线历史，输出持仓健康度和自选关注度 JSON + Markdown；新增 `scripts/analyze_longbridge_portfolio.py` 和 `make longbridge-portfolio-analysis`
+- 2026-05-05：默认日常池从虚拟/预设列表切到 `data/reference/system/stock_pools/longbridge/longbridge_core.json`，`POOL_ID` 默认改为 `longbridge_core`；UI 若本地尚未同步真实池，会自动回退到旧 `default_core`
+- 2026-05-05：当前沙箱可验证 CLI help，但真实 `positions/watchlist` 请求被网络连接限制拦截；代码检查用 Python 3.13 通过 36 个单元测试，系统 `python3` 指向 3.7 不符合项目 `>=3.11` 要求
+- 2026-05-05：新增自动化 AI 分析层：`scripts/analyze.py` 和 `make analyze` 读取本地 `StockSnapshot`、指标及最新持仓健康度，输出 `data/reports/ai_analysis/` JSON + Markdown；配置 OpenAI-compatible provider 后可追加模型综合摘要，模型失败时不阻断规则层报告
+- 2026-05-05：新增真实持仓期权建议：`AccountOptionsAdviceService` 读取 Longbridge 只读账户持仓，`YFinanceClient` 新增期权到期日/链读取，`make options-advice` 输出 covered call / cash-secured put 的 strike、到期日、权利金收入和年化回报；covered call 年化收益按正股名义本金估算
+- 2026-05-05：新增期权截图解析工具：`options/screenshot_parser.py` 可从 OCR 文本或本机 OCR 图片中提取 expiry、strike、bid/ask，并通过 yfinance 期权链交叉验证；新增 `scripts/extract_option_screenshot.py` 和 `make option-screenshot`
+- 2026-05-05：验证结果：`python -m compileall -q src scripts ...` 通过，`test_options / test_options_scanner / test_option_screenshot_parser` 共 6 个测试通过；`make check PYTHON=python` 的 compile 和 UI inline script 检查通过，单元测试 29 个中有 8 个在导入阶段因当前执行环境缺少 `pandas/yfinance` 失败
+- 2026-05-05：补齐风控模块第一版：新增 `RiskPolicy / PortfolioRiskAnalyzer`，支持单股集中度、行业敞口、HHI、现金比例、ATR 止损、PDT 门槛、事件风险和最大亏损预算检查；`config/risk.example.yaml` 增加可配置阈值
+- 2026-05-05：新增账户健康度报告：`AccountHealthService` 读取 Longbridge 只读账户、本地快照和事件日历，输出健康度评分、单股盈亏、行业分布、PDT 和改善建议；新增 `scripts/generate_account_health.py` 与 `make account-health`
+- 2026-05-05：新增历史交易复盘：`LongbridgeCLIClient` 增加只读历史订单/成交拉取入口，`TradeReviewService` 按股票多头 FIFO 匹配成交，输出胜率、盈亏比、平均持有时间、最大回撤、个股和月份统计；新增 `scripts/review_trades.py` 与 `make trade-review`
+- 2026-05-05：新增自动扫描报告：`AutoScannerService` 汇总 Scanner Strategy V1 股票扫描、真实持仓 covered call / cash-secured put 期权建议和 CSP 观察候选，输出 JSON + Markdown 到 `data/reports/scanner/`；新增 `scripts/run_auto_scan.py` 与 `make auto-scan`
+- 2026-05-05：将 `services/__init__.py` 改为懒加载，避免导入纯风控/复盘服务时被 `pandas/yfinance` 这类行情依赖阻断；新增 4 个单元测试覆盖风控、账户健康度、交易复盘和自动扫描。验证：`python -m compileall -q src scripts` 通过；新增测试和不依赖行情库的相关测试共 18 个通过；全量测试仍因当前环境缺少 `pandas` 导致 6 个行情相关模块导入失败
+- 2026-05-05：修复账户健康度报告过浅问题：账户 symbol 规范化改为只去掉 `.US`，保留 `BRK.B`；VOO/QQQ/EWT/EWJ/DRAM、BRK.B/CRCL/XE/NOK 增加行业兜底；缺 ATR 时 `AccountHealthService` 会尝试补齐本地 yfinance 日线并即时计算指标；报告新增操作清单，给出目标权重、建议减仓金额/股数和优先级，并对 CRCL 这类大幅盈亏显示成本/现价核对提示
+- 2026-05-05：优化 `make options-advice` 性能：默认只扫描 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓跳过并写明原因；增加 `--timeout-seconds`、`--max-workers`、`--max-expirations-per-symbol` 参数和进度输出，避免顺序扫描全持仓期权链导致超时

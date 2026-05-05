@@ -116,7 +116,7 @@ def evaluate_covered_call(request: OptionStrategyRequest) -> OptionEvaluation:
 
     return _evaluation(
         request=request,
-        capital_required=0,
+        capital_required=stock_value,
         premium_income=premium_income,
         max_loss=max_loss,
         breakeven=None if account.stock_cost_basis is None else account.stock_cost_basis - premium,

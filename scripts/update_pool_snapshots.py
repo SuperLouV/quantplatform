@@ -13,7 +13,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Update latest stock snapshots for a pool JSON file.")
     parser.add_argument(
         "--pool",
-        default="data/reference/system/stock_pools/index/nasdaq100.json",
+        default="data/reference/system/stock_pools/longbridge/longbridge_core.json",
         help="Path to the stock pool JSON file",
     )
     parser.add_argument("--workers", type=int, default=8, help="Concurrent worker count")

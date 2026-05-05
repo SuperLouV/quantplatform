@@ -15,7 +15,8 @@ data:
   yfinance_history_repair: true
   yfinance_history_prepost: false
   yfinance_initial_history_years: 10
-  longbridge_cli_binary: longbridge
+  longbridge_cli_binary: /usr/local/bin/longbridge
+  longbridge_cli_home: ""
 
 storage:
   raw_dir: data/raw
@@ -29,13 +30,21 @@ storage:
 scheduler:
   enabled: true
   daily_refresh_time_beijing: "06:30"
-  daily_refresh_pool: data/reference/system/stock_pools/preset/default_core.json
+  daily_refresh_pool: data/reference/system/stock_pools/longbridge/longbridge_core.json
   daily_refresh_workers: 8
   daily_refresh_update_events: true
   poll_interval_seconds: 60
 
 ai:
   provider: deepseek
+  # Generic OpenAI-compatible fields. For a local server, set:
+  # provider: local_openai
+  # base_url: http://127.0.0.1:11434/v1
+  # model: your-local-model
+  # api_key may stay empty if the local server does not require auth.
+  api_key: ""
+  base_url: https://api.deepseek.com
+  model: deepseek-v4-flash
   deepseek_api_key: ""
   deepseek_base_url: https://api.deepseek.com
   deepseek_model: deepseek-v4-flash

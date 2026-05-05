@@ -16,6 +16,9 @@ data/processed/snapshots/
 data/processed/yfinance/bars/
 data/reference/system/daily_refresh/
 data/reference/system/scan_results/
+data/reference/system/longbridge/
+data/reference/system/stock_pools/longbridge/
 data/reference/system/dashboard_data.json
 data/reference/system/market_events.json
+data/reports/portfolio_strategy/
 config/*.local.yaml

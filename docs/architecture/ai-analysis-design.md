@@ -1,6 +1,6 @@
 # AI Analysis Design
 
-日期：2026-05-03
+日期：2026-05-05
 
 ## 定位
 
@@ -45,6 +45,19 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 不要把 key 写入 `config/settings.example.yaml`，也不要提交 `.env`。
 
+## OpenAI-compatible Provider
+
+当前 AI 层已经改为通用 OpenAI-compatible 调用方式。DeepSeek 仍是默认托管 provider；本地模型可通过下面的环境变量覆盖：
+
+```bash
+QP_AI_PROVIDER=local_openai
+QP_AI_BASE_URL=http://127.0.0.1:11434/v1
+QP_AI_MODEL=your-local-model
+QP_AI_API_KEY=
+```
+
+规则层报告不依赖模型。模型未配置、API key 缺失或调用失败时，`make analyze` 仍会输出结构化 JSON + Markdown，并在报告里记录模型层状态。
+
 ## 输入数据
 
 AI 不直接抓散落文件。后端应先生成结构化上下文：
@@ -79,8 +92,8 @@ AI 不直接抓散落文件。后端应先生成结构化上下文：
 
 ## 实现顺序
 
-1. 建立 `DeepSeekClient`，只做 OpenAI-compatible chat completion。
-2. 建立 prompt/context builder，不把 prompt 写散在 UI 中。
-3. 先实现“股票基础分析”和“市场情绪摘要”两个只读 API。
-4. 后续再接入 Longbridge news/topic/filing。
+1. 已建立 `DeepSeekClient` 和通用 `OpenAICompatibleClient`，只做 chat completion。
+2. 已建立 `AutomatedAIAnalysisService`，读取本地快照、指标和持仓健康度生成结构化报告。
+3. 已新增 `make analyze`，输出 `data/reports/ai_analysis/ai_analysis_*.json/.md`。
+4. 后续再接入 Longbridge news/topic/filing 和每日报告聚合。
 5. UI 只展示后端产物，不在前端拼策略逻辑。

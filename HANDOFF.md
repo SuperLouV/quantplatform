@@ -1,6 +1,6 @@
 # Handoff
 
-最后更新：2026-04-27
+最后更新：2026-05-05
 
 ## 当前状态
 
@@ -30,6 +30,12 @@
 - 新窗口项目记忆入口 `PROJECT_MEMORY.md`
 - 中文 Markdown 每日报告 MVP：本地市场概览、scanner 候选、市场事件、数据刷新摘要和 AI 分析提示
 - 简单市场宏观分析：`SPY/QQQ/DIA/^VIX`，其中 VIX 状态会进入日报和 AI 分析提示
+- Longbridge 真实股票池同步：`make longbridge-pool-sync` 读取只读 `positions/watchlist`，生成本地敏感 `longbridge_core` 股票池，过滤指数、期权和非 US 市场
+- 真实持仓/自选策略分析：`make longbridge-portfolio-analysis` 输出 JSON + Markdown，包含持仓健康度和自选关注度，复用 indicators、signals 和 `MarketScanner`
+- 自动化 AI 分析报告：`make analyze` 读取本地快照、指标和最新持仓健康度，输出 `data/reports/ai_analysis/` JSON + Markdown；OpenAI-compatible 模型层可配置，失败时降级为规则结构化报告
+- 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
+- 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
+- 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
 
 ## 当前前端状态
 
@@ -73,6 +79,14 @@
 - 简单分析接口 `/api/analysis`
 - 候选池扫描接口 `/api/scanner`
 - 调度器状态接口 `/api/scheduler`
+- Longbridge 真实股票池同步脚本
+- Longbridge 真实持仓/自选策略分析脚本
+- 自动化 AI 分析脚本
+- 真实持仓期权建议脚本
+- 期权截图 OCR 文本解析和 yfinance 交叉验证工具
+- 账户健康度与风控报告脚本
+- 历史交易复盘报告脚本
+- 股票 + 期权自动扫描报告脚本
 
 当前数据层已具备基础 provider 请求保护、交易日历、操作日志和数据质量检查，还缺少：
 
@@ -84,10 +98,11 @@
 
 接下来最重要的不是继续扩 UI，而是进入核心系统阶段：
 
-1. 风控建议：仓位、ATR 止损、PDT、事件风险
-2. 扫描结果持久化
+1. 在正常 Python/网络环境下运行 `make account-health`、`make options-advice`、`make trade-review`、`make auto-scan`，校验真实账户、历史成交和期权链权限，并重点复核 CRCL 等大幅盈亏的券商成本价口径
+2. 把账户健康度、风控建议、历史复盘摘要、期权建议、自选关注度和 scanner 输出接入日报
 3. 扩展市场概览 ETF 历史更新：11 个 SPDR sector ETF
 4. 最小回测框架
+5. 继续收口 DeepSeek/OpenAI-compatible 分析层读取这些结构化报告
 
 ## 建议的下一步顺序
 
@@ -123,6 +138,10 @@
 - 当前 `yfinance` 可用于研究和原型，不应视为最终生产级行情源
 - 前端主图已开始切换到 `Lightweight Charts`，但仍需继续收口和验证
 - `data/logs/` 和 `.env` 是本地产物，不应提交 Git
+- `data/reference/system/stock_pools/longbridge/`、`data/reference/system/longbridge/` 和 `data/reports/portfolio_strategy/` 包含真实账户/自选产物，已加入 `.gitignore`，不要提交
+- 当前 Codex 沙箱内 Longbridge CLI 可通过临时 HOME 查看 help，但真实 `positions/watchlist` 请求被网络连接限制拦截；需要在用户正常终端环境运行同步命令
+- 当前执行环境的 `python` 缺少项目依赖 `pandas/yfinance`，因此全量单元测试会在导入依赖时失败；已完成 `compileall` 和不依赖行情库的截图解析测试
+- 本轮新增风控/账户健康度/交易复盘/自动扫描测试可在 `python` 3.11 下通过；系统 `python3` 仍指向 3.7，不符合项目 `>=3.11`
 - `AGENTS.md` 是 Codex 新窗口入口，`PROJECT_MEMORY.md` 保存长期项目理解和自我约束
 - `tasks/backlog.md` 保存未来功能和 API 接入计划
 

@@ -8,6 +8,9 @@ from copy import deepcopy
 POOL_NAME_ZH: dict[str, str] = {
     "custom_manual": "自选列表",
     "default_core": "默认列表",
+    "longbridge_core": "长桥真实股票池",
+    "longbridge_positions": "长桥持仓",
+    "longbridge_watchlist": "长桥自选",
     "tech_leaders": "科技龙头",
     "macro_defensive": "宏观防御",
     "nasdaq100": "纳斯达克100",

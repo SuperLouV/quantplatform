@@ -45,6 +45,7 @@ class LongbridgeCLITest(unittest.TestCase):
     def test_symbol_normalization_adds_us_suffix(self) -> None:
         self.assertEqual(to_longbridge_symbol("AAPL"), "AAPL.US")
         self.assertEqual(to_longbridge_symbol("AAPL.US"), "AAPL.US")
+        self.assertEqual(to_longbridge_symbol("BRK.B"), "BRK.B.US")
 
     def test_normalize_quote_snapshot_prefers_post_market_last(self) -> None:
         payload = normalize_quote_snapshot(RAW_AAPL_QUOTE, requested_symbol="AAPL")
@@ -78,6 +79,11 @@ class LongbridgeCLITest(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 7)
         self.assertEqual(payload["symbol"], "AAPL")
         self.assertEqual(payload["current_price"], 280.07)
+
+    def test_normalize_quote_snapshot_preserves_class_share_symbol(self) -> None:
+        payload = normalize_quote_snapshot({**RAW_AAPL_QUOTE, "symbol": "BRK.B.US"}, requested_symbol="BRK.B")
+
+        self.assertEqual(payload["symbol"], "BRK.B")
 
     @patch("quant_platform.clients.longbridge_cli.subprocess.run")
     def test_fetch_option_expirations_and_chain_use_read_only_commands(self, run) -> None:
@@ -139,17 +145,21 @@ class LongbridgeCLITest(unittest.TestCase):
             subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps([{"net_assets": "100"}]), stderr=""),
             subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps({"overview": {}}), stderr=""),
             subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps([{"symbol": "AAPL.US"}]), stderr=""),
+            subprocess.CompletedProcess(args=["longbridge"], returncode=0, stdout=json.dumps([{"name": "AI", "securities": []}]), stderr=""),
         ]
-        client = LongbridgeCLIClient(binary="longbridge", timeout_seconds=7)
+        client = LongbridgeCLIClient(binary="longbridge", timeout_seconds=7, home="/tmp/lb-home")
 
         self.assertEqual(client.fetch_assets()["net_assets"], "100")
         self.assertEqual(client.fetch_portfolio()["overview"], {})
         self.assertEqual(client.fetch_positions()[0]["symbol"], "AAPL.US")
+        self.assertEqual(client.fetch_watchlists()[0]["name"], "AI")
 
         commands = [call.args[0] for call in run.call_args_list]
         self.assertEqual(commands[0], ["longbridge", "assets", "--currency", "USD", "--format", "json"])
         self.assertEqual(commands[1], ["longbridge", "portfolio", "--format", "json"])
         self.assertEqual(commands[2], ["longbridge", "positions", "--format", "json"])
+        self.assertEqual(commands[3], ["longbridge", "watchlist", "--format", "json"])
+        self.assertEqual(run.call_args_list[0].kwargs["env"]["HOME"], "/tmp/lb-home")
 
 
 if __name__ == "__main__":

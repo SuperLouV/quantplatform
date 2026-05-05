@@ -2517,7 +2517,7 @@
   <script>
     const state = {
       pools: [],
-      activePoolId: "default_core",
+      activePoolId: "longbridge_core",
       activeItem: null,
       activeView: "stock",
       scannerPayload: null,
@@ -2588,7 +2588,7 @@
 
     async function loadPools() {
       const data = await api("/api/pools");
-      const defaultPools = data.pools.filter(pool => pool.pool_id === "default_core");
+      const defaultPools = data.pools.filter(pool => ["longbridge_core", "default_core"].includes(pool.pool_id));
       const customPool = {
         pool_id: "custom_manual",
         name: "Custom",
@@ -2598,6 +2598,9 @@
         symbol_count: state.customList.length,
       };
       state.pools = [customPool, ...defaultPools];
+      if (!state.pools.some(pool => pool.pool_id === state.activePoolId)) {
+        state.activePoolId = defaultPools[0]?.pool_id || "custom_manual";
+      }
       renderPools();
     }
 

@@ -24,6 +24,26 @@ class MarketScanner:
         candidates = sorted(candidates, key=lambda item: (-item.score, item.symbol))
         return ScanResult(summary=_summarize(candidates), candidates=candidates)
 
+    def scan_snapshots_with_options(
+        self,
+        snapshots: list[dict[str, object]],
+        *,
+        option_scan: dict[str, object] | None = None,
+    ) -> dict[str, object]:
+        """Return the existing stock scan plus an optional options scan dimension.
+
+        The options scan is supplied by a higher-level read-only service because
+        option chains and account cash are outside the scanner's core contract.
+        """
+        stock_result = self.scan_snapshots(snapshots)
+        return {
+            "stock": {
+                "summary": _summary_payload(stock_result.summary),
+                "candidates": [_candidate_payload(candidate) for candidate in stock_result.candidates],
+            },
+            "options": option_scan or {"covered_call": [], "cash_secured_put": [], "errors": []},
+        }
+
     def scan_snapshot(self, snapshot: dict[str, object], *, momentum_rank_pct: float | None = None) -> ScanCandidate:
         indicators = snapshot.get("indicators") if isinstance(snapshot.get("indicators"), dict) else {}
         assert isinstance(indicators, dict)
@@ -263,3 +283,50 @@ def _optional_str(value: object) -> str | None:
     if value is None:
         return None
     return str(value)
+
+
+def _summary_payload(summary: ScanSummary) -> dict[str, int]:
+    return {
+        "total": summary.total,
+        "candidate_buy": summary.candidate_buy,
+        "watch": summary.watch,
+        "risk_avoid": summary.risk_avoid,
+        "insufficient_data": summary.insufficient_data,
+        "high_risk": summary.high_risk,
+        "medium_risk": summary.medium_risk,
+        "low_risk": summary.low_risk,
+    }
+
+
+def _candidate_payload(candidate: ScanCandidate) -> dict[str, object]:
+    return {
+        "strategy_id": candidate.strategy_id,
+        "symbol": candidate.symbol,
+        "company_name": candidate.company_name,
+        "price": candidate.price,
+        "change_percent": candidate.change_percent,
+        "latest_history_date_us": candidate.latest_history_date_us,
+        "snapshot_refreshed_at_beijing": candidate.snapshot_refreshed_at_beijing,
+        "score": candidate.score,
+        "action": candidate.action,
+        "risk_level": candidate.risk_level,
+        "trend_state": candidate.trend_state,
+        "rsi_state": candidate.rsi_state,
+        "macd_state": candidate.macd_state,
+        "volume_state": candidate.volume_state,
+        "data_quality": candidate.data_quality,
+        "momentum_rank_pct": candidate.momentum_rank_pct,
+        "confidence": candidate.confidence,
+        "market_regime": candidate.market_regime,
+        "signals": [
+            {
+                "name": signal.name,
+                "direction": signal.direction,
+                "score": signal.score,
+                "label": signal.label,
+                "reason": signal.reason,
+                "data": signal.data,
+            }
+            for signal in candidate.signals
+        ],
+    }

@@ -52,7 +52,15 @@ Codex 接手入口：
 - 已新增期权策略 MVP，支持 `cash_secured_put` 和 `covered_call` 的规则层风险检查；右侧工作栏已有“期权助手”入口，可手工输入合约并展示资金占用、盈亏平衡、硬性风险和观察项，不自动下单
 - 已新增 Longbridge Terminal CLI 只读数据源原型，可通过本地 OAuth 登录后的 `longbridge quote` 获取实时、盘前和盘后行情，并归一化为项目快照字段
 - 已将单股强制刷新接入 `quote_provider: auto`：优先 Longbridge CLI 获取实时/盘前/盘后快照，失败时 fallback 到 yfinance，前端数据状态展示快照来源
-- 下一步重点是补齐风控建议、扫描结果持久化、市场概览 ETF 历史更新和最小回测
+- 已新增 Longbridge 真实股票池同步：读取只读 `positions/watchlist`，过滤指数、期权和非 US 市场，生成本地 `longbridge_core` 股票池；持仓保留数量/成本价，自选保留分组
+- 已新增真实持仓/自选基本策略分析：Longbridge 负责实时行情，yfinance 本地日线负责指标和信号，输出持仓健康度与自选关注度 JSON + Markdown
+- 已新增自动化 AI 分析报告：读取本地 `StockSnapshot`、指标和最新持仓健康度，生成结构化 JSON + 中文 Markdown；配置 OpenAI-compatible provider 后可追加模型综合摘要
+- 已新增真实持仓期权建议：读取 Longbridge 只读持仓，默认只扫描高流动性期权标的（AAPL/TSLA/NVDA/GOOGL/TSM 等），ETF、BRK.B 和低优先级标的会跳过并写入原因，避免全持仓期权链扫描超时
+- 已新增期权截图文字解析工具：可从 OCR 文本或本机 OCR 图片中提取 expiry、strike、bid/ask，并可用 yfinance 期权链交叉验证
+- 已新增账户健康度与风控报告：读取 Longbridge 只读账户、本地快照和事件日历；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标；ETF/特殊个股有行业兜底，并输出具体控仓/减仓金额建议
+- 已新增历史交易复盘：读取 Longbridge 只读历史订单/成交记录，按股票多头 FIFO 统计胜率、盈亏比、平均持有时间、最大回撤、个股和月份表现
+- 已新增自动扫描报告：汇总 Scanner Strategy V1 股票扫描、真实持仓 covered call / cash-secured put 建议和 CSP 观察候选，输出 JSON + Markdown
+- 下一步重点是把账户健康度、历史复盘、期权建议和 scanner 输出接入日报，并继续推进市场概览 ETF 历史更新和最小回测
 
 ## 当前主流程
 
@@ -67,7 +75,7 @@ Codex 接手入口：
 
 当前 UI 第一版遵循最小化原则：
 
-- 默认只展示 `默认列表`
+- 默认优先展示 `长桥真实股票池`；本地尚未同步时回退到旧 `默认列表`
 - 支持通过搜索把股票手动加入 `自选列表`
 - 每只股票都提供独立图形界面和当前快照指标
 - 第二页“扫描”展示当前股票池的候选动作、分数、趋势、RSI、MACD、成交量、风险和行情日期
@@ -126,6 +134,16 @@ Codex 新会话请先阅读：
 
 - 初始化本地目录和状态库：`PYTHONPATH=src python3 scripts/bootstrap_local_state.py`
 - 生成纳斯达克100股票池：`PYTHONPATH=src python3 scripts/build_nasdaq100_pool.py`
+- 同步 Longbridge 真实股票池：`make longbridge-pool-sync`
+- 生成 Longbridge 真实持仓/自选策略分析：`make longbridge-portfolio-analysis`
+- 分析前顺带刷新 yfinance 日线历史：`make longbridge-portfolio-analysis UPDATE_HISTORY=1`
+- 生成自动化 AI 分析报告：`make analyze`
+- 跳过模型层只生成规则结构化 AI 报告：`make analyze ANALYZE_ARGS=--no-model`
+- 生成真实持仓期权策略建议：`make options-advice`（可用 `OPTIONS_ADVICE_ARGS="--timeout-seconds 45 --max-workers 2 --max-expirations-per-symbol 2"` 控制速度）
+- 生成账户健康度与风控报告：`make account-health`
+- 生成历史交易复盘报告：`make trade-review`
+- 生成股票 + 期权自动扫描报告：`make auto-scan`
+- 解析期权截图 OCR 文本并用 yfinance 验证：`make option-screenshot OPTION_SCREENSHOT_ARGS="--text-file ocr.txt --symbol AAPL"`
 - 更新单个标的历史日线：`PYTHONPATH=src python3 scripts/update_yfinance_history.py AAPL --start 2025-01-01 --end 2025-01-15`
 - 按配置构建股票池快照：`PYTHONPATH=src python3 scripts/build_universe.py`
 - 批量更新股票池最新快照：`PYTHONPATH=src python3 scripts/update_pool_snapshots.py`
@@ -140,7 +158,7 @@ Codex 新会话请先阅读：
 - UI 服务默认不打印每个 HTTP 请求和 yfinance 已知非致命噪音；每日内置调度刷新完成后只打印一行 `DAILY_REFRESH ...`。如需查看 HTTP access log：`QP_HTTP_ACCESS_LOG=1 make ui`
 - 更新单个标的 10 年历史日线：`make history SYMBOL=AAPL YEARS=10`
 - 更新单个标的上市以来尽可能完整日线：`make history-full SYMBOL=AAPL`
-- 收盘后刷新默认股票池：`make daily-refresh`
+- 收盘后刷新默认股票池：`make daily-refresh`，默认读取 `data/reference/system/stock_pools/longbridge/longbridge_core.json`
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`
 - 刷新市场宏观代理历史：`make market-overview-refresh`

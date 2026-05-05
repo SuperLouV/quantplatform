@@ -36,7 +36,7 @@ class AccountPosition:
 
     @property
     def internal_symbol(self) -> str:
-        return self.symbol.split(".", 1)[0].upper()
+        return normalize_account_symbol(self.symbol)
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -72,7 +72,7 @@ class AccountSnapshot:
         return float(self.available_cash or self.total_cash or 0)
 
     def position_for(self, symbol: str) -> AccountPosition | None:
-        normalized = symbol.split(".", 1)[0].upper()
+        normalized = normalize_account_symbol(symbol)
         for position in self.positions:
             if position.internal_symbol == normalized:
                 return position
@@ -112,3 +112,15 @@ class AccountSnapshot:
 
 def _round_optional(value: float | None) -> float | None:
     return None if value is None else round(float(value), 2)
+
+
+def normalize_account_symbol(symbol: str) -> str:
+    """Normalize broker symbols to the internal US symbol form.
+
+    Longbridge uses a market suffix such as ``.US``. Do not split on the first
+    dot because class-share symbols such as BRK.B must stay intact.
+    """
+    normalized = str(symbol or "").strip().upper()
+    if normalized.endswith(".US"):
+        return normalized[:-3]
+    return normalized

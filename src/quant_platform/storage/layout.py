@@ -59,4 +59,4 @@ class DataLayout:
         return self.storage.processed_dir / "snapshots" / f"{symbol}.{ext}"
 
     def ai_analysis_path(self, target_type: str, target_id: str, extension: str = "json") -> Path:
-        return Path("outputs") / "reports" / "ai_analysis" / target_type / f"{target_id}.{extension}"
+        return self.storage.processed_dir.parent / "reports" / "ai_analysis" / target_type / f"{target_id}.{extension}"

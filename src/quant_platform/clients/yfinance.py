@@ -52,7 +52,7 @@ class YFinanceClient(BaseDataClient):
         )
 
     def _fetch_bars(self, request: DataRequest) -> list[Bar]:
-        ticker = yf.Ticker(request.symbol)
+        ticker = yf.Ticker(to_yfinance_symbol(request.symbol))
         history = _ticker_history(
             ticker,
             timeout=self.policy.timeout_seconds,
@@ -94,7 +94,7 @@ class YFinanceClient(BaseDataClient):
         )
 
     def _fetch_security(self, symbol: str) -> Security | None:
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
         info = ticker.info or {}
         if not info:
             return None
@@ -116,7 +116,7 @@ class YFinanceClient(BaseDataClient):
         )
 
     def _fetch_events(self, symbol: str) -> list[TradingCalendarEvent]:
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
         events: list[TradingCalendarEvent] = []
 
         calendar = ticker.calendar
@@ -162,7 +162,7 @@ class YFinanceClient(BaseDataClient):
         )
 
     def _fetch_quote_snapshot(self, symbol: str) -> dict[str, Any]:
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
         fast_info = _safe_dict(lambda: ticker.fast_info)
         history = _ticker_history(
             ticker,
@@ -248,7 +248,7 @@ class YFinanceClient(BaseDataClient):
         )
 
     def _fetch_chart_history(self, symbol: str, period: str = "6mo", interval: str = "1d") -> list[dict[str, Any]]:
-        ticker = yf.Ticker(symbol)
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
         history = _ticker_history(
             ticker,
             timeout=self.policy.timeout_seconds,
@@ -304,12 +304,51 @@ class YFinanceClient(BaseDataClient):
             )
         return results
 
+    def fetch_option_expirations(self, symbol: str) -> list[date]:
+        return self.guard.call(
+            f"fetch_option_expirations({symbol})",
+            lambda: self._fetch_option_expirations(symbol),
+        )
+
+    def _fetch_option_expirations(self, symbol: str) -> list[date]:
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
+        expirations: list[date] = []
+        for raw in list(getattr(ticker, "options", []) or []):
+            try:
+                expirations.append(date.fromisoformat(str(raw)))
+            except ValueError:
+                continue
+        return sorted(expirations)
+
+    def fetch_option_chain(self, symbol: str, expiration: date) -> dict[str, list[dict[str, Any]]]:
+        return self.guard.call(
+            f"fetch_option_chain({symbol},{expiration.isoformat()})",
+            lambda: self._fetch_option_chain(symbol, expiration),
+        )
+
+    def _fetch_option_chain(self, symbol: str, expiration: date) -> dict[str, list[dict[str, Any]]]:
+        ticker = yf.Ticker(to_yfinance_symbol(symbol))
+        chain = ticker.option_chain(expiration.isoformat())
+        return {
+            "calls": _option_rows(getattr(chain, "calls", pd.DataFrame()), option_type="call", expiration=expiration),
+            "puts": _option_rows(getattr(chain, "puts", pd.DataFrame()), option_type="put", expiration=expiration),
+        }
+
 
 def _ticker_history(ticker: Any, *, timeout: float, **kwargs: Any) -> pd.DataFrame:
     try:
         return ticker.history(timeout=timeout, **kwargs)
     except TypeError:
         return ticker.history(**kwargs)
+
+
+def to_yfinance_symbol(symbol: str) -> str:
+    normalized = str(symbol or "").strip().upper()
+    if normalized.endswith(".US"):
+        normalized = normalized[:-3]
+    if "." in normalized and normalized.split(".")[-1] in {"A", "B", "C"}:
+        return normalized.replace(".", "-")
+    return normalized
 
 
 def _search(query: str, limit: int) -> Any:
@@ -360,9 +399,44 @@ def _to_float(value: Any) -> float:
 
 
 def _optional_float(value: Any) -> float | None:
-    if value is None:
+    if value in (None, ""):
         return None
-    return float(value)
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return None
+    return result if pd.notna(result) else None
+
+
+def _optional_int(value: Any) -> int | None:
+    number = _optional_float(value)
+    return None if number is None else int(number)
+
+
+def _option_rows(frame: pd.DataFrame, *, option_type: str, expiration: date) -> list[dict[str, Any]]:
+    if frame is None or frame.empty:
+        return []
+    rows: list[dict[str, Any]] = []
+    for row in frame.to_dict(orient="records"):
+        rows.append(
+            {
+                "contract_symbol": row.get("contractSymbol"),
+                "option_type": option_type,
+                "expiration": expiration.isoformat(),
+                "strike": _optional_float(row.get("strike")),
+                "bid": _optional_float(row.get("bid")) or 0.0,
+                "ask": _optional_float(row.get("ask")) or 0.0,
+                "last_price": _optional_float(row.get("lastPrice")),
+                "change": _optional_float(row.get("change")),
+                "percent_change": _optional_float(row.get("percentChange")),
+                "volume": _optional_int(row.get("volume")),
+                "open_interest": _optional_int(row.get("openInterest")),
+                "implied_volatility": _optional_float(row.get("impliedVolatility")),
+                "in_the_money": bool(row.get("inTheMoney")) if row.get("inTheMoney") is not None else None,
+                "currency": row.get("currency"),
+            }
+        )
+    return rows
 
 
 def _extract_first_date(values: Any) -> date | None:

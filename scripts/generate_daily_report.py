@@ -19,7 +19,7 @@ from quant_platform.console_output import quiet_known_native_stderr
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate a local QuantPlatform daily Markdown report.")
-    parser.add_argument("--pool-id", default="default_core", help="Stock pool id used by the scanner.")
+    parser.add_argument("--pool-id", default="longbridge_core", help="Stock pool id used by the scanner.")
     parser.add_argument("--market-date-us", help="US market date for the report, YYYY-MM-DD. Defaults to latest refresh summary.")
     parser.add_argument("--json", action="store_true", help="Print full JSON result instead of a concise success line.")
     args = parser.parse_args()

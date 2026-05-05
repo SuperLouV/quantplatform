@@ -21,7 +21,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run daily market close refresh for a stock pool.")
     parser.add_argument(
         "--pool",
-        default="data/reference/system/stock_pools/preset/default_core.json",
+        default="data/reference/system/stock_pools/longbridge/longbridge_core.json",
         help="Pool JSON path, relative to project root unless absolute.",
     )
     parser.add_argument("--market-date-us", help="US market date to refresh, YYYY-MM-DD. Defaults to latest US weekday.")

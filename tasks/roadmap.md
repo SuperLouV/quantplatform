@@ -1,6 +1,6 @@
 # Roadmap
 
-日期：2026-04-27
+日期：2026-05-05
 
 ## Phase A：策略规格与数据层保护
 
@@ -9,6 +9,7 @@
 - 为 `yfinance` 增加限频、重试、超时和失败降级
 - 增加数据质量检查和失败汇总
 - 股票推荐范围先聚焦 `NASDAQ 100`、`S&P 500`、高热度股票和用户自定义列表，暂不做全美全市场扫描
+- 当前默认日常股票池切换为 Longbridge 真实 `positions/watchlist` 生成的 `longbridge_core`，早期虚拟/预设列表作为 fallback
 - 新标的首次进入扫描时回填足够的日线历史，避免 SMA200、RSI 和后续信号在历史不足时失真
 
 ## Phase B：技术指标模块
@@ -24,6 +25,8 @@
 - 定义 `Signal`、`SignalSummary`、`RiskAdvice`
 - 实现第一批趋势、动量、波动和成交量信号
 - 将 `trend_momentum_v1` 扫描结果接入日报和后续扫描结果持久化
+- 将真实持仓健康度和自选关注度接入日报
+- 将自动化 AI 分析和真实持仓期权建议接入日报
 - 实现仓位建议、止损价、集中度和事件风险提醒
 - 支持 `LongPort 20k` 与 `IBKR 5k` 两套账户假设
 
@@ -33,6 +36,14 @@
 - 包含市场环境、板块轮动、scanner 候选、风险候选和数据质量摘要
 - 报告末尾生成给 AI 研判的结构化 prompt
 - 报告作为人工交易前复盘的核心产物
+- 已新增独立 `make analyze`，后续把其结构化结果纳入日报
+
+## Phase D2：AI 分析与期权建议
+
+- `make analyze` 基于本地快照、指标和持仓健康度生成结构化 AI 分析 JSON + Markdown
+- OpenAI-compatible provider 可配置，本地/托管模型失败时不阻断规则层报告
+- `make options-advice` 读取 Longbridge 真实持仓，使用 yfinance 期权链评估 covered call / cash-secured put
+- `make option-screenshot` 从 OCR 文本或本机 OCR 图片提取期权报价字段，并用 yfinance 交叉验证
 
 ## Phase E：日常管线编排
 

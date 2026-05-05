@@ -3,3 +3,11 @@ risk:
   max_sector_weight: 0.25
   max_open_positions: 12
   max_portfolio_drawdown: 0.12
+  max_single_position_loss_pct: 0.02
+  max_total_atr_risk_pct: 0.06
+  atr_stop_multiplier: 2.0
+  pdt_equity_threshold: 25000
+  pdt_day_trade_limit_5d: 3
+  event_risk_window_days: 7
+  min_cash_ratio: 0.10
+  high_hhi_threshold: 0.18

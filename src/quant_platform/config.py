@@ -30,6 +30,7 @@ class DataConfig:
     yfinance_history_prepost: bool = False
     yfinance_initial_history_years: int = 10
     longbridge_cli_binary: str = "longbridge"
+    longbridge_cli_home: str = ""
 
 
 @dataclass(slots=True)
@@ -56,6 +57,9 @@ class SchedulerConfig:
 @dataclass(slots=True)
 class AIConfig:
     provider: str = "deepseek"
+    api_key: str = ""
+    base_url: str = "https://api.deepseek.com"
+    model: str = "deepseek-v4-flash"
     deepseek_api_key: str = ""
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-v4-flash"
@@ -172,6 +176,8 @@ def load_settings(path: str | Path) -> Settings:
             ),
             longbridge_cli_binary=os.environ.get("QP_LONGBRIDGE_CLI_BINARY")
             or market_data.get("longbridge_cli_binary", "longbridge"),
+            longbridge_cli_home=os.environ.get("QP_LONGBRIDGE_CLI_HOME")
+            or market_data.get("longbridge_cli_home", ""),
         ),
         storage=StorageConfig(
             raw_dir=(base_dir / storage.get("raw_dir", "data/raw")).resolve(),
@@ -203,6 +209,18 @@ def load_settings(path: str | Path) -> Settings:
         ),
         ai=AIConfig(
             provider=os.environ.get("QP_AI_PROVIDER") or ai.get("provider", "deepseek"),
+            api_key=os.environ.get("QP_AI_API_KEY")
+            or os.environ.get("DEEPSEEK_API_KEY")
+            or ai.get("api_key", "")
+            or ai.get("deepseek_api_key", ""),
+            base_url=os.environ.get("QP_AI_BASE_URL")
+            or os.environ.get("DEEPSEEK_BASE_URL")
+            or ai.get("base_url", "")
+            or ai.get("deepseek_base_url", "https://api.deepseek.com"),
+            model=os.environ.get("QP_AI_MODEL")
+            or os.environ.get("DEEPSEEK_MODEL")
+            or ai.get("model", "")
+            or ai.get("deepseek_model", "deepseek-v4-flash"),
             deepseek_api_key=os.environ.get("DEEPSEEK_API_KEY") or ai.get("deepseek_api_key", ""),
             deepseek_base_url=os.environ.get("DEEPSEEK_BASE_URL") or ai.get("deepseek_base_url", "https://api.deepseek.com"),
             deepseek_model=os.environ.get("DEEPSEEK_MODEL") or ai.get("deepseek_model", "deepseek-v4-flash"),

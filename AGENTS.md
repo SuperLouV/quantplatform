@@ -108,17 +108,43 @@ Already available:
 - Longbridge Terminal CLI read-only integration:
   - quote snapshots
   - assets / portfolio / positions
+  - real positions/watchlist stock-pool sync
+  - basic real holdings/watchlist strategy analysis
   - option chain / option volume
   - SELL PUT V2A scanner without concrete option quote permission
 - Options assistant MVP:
   - manual cash-secured put / covered call rule check
   - SELL PUT candidate scan
   - account-aware inputs using read-only Longbridge account summary
+- Automated AI analysis layer:
+  - reads local `StockSnapshot`, indicators, and latest portfolio health output
+  - writes structured JSON + Markdown to `data/reports/ai_analysis/`
+  - can call a configured OpenAI-compatible provider, but deterministic report generation does not depend on model success
+- Account-aware options advice:
+  - reads real Longbridge positions read-only
+  - uses yfinance option chains for covered call / cash-secured put suggestions
+  - writes JSON + Markdown to `data/reports/options_advice/`
+- Account health and risk reports:
+  - reads Longbridge account/positions read-only plus local snapshots/events
+  - calculates position concentration, sector exposure, HHI, cash ratio, ATR stop, PDT, event risk, and max-loss checks
+  - writes JSON + Markdown to `data/reports/account_health/`
+- Historical trade review:
+  - reads Longbridge historical orders/executions read-only
+  - first pass uses long-only FIFO to calculate win rate, payoff ratio, holding time, drawdown, by-symbol and by-month stats
+  - writes JSON + Markdown to `data/reports/trade_review/`
+- Automated stock/options scanner reports:
+  - combines Scanner Strategy V1 with account-aware covered call / cash-secured put ideas and CSP watch candidates
+  - writes JSON + Markdown to `data/reports/scanner/`
+- Option screenshot parsing:
+  - extracts expiry, strike, bid/ask from OCR text or local OCR image flow
+  - supports yfinance cross-validation
 
 Main missing pieces:
 
-- Signal integration into daily reports and backtests
-- Position sizing and risk advice
+- Real holdings/watchlist analysis integration into daily reports
+- AI/期权建议 integration into daily reports
+- Signal integration into backtests
+- Risk/health/trade-review integration into daily reports
 - Minimal signal-driven backtest
 - Provider fallback beyond `yfinance`
 - Market regime filter using SPY/QQQ/VIX/breadth
