@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 
 
 def main() -> None:
@@ -13,7 +13,7 @@ def main() -> None:
     parser.parse_args()
 
     project_root = Path(__file__).resolve().parents[1]
-    settings = load_settings(project_root / "config" / "settings.example.yaml")
+    settings = load_settings(default_settings_path(project_root))
 
     from quant_platform.services import LongbridgeStockPoolService
 

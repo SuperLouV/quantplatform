@@ -13,7 +13,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 from quant_platform.console_output import quiet_known_native_stderr
 from quant_platform.time_utils import latest_completed_us_market_date, now_beijing
 
@@ -32,7 +32,7 @@ def main() -> None:
 
         market_date = date.fromisoformat(args.market_date_us) if args.market_date_us else latest_completed_us_market_date(now_beijing())
         symbols = args.symbols or list(MARKET_OVERVIEW_SYMBOLS)
-        settings = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+        settings = load_settings(default_settings_path(PROJECT_ROOT))
         updater = YFinanceHistoryUpdater(settings)
         for symbol in symbols:
             try:

@@ -21,10 +21,13 @@ class OperationLogger:
     def info(self, action: str, **fields: Any) -> None:
         self._write("info", action, fields)
 
+    def notice(self, action: str, **fields: Any) -> None:
+        self._write("info", action, fields, force_console=True)
+
     def error(self, action: str, **fields: Any) -> None:
         self._write("error", action, fields)
 
-    def _write(self, level: str, action: str, fields: dict[str, Any]) -> None:
+    def _write(self, level: str, action: str, fields: dict[str, Any], *, force_console: bool = False) -> None:
         now = now_beijing()
         path = self.root / f"{self.namespace}_{now.strftime('%Y%m%d')}.jsonl"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,7 +40,9 @@ class OperationLogger:
         }
         with path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(payload, ensure_ascii=False, default=str) + "\n")
-        if self.log_to_console:
+        if force_console:
+            print(_format_console_line(self.namespace, payload), flush=True)
+        elif self.log_to_console:
             print(_format_console_line(self.namespace, payload), file=sys.stderr)
 
 
@@ -57,13 +62,14 @@ def _format_console_line(namespace: str, payload: dict[str, Any]) -> str:
     timestamp = str(payload.get("timestamp") or "")
     level = str(payload.get("level") or "info").upper()
     action = str(payload.get("action") or "")
+    display_action = action if action.startswith(f"{namespace}.") else f"{namespace}.{action}"
     fields = [
         f"{key}={_short_value(value)}"
         for key, value in payload.items()
         if key not in {"timestamp", "timezone", "level", "action"}
     ][:8]
     suffix = f" {' '.join(fields)}" if fields else ""
-    return f"[{timestamp}] {level} {namespace}.{action}{suffix}"
+    return f"[{timestamp}] {level} {display_action}{suffix}"
 
 
 def _short_value(value: Any, *, limit: int = 160) -> str:

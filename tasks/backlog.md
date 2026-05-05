@@ -1,6 +1,6 @@
 # Backlog
 
-最后更新：2026-05-03
+最后更新：2026-05-06
 
 这个文件记录尚未实现、未来可能实现、以及需要评估的功能/API。进入开发前，应先从这里移动到 `tasks/plan.md` 的具体阶段。
 
@@ -14,6 +14,7 @@
   - 报告模块拆分：技术、基本面、新闻、情绪、风控、最终建议
   - 轻量 AI 研判接口：读取本地日报和扫描结果，输出结构化解释
   - DeepSeek/OpenAI-compatible 分析层：股票基础分析、市场情绪摘要、期权策略解释
+  - 决策面板 AI 对话窗口：后端只读取最新结构化本地产物，回答股票/期权策略、风险和复盘问题，不输出自动下单指令
   - 新闻/舆情 relevance_score 过滤
   - LLM provider 抽象：quick model / deep model
 - 扩展日报市场概览所需历史数据：
@@ -38,6 +39,7 @@
 - Longbridge 数据源后续：
   - 账户摘要 UI：净值、保守 CSP 现金、持仓市值、总盈亏、当日盈亏、风险等级
   - 只读账户信息已接：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
+  - Longbridge news / market-temp：优先作为新闻、情绪和市场温度来源，写入宏观/新闻风险模块
   - 接 Longbridge `market_status` / `trading_days`
   - 接 Longbridge 期权链、期权成交量统计；具体合约 `option quote` 作为权限可用后的增强
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖

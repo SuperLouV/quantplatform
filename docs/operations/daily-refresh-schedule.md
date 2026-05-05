@@ -1,6 +1,6 @@
 # Daily Refresh Schedule
 
-盘后全量刷新用于保证第二天开盘前，股票池快照和本地历史数据已经更新到最近一个美股交易日。
+盘后全量刷新用于保证第二天开盘前，真实股票池、股票池快照、本地历史数据、账户风控、期权建议、AI 解读和每日报告已经更新到最近一个美股交易日。
 
 ## Manual Run
 
@@ -10,11 +10,12 @@ make daily-refresh
 
 默认刷新：
 
-- 股票池：`data/reference/system/stock_pools/preset/default_core.json`
+- 股票池：`data/reference/system/stock_pools/longbridge/longbridge_core.json`
 - 市场日期：最近一个美股交易日，字段名为 `market_date_us`
 - 本地时间：北京时间，字段名为 `generated_at_beijing`
 - 日志：`data/logs/daily_refresh_YYYYMMDD.jsonl`
 - 汇总：`data/reference/system/daily_refresh/{pool_id}_{market_date_us}.json`
+- terminal 可见输出：Longbridge 股票池同步、历史/快照刷新、账户健康、期权建议、AI 解读和日报生成状态
 
 ## Server Scheduler
 
@@ -38,9 +39,15 @@ curl http://127.0.0.1:8000/api/scheduler
 scheduler:
   enabled: true
   daily_refresh_time_beijing: "06:30"
-  daily_refresh_pool: data/reference/system/stock_pools/preset/default_core.json
+  daily_refresh_pool: data/reference/system/stock_pools/longbridge/longbridge_core.json
   daily_refresh_workers: 8
   daily_refresh_update_events: true
+  daily_refresh_sync_longbridge_pool: true
+  daily_refresh_generate_account_health: true
+  daily_refresh_generate_options_advice: true
+  daily_refresh_generate_daily_report: true
+  daily_refresh_generate_ai_analysis: true
+  daily_refresh_ai_use_model: true
   poll_interval_seconds: 60
 ```
 

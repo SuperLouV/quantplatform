@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 import json
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -32,6 +32,17 @@ class OperationLoggerTest(unittest.TestCase):
             payload = json.loads(logs[0].read_text(encoding="utf-8").splitlines()[0])
             self.assertEqual(payload["level"], "error")
             self.assertEqual(payload["api_key"], "***")
+
+    def test_notice_prints_important_line_to_stdout(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                OperationLogger(Path(temp_dir), "daily_refresh").notice("daily_refresh.success", pool_id="core")
+
+            output = stdout.getvalue()
+            self.assertIn("INFO daily_refresh.success", output)
+            self.assertNotIn("daily_refresh.daily_refresh.success", output)
+            self.assertIn("pool_id=core", output)
 
 
 if __name__ == "__main__":

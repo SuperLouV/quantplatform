@@ -1,6 +1,6 @@
 # Project Memory
 
-最后更新：2026-05-05
+最后更新：2026-05-06
 
 ## 项目一句话
 
@@ -30,6 +30,7 @@
   - 第二天开盘前查看扫描候选和报告
   - 结合 AI 分析做人工判断
   - 人工下单或暂不交易
+- 当前长期目标按“真实持仓/自选/AI/新闻股票池 -> 收盘后自动准备包 -> 决策面板 AI 对话 -> 宏观/新闻风险过滤 -> 回测验证”推进。AI 可以回答股票和期权交易辅助问题，但必须基于结构化本地产物并保持只读、保守、人工决策边界。
 
 账户背景：
 
@@ -47,6 +48,7 @@
 - 单股快照刷新、股票列表动态同步、每日刷新脚本。
 - UI 服务内置北京时间 06:30 盘后刷新调度器。
 - 本地操作日志 `data/logs/*.jsonl`。
+- `make daily-refresh` 和 UI 内置调度会默认打印关键步骤日志，便于第二天从 terminal 看到 Longbridge 股票池同步、行情刷新、账户健康、期权建议、AI 解读和日报生成状态。
 - 美股交易日历，避免盘中把未完成交易日当作收盘日。
 - 重大事件日历：Fed FOMC、Census、FRED release calendar。
 - 指标引擎：SMA、EMA、MACD、RSI6/12/14/24、ROC、Bollinger、ATR、volume ratio。
@@ -63,6 +65,7 @@
   - scanner 候选
   - 未来 14 天市场事件
   - daily refresh 数据质量摘要
+  - 持仓、期权与 AI 自动分析摘要，读取 daily refresh summary 的 `supplemental_outputs`
   - 给 AI 的结构化分析提示
   - 当目标交易日没有成功刷新时，自动回落到本地最新可用行情日。
 - 简单市场宏观分析：
@@ -83,6 +86,7 @@
   - `make ai-options` 读取最新 `options_advice_*.json`，输出 covered call / cash-secured put 建议的模型解读
   - `make ai-stock SYMBOL=AAPL` 读取本地单股 snapshot，并可结合最新账户健康/期权建议中的匹配项做技术面解读
   - AI 失败时明确写入 `model_status=error/skipped`，不使用 placeholder 假结论；AI 输出只做解释、风险提示和人工复核问题，不生成自动交易动作
+  - 常用脚本优先读取本地 `config/settings.yaml`，不存在时回落到 example；API key 仍从 `.env` / 环境变量读取，不能提交 Git
 - 真实持仓期权建议：
   - `make options-advice` 读取 Longbridge 只读持仓，yfinance 读取期权链
   - 默认只扫描 AAPL、TSLA、NVDA、GOOGL/GOOG、TSM 等高流动性期权标的；ETF、BRK.B 和非白名单标的跳过并写入原因，避免全持仓期权链扫描超时

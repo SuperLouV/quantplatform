@@ -13,7 +13,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 from quant_platform.console_output import quiet_known_native_stderr
 
 
@@ -27,7 +27,7 @@ def main() -> None:
     with quiet_known_native_stderr():
         from quant_platform.services.daily_report import DailyReportService
 
-        settings = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+        settings = load_settings(default_settings_path(PROJECT_ROOT))
         service = DailyReportService(settings)
         result = service.generate(
             pool_id=args.pool_id,

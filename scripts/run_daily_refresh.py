@@ -13,7 +13,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 from quant_platform.console_output import quiet_known_native_stderr
 
 
@@ -37,7 +37,7 @@ def main() -> None:
     with quiet_known_native_stderr():
         from quant_platform.services.daily_refresh import DailyRefreshService
 
-        settings = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+        settings = load_settings(default_settings_path(PROJECT_ROOT))
         service = DailyRefreshService(settings)
         result = service.run(
             pool_path=pool_path,
@@ -56,6 +56,7 @@ def main() -> None:
         "history_success": _count_history(result.history, "success"),
         "history_empty": _count_history(result.history, "empty"),
         "history_error": _count_history(result.history, "error"),
+        "supplemental_outputs": result.supplemental_outputs or {},
     }
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -69,12 +70,23 @@ def main() -> None:
             f"history_empty={payload['history_empty']} "
             f"history_error={payload['history_error']} "
             f"market_events={payload['market_events_count']} "
+            f"supplemental={_summarize_supplemental(payload['supplemental_outputs'])} "
             f"summary={payload['summary_path']}"
         )
 
 
 def _count_history(history: dict[str, dict[str, object]], status: str) -> int:
     return sum(1 for item in history.values() if item.get("status") == status)
+
+
+def _summarize_supplemental(outputs: object) -> str:
+    if not isinstance(outputs, dict) or not outputs:
+        return "none"
+    parts = []
+    for name, payload in outputs.items():
+        status = payload.get("status") if isinstance(payload, dict) else "unknown"
+        parts.append(f"{name}:{status}")
+    return ",".join(parts)
 
 
 if __name__ == "__main__":

@@ -316,13 +316,15 @@
 
 接下来优先做：
 
-1. 在真实 Longbridge 网络环境下运行 `make account-health`、`make trade-review` 和 `make auto-scan`，校验账户、历史成交和期权链权限的真实产物。
-2. 在本机依赖完整环境启动 UI，人工验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
-3. 在用户本机网络环境运行 `make ai-analyze`、`make ai-options`、`make ai-stock SYMBOL=AAPL`，用真实 DeepSeek 返回复核 prompt 长度、Markdown 质量和数据边界措辞。
-4. 将账户健康度、DeepSeek 解读、风控建议、历史复盘摘要、期权建议和 Scanner Strategy V1 输出接入每日报告。
-5. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
-6. 拆分 `ui/index.html`：先拆 CSS、Dashboard JS 和期权 JS，降低单文件复杂度。
-7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
+1. 在真实 Longbridge 网络环境下运行新的 `make daily-refresh`，校验 Longbridge pool sync、账户健康、期权建议、日报和 AI 解读是否全部写入 `supplemental_outputs`，并确认 terminal 能看到关键步骤日志。
+2. 在用户本机网络环境用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的 prompt 长度、Markdown 质量和数据边界措辞。
+3. 下一个开发任务：在决策面板实现只读 AI 对话窗口，后端读取最新日报、scanner、账户健康、期权建议和 AI 解读作为上下文，输出股票/期权交易辅助建议，但明确禁止自动下单指令。
+4. 增加宏观/新闻风险模块第一版：优先 Longbridge news / market-temp，结合 SPY/QQQ/^VIX/sector ETF，形成 risk-on / neutral / risk-off 过滤条件，避免单边上涨行情让策略误判。
+5. 在本机依赖完整环境启动 UI，人工验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
+6. 将历史复盘摘要和自选关注度进一步接入每日报告和 Dashboard。
+7. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
+8. 拆分 `ui/index.html`：先拆 CSS、Dashboard JS 和期权 JS，降低单文件复杂度。
+9. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 
 暂缓：
 
@@ -331,7 +333,7 @@
 - 依赖 `option quote` 权限的实时权利金、IV、delta、open interest 和精确 ROI 扫描
 - 复杂宏观事件数据源
 - 复杂组合优化
-- 模型自动调用和付费 AI API
+- 高频或盘中自动模型调用
 
 ## 设计原则
 

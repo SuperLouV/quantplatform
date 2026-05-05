@@ -18,7 +18,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 from quant_platform.console_output import quiet_known_native_stderr
 from quant_platform.clients import LongbridgeCLIClient
 from quant_platform.options import (
@@ -34,10 +34,7 @@ from quant_platform.time_utils import iso_beijing, latest_completed_us_market_da
 
 
 def _settings_path() -> Path:
-    local_path = PROJECT_ROOT / "config" / "settings.yaml"
-    if local_path.exists():
-        return local_path
-    return PROJECT_ROOT / "config" / "settings.example.yaml"
+    return default_settings_path(PROJECT_ROOT)
 
 
 SETTINGS = load_settings(_settings_path())

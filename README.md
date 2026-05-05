@@ -63,7 +63,9 @@ Codex 接手入口：
 - 已完成 Claude Code 审核提出的 P0 修复：UI 服务优先读取 `config/settings.yaml`，指标引擎移除并发共享状态，调度器避免单票失败导致每日死循环重试，Longbridge CLI 数值和 symbol 输入做安全防护
 - 已新增 Dashboard 聚合 API：`/api/dashboard` 只读本地 scanner、账户健康度、事件、AI 和日报产物，`/api/reports/latest` 返回最新 Markdown 日报，`POST /api/refresh` 后台触发收盘刷新 + 宏观代理刷新 + 日报生成
 - UI 默认首页已从个股 K 线工作台改为“决策仪表板”，一屏展示市场状态、今日候选、持仓风控、近期事件、AI 研判和每日报告；个股和扫描视图保留在顶栏切换中
-- 下一步重点是把账户健康度、AI 解读、历史复盘、期权建议和 scanner 输出接入日报，并继续推进市场概览 ETF 历史更新和最小回测
+- 已将 `make daily-refresh` 升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新行情，生成账户健康、期权建议、AI 解读和每日报告，并默认在 terminal 打印关键步骤日志
+- 每日报告新增“持仓、期权与 AI 自动分析”章节，会读取 daily refresh summary 的 `supplemental_outputs` 并摘录 AI Markdown
+- 下一步重点是在决策面板增加只读 AI 对话窗口，并推进 Longbridge news / market-temp 驱动的宏观与新闻风险模块；历史复盘摘要、市场情绪过滤和最小回测随后接入日报/策略闭环
 
 ## 当前主流程
 
@@ -161,11 +163,12 @@ Codex 新会话请先阅读：
 - 更新全市场重大事件日历：`PYTHONPATH=src python3 scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31`
 - 启动本地 UI：`python3 scripts/serve_ui.py`
 - 启动本地 UI 快捷命令：`make ui`，自定义端口：`make ui PORT=8001`
-- Makefile 日常命令默认只在 terminal 打印最终成功摘要，详细过程写入 `data/logs/*.jsonl`；如需调试逐条日志：`make daily-report LOG_TO_CONSOLE=1`
-- UI 服务默认不打印每个 HTTP 请求和 yfinance 已知非致命噪音；每日内置调度刷新完成后只打印一行 `DAILY_REFRESH ...`。如需查看 HTTP access log：`QP_HTTP_ACCESS_LOG=1 make ui`
+- `make daily-refresh` 默认会在 terminal 打印关键进度：Longbridge 真实股票池同步、历史/快照刷新、账户健康、期权建议、AI 解读和日报生成；详细 JSONL 仍写入 `data/logs/*.jsonl`
+- 如需调试其它命令的逐条日志：`make daily-report LOG_TO_CONSOLE=1`
+- UI 服务默认不打印每个 HTTP 请求和 yfinance 已知非致命噪音；每日内置调度刷新会打印 `DAILY_REFRESH ...` 和 daily refresh 关键步骤。查看 HTTP access log：`QP_HTTP_ACCESS_LOG=1 make ui`
 - 更新单个标的 10 年历史日线：`make history SYMBOL=AAPL YEARS=10`
 - 更新单个标的上市以来尽可能完整日线：`make history-full SYMBOL=AAPL`
-- 收盘后刷新默认股票池：`make daily-refresh`，默认读取 `data/reference/system/stock_pools/longbridge/longbridge_core.json`
+- 收盘后刷新默认股票池并生成“次日准备包”：`make daily-refresh`，默认读取 `data/reference/system/stock_pools/longbridge/longbridge_core.json`，并按配置生成账户健康、期权建议、AI 解读和每日报告
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`
 - 刷新市场宏观代理历史：`make market-overview-refresh`

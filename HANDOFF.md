@@ -1,6 +1,6 @@
 # Handoff
 
-最后更新：2026-05-05
+最后更新：2026-05-06
 
 ## 当前状态
 
@@ -33,6 +33,9 @@
 - Longbridge 真实股票池同步：`make longbridge-pool-sync` 读取只读 `positions/watchlist`，生成本地敏感 `longbridge_core` 股票池，过滤指数、期权和非 US 市场
 - 真实持仓/自选策略分析：`make longbridge-portfolio-analysis` 输出 JSON + Markdown，包含持仓健康度和自选关注度，复用 indicators、signals 和 `MarketScanner`
 - 模型驱动 AI 解读报告：`make ai-analyze` 读取最新账户健康 JSON，`make ai-options` 读取最新期权建议 JSON，`make ai-stock SYMBOL=AAPL` 读取单股快照并调用 DeepSeek/OpenAI-compatible provider 输出 Markdown；失败时明确标记 `model_status=error/skipped`，不再用 placeholder 替代真实模型解读
+- `make daily-refresh` 已升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新股票池历史与快照，生成账户健康、期权建议、AI Dashboard / 账户健康 / 期权建议解读，再生成每日报告；补充任务结果写入 summary 的 `supplemental_outputs`
+- daily refresh 默认会在 terminal 打印关键步骤日志，便于第二天直接看到股票池刷新、账户/期权分析、AI 解读和日报是否成功；详细日志仍写入 `data/logs/*.jsonl`
+- 常用脚本优先读取本地 `config/settings.yaml`，不存在时回落到 `config/settings.example.yaml`；AI key 继续通过 `.env` / 环境变量读取，不提交 Git
 - 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
 - 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
 - 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
@@ -106,12 +109,11 @@
 
 接下来最重要的不是继续扩 UI，而是进入核心系统阶段：
 
-1. 在正常 Python/网络环境下运行 `make account-health`、`make options-advice`、`make trade-review`、`make auto-scan`，校验真实账户、历史成交和期权链权限，并重点复核 CRCL 等大幅盈亏的券商成本价口径
-2. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染
-3. 把账户健康度、风控建议、历史复盘摘要、期权建议、自选关注度和 scanner 输出接入日报
-4. 扩展市场概览 ETF 历史更新：11 个 SPDR sector ETF
-5. 最小回测框架
-6. 在用户本机网络环境运行 `make ai-analyze`、`make ai-options`、`make ai-stock SYMBOL=AAPL`，复核真实 DeepSeek 输出质量，然后接入日报
+1. 在正常 Python/Longbridge/网络环境下运行 `make daily-refresh`，确认 terminal 关键日志、`supplemental_outputs`、账户健康、期权建议、AI 解读和日报都成功生成。
+2. 用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的质量和边界措辞。
+3. 下一个开发任务：在决策面板增加只读 AI 对话窗口，后端读取最新日报、scanner、账户健康、期权建议和 AI 解读作为上下文，回答股票/期权策略问题，但不输出自动下单指令。
+4. 增加宏观/新闻风险模块第一版：优先 Longbridge news / market-temp，结合 SPY/QQQ/^VIX/sector ETF，形成 risk-on / neutral / risk-off 过滤条件。
+5. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
 
 ## 建议的下一步顺序
 

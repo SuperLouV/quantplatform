@@ -33,6 +33,12 @@ scheduler:
   daily_refresh_pool: data/reference/system/stock_pools/longbridge/longbridge_core.json
   daily_refresh_workers: 8
   daily_refresh_update_events: true
+  daily_refresh_sync_longbridge_pool: true
+  daily_refresh_generate_account_health: true
+  daily_refresh_generate_options_advice: true
+  daily_refresh_generate_daily_report: true
+  daily_refresh_generate_ai_analysis: true
+  daily_refresh_ai_use_model: true
   poll_interval_seconds: 60
 
 ai:

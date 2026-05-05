@@ -77,6 +77,12 @@ class DailyRefreshScheduler:
             "daily_refresh_pool": self.settings.scheduler.daily_refresh_pool,
             "daily_refresh_workers": self.settings.scheduler.daily_refresh_workers,
             "daily_refresh_update_events": self.settings.scheduler.daily_refresh_update_events,
+            "daily_refresh_sync_longbridge_pool": self.settings.scheduler.daily_refresh_sync_longbridge_pool,
+            "daily_refresh_generate_account_health": self.settings.scheduler.daily_refresh_generate_account_health,
+            "daily_refresh_generate_options_advice": self.settings.scheduler.daily_refresh_generate_options_advice,
+            "daily_refresh_generate_daily_report": self.settings.scheduler.daily_refresh_generate_daily_report,
+            "daily_refresh_generate_ai_analysis": self.settings.scheduler.daily_refresh_generate_ai_analysis,
+            "daily_refresh_ai_use_model": self.settings.scheduler.daily_refresh_ai_use_model,
             "poll_interval_seconds": self.settings.scheduler.poll_interval_seconds,
             "state": {
                 "running": self.state.running,
@@ -163,12 +169,14 @@ class DailyRefreshScheduler:
             self.state.last_status = "success"
             self.state.last_summary_path = str(result.summary_path)
             history_counts = _history_counts(result.history)
+            supplemental_summary = _supplemental_summary(result.supplemental_outputs or {})
             self.logger.info(
                 "scheduler.daily_refresh.success",
                 market_date_us=market_date.isoformat(),
                 summary_path=str(result.summary_path),
                 snapshot_count=result.snapshot_count,
                 market_events_count=result.market_events_count,
+                supplemental=supplemental_summary,
             )
             print(
                 "DAILY_REFRESH success "
@@ -177,6 +185,7 @@ class DailyRefreshScheduler:
                 f"history_empty={history_counts['empty']} "
                 f"history_error={history_counts['error']} "
                 f"snapshots={result.snapshot_count} "
+                f"supplemental={supplemental_summary} "
                 f"summary={result.summary_path}",
                 flush=True,
             )
@@ -218,7 +227,28 @@ class DailyRefreshScheduler:
         history = payload.get("history")
         if not isinstance(history, dict):
             return False
-        return any(isinstance(item, dict) and item.get("status") == "success" for item in history.values())
+        if not any(isinstance(item, dict) and item.get("status") == "success" for item in history.values()):
+            return False
+        supplemental = payload.get("supplemental_outputs")
+        if not isinstance(supplemental, dict):
+            supplemental = {}
+        return all(key in supplemental for key in self._required_supplemental_keys())
+
+    def _required_supplemental_keys(self) -> list[str]:
+        keys: list[str] = []
+        if self.settings.scheduler.daily_refresh_sync_longbridge_pool:
+            keys.append("longbridge_pool_sync")
+        if self.settings.scheduler.daily_refresh_generate_account_health:
+            keys.append("account_health")
+        if self.settings.scheduler.daily_refresh_generate_options_advice:
+            keys.append("options_advice")
+        if self.settings.scheduler.daily_refresh_generate_daily_report:
+            keys.append("daily_report")
+        if self.settings.scheduler.daily_refresh_generate_ai_analysis:
+            keys.extend(["ai_dashboard", "ai_account_health"])
+            if self.settings.scheduler.daily_refresh_generate_options_advice:
+                keys.append("ai_options_advice")
+        return keys
 
     def _latest_summary(self) -> dict[str, Any] | None:
         try:
@@ -246,6 +276,7 @@ class DailyRefreshScheduler:
                 "history_success": history_success,
                 "history_empty": history_empty,
                 "history_error": history_error,
+                "supplemental_outputs": payload.get("supplemental_outputs") if isinstance(payload.get("supplemental_outputs"), dict) else {},
             }
         except Exception as exc:  # noqa: BLE001 - status endpoint should degrade without breaking UI.
             self.logger.error("scheduler.latest_summary.error", error=str(exc))
@@ -264,3 +295,13 @@ def _history_counts(history: dict[str, dict[str, Any]]) -> dict[str, int]:
         if status in counts:
             counts[status] += 1
     return counts
+
+
+def _supplemental_summary(outputs: dict[str, Any]) -> str:
+    if not outputs:
+        return "none"
+    parts = []
+    for name, payload in outputs.items():
+        status = payload.get("status") if isinstance(payload, dict) else "unknown"
+        parts.append(f"{name}:{status}")
+    return ",".join(parts)

@@ -13,7 +13,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 
 
 def main() -> None:
@@ -25,7 +25,7 @@ def main() -> None:
 
     from quant_platform.services.trade_review import TradeReviewService
 
-    settings = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+    settings = load_settings(default_settings_path(PROJECT_ROOT))
     result = TradeReviewService(settings).generate(
         start=date.fromisoformat(args.start) if args.start else None,
         end=date.fromisoformat(args.end) if args.end else None,

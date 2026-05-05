@@ -100,6 +100,7 @@ class DailyReportService:
         watch = [item for item in candidates if item.get("action") == "继续观察"]
         risk = [item for item in candidates if item.get("action") in {"风险回避", "数据不足"}]
         refresh_counts = _refresh_history_counts(refresh_summary)
+        supplemental_outputs = _supplemental_outputs(refresh_summary)
 
         sections = [
             f"# QuantPlatform 每日报告 - {market_date_us.isoformat()}",
@@ -135,6 +136,10 @@ class DailyReportService:
             _render_candidate_table("继续观察 Top 10", watch[:10]),
             "",
             _render_candidate_table("风险回避 / 数据不足", risk[:10]),
+            "",
+            "## 持仓、期权与 AI 自动分析",
+            "",
+            _render_supplemental_outputs(supplemental_outputs),
             "",
             "## 近期市场事件",
             "",
@@ -303,6 +308,123 @@ def _render_data_quality(refresh_summary: dict[str, Any] | None, scanner: dict[s
         ]
         lines.append(f"- 错误标的：{'; '.join(errors[:10])}")
     return "\n".join(lines)
+
+
+def _render_supplemental_outputs(outputs: dict[str, Any]) -> str:
+    if not outputs:
+        return "\n".join(
+            [
+                "- 尚未找到收盘后补充分析。请先运行新的 `make daily-refresh`，它会生成账户健康、期权建议、AI 解读和日报。",
+                "- 注意：这些模块只读取账户和行情数据，不产生自动下单指令。",
+            ]
+        )
+
+    lines = [
+        "| 模块 | 状态 | 关键结果 | 产物 |",
+        "| --- | --- | --- | --- |",
+    ]
+    for key in [
+        "longbridge_pool_sync",
+        "account_health",
+        "options_advice",
+        "ai_dashboard",
+        "ai_account_health",
+        "ai_options_advice",
+    ]:
+        payload = outputs.get(key)
+        if not isinstance(payload, dict):
+            continue
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    _supplemental_label(key),
+                    str(payload.get("status") or "-"),
+                    _supplemental_key_result(key, payload),
+                    _supplemental_artifact(payload),
+                ]
+            )
+            + " |"
+        )
+
+    excerpts: list[str] = []
+    for key in ["ai_dashboard", "ai_account_health", "ai_options_advice"]:
+        payload = outputs.get(key)
+        if isinstance(payload, dict):
+            excerpt = _markdown_excerpt(payload.get("markdown_path"), title=_supplemental_label(key))
+            if excerpt:
+                excerpts.append(excerpt)
+    if excerpts:
+        lines.extend(["", "### AI 摘要摘录", "", *excerpts])
+    return "\n".join(lines)
+
+
+def _supplemental_outputs(refresh_summary: dict[str, Any] | None) -> dict[str, Any]:
+    if not refresh_summary:
+        return {}
+    outputs = refresh_summary.get("supplemental_outputs")
+    return outputs if isinstance(outputs, dict) else {}
+
+
+def _supplemental_label(key: str) -> str:
+    return {
+        "longbridge_pool_sync": "Longbridge 持仓/自选池",
+        "account_health": "账户健康与风控",
+        "options_advice": "持仓期权策略",
+        "ai_dashboard": "AI 股票池解读",
+        "ai_account_health": "AI 账户风控解读",
+        "ai_options_advice": "AI 期权建议解读",
+    }.get(key, key)
+
+
+def _supplemental_key_result(key: str, payload: dict[str, Any]) -> str:
+    if payload.get("status") == "error":
+        return _plain_table_text(str(payload.get("error") or "error"))
+    if key == "longbridge_pool_sync":
+        return _plain_table_text(
+            f"持仓 {payload.get('positions', '-')} / 自选 {payload.get('watchlist', '-')} / 合并 {payload.get('combined', '-')}"
+        )
+    if key == "account_health":
+        return _plain_table_text(
+            f"score={payload.get('health_score', '-')} state={payload.get('health_state', '-')} warnings={payload.get('warning_count', '-')}"
+        )
+    if key == "options_advice":
+        return _plain_table_text(
+            f"positions={payload.get('position_count', '-')} advice={payload.get('advice_count', '-')} errors={payload.get('error_count', '-')}"
+        )
+    if key.startswith("ai_"):
+        return _plain_table_text(f"model_status={payload.get('model_status', '-')}")
+    return "-"
+
+
+def _supplemental_artifact(payload: dict[str, Any]) -> str:
+    path = payload.get("markdown_path") or payload.get("path") or payload.get("core_pool_path") or payload.get("json_path")
+    return _plain_table_text(str(path or "-"))
+
+
+def _markdown_excerpt(path_value: object, *, title: str, max_lines: int = 14) -> str:
+    if not path_value:
+        return ""
+    path = Path(str(path_value))
+    if not path.exists():
+        return ""
+    lines = []
+    for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("# "):
+            continue
+        lines.append(line)
+        if len(lines) >= max_lines:
+            break
+    if not lines:
+        return ""
+    return "\n".join([f"#### {title}", "", *lines])
+
+
+def _plain_table_text(value: str) -> str:
+    return value.replace("|", "/").replace("\n", " ")[:240]
 
 
 def _history_coverage_summary(refresh_summary: dict[str, Any] | None) -> dict[str, Any]:

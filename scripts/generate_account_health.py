@@ -13,7 +13,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from quant_platform.config import load_settings
+from quant_platform.config import default_settings_path, load_settings
 
 
 def main() -> None:
@@ -26,7 +26,7 @@ def main() -> None:
 
     from quant_platform.services.portfolio_health import AccountHealthService
 
-    settings = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+    settings = load_settings(default_settings_path(PROJECT_ROOT))
     result = AccountHealthService(settings).generate(
         as_of=date.fromisoformat(args.as_of),
         currency=args.currency,

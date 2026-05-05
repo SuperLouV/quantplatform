@@ -27,6 +27,7 @@ class DailyRefreshResult:
     snapshot_count: int
     history: dict[str, dict[str, Any]]
     market_events_count: int | None = None
+    supplemental_outputs: dict[str, dict[str, Any]] | None = None
 
 
 class DailyRefreshService:
@@ -47,7 +48,19 @@ class DailyRefreshService:
         update_events: bool = True,
     ) -> DailyRefreshResult:
         market_date = market_date_us or latest_completed_us_market_date(now_beijing())
+        supplemental_outputs: dict[str, dict[str, Any]] = {}
+        if self.settings.scheduler.daily_refresh_sync_longbridge_pool:
+            self.logger.notice("daily_refresh.longbridge_pool_sync.start")
+            sync_result = self._sync_longbridge_pool()
+            supplemental_outputs["longbridge_pool_sync"] = sync_result
+
         pool = self.snapshot_batch.load_pool(pool_path)
+        self.logger.notice(
+            "daily_refresh.start",
+            pool_id=pool.pool_id,
+            symbols=len(pool.symbols),
+            market_date_us=market_date.isoformat(),
+        )
         self.logger.info(
             "daily_refresh.start",
             pool_id=pool.pool_id,
@@ -89,15 +102,24 @@ class DailyRefreshService:
                 history_results[symbol] = {"status": "error", "error": str(exc)}
                 self.logger.error("daily_refresh.history.error", pool_id=pool.pool_id, symbol=symbol, error=str(exc))
 
+        self.logger.notice(
+            "daily_refresh.history.done",
+            success=_count_history_status(history_results, "success"),
+            empty=_count_history_status(history_results, "empty"),
+            error=_count_history_status(history_results, "error"),
+        )
         snapshot_paths, dashboard_path = self.snapshot_batch.update_pool(pool, max_workers=workers)
+        self.logger.notice("daily_refresh.snapshots.done", snapshots=len(snapshot_paths), dashboard_path=str(dashboard_path))
 
         market_events_count: int | None = None
         if update_events:
             try:
                 events = self.market_events.update_events()
                 market_events_count = len(events.events)
+                self.logger.notice("daily_refresh.market_events.done", events=market_events_count)
             except Exception as exc:  # noqa: BLE001 - event failures should be visible but not block quote refresh.
                 self.logger.error("daily_refresh.market_events.error", pool_id=pool.pool_id, error=str(exc))
+                self.logger.notice("daily_refresh.market_events.error", error=str(exc))
 
         result = DailyRefreshResult(
             pool_id=pool.pool_id,
@@ -108,8 +130,16 @@ class DailyRefreshService:
             snapshot_count=len(snapshot_paths),
             history=history_results,
             market_events_count=market_events_count,
+            supplemental_outputs=supplemental_outputs,
         )
         self._write_summary(result)
+        supplemental_outputs.update(self._generate_pre_report_outputs(pool_id=pool.pool_id))
+        result.supplemental_outputs = supplemental_outputs
+        self._write_summary(result)
+        if self.settings.scheduler.daily_refresh_generate_daily_report:
+            supplemental_outputs["daily_report"] = self._run_daily_report(pool_id=pool.pool_id, market_date=market_date)
+            result.supplemental_outputs = supplemental_outputs
+            self._write_summary(result)
         self.logger.info(
             "daily_refresh.success",
             pool_id=pool.pool_id,
@@ -122,7 +152,202 @@ class DailyRefreshService:
             history_error=_count_history_status(history_results, "error"),
             market_events_count=market_events_count,
         )
+        self.logger.notice(
+            "daily_refresh.success",
+            pool_id=pool.pool_id,
+            market_date_us=market_date.isoformat(),
+            supplemental=_summarize_supplemental(supplemental_outputs),
+            summary_path=str(result.summary_path),
+        )
         return result
+
+    def _sync_longbridge_pool(self) -> dict[str, Any]:
+        try:
+            from quant_platform.services.longbridge_pools import LongbridgeStockPoolService
+
+            sync = LongbridgeStockPoolService(self.settings).sync()
+            payload = {
+                "status": "success",
+                "generated_at_beijing": sync.generated_at_beijing,
+                "positions": sync.position_count,
+                "watchlist": sync.watchlist_count,
+                "combined": sync.combined_count,
+                "excluded": sync.excluded_count,
+                "core_pool_path": str(sync.pool_paths.get("longbridge_core")),
+                "metadata_path": str(sync.metadata_path),
+            }
+            self.logger.info("daily_refresh.longbridge_pool_sync.success", **payload)
+            self.logger.notice(
+                "daily_refresh.longbridge_pool_sync.success",
+                positions=sync.position_count,
+                watchlist=sync.watchlist_count,
+                combined=sync.combined_count,
+                excluded=sync.excluded_count,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001 - stale local pool is still usable if sync fails.
+            self.logger.error("daily_refresh.longbridge_pool_sync.error", error=str(exc))
+            self.logger.notice("daily_refresh.longbridge_pool_sync.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _generate_pre_report_outputs(self, *, pool_id: str) -> dict[str, dict[str, Any]]:
+        outputs: dict[str, dict[str, Any]] = {}
+        if self.settings.scheduler.daily_refresh_generate_account_health:
+            self.logger.notice("daily_refresh.account_health.start")
+            outputs["account_health"] = self._run_account_health()
+        if self.settings.scheduler.daily_refresh_generate_options_advice:
+            self.logger.notice("daily_refresh.options_advice.start")
+            outputs["options_advice"] = self._run_options_advice()
+        if self.settings.scheduler.daily_refresh_generate_ai_analysis:
+            self.logger.notice("daily_refresh.ai_dashboard.start")
+            outputs["ai_dashboard"] = self._run_ai_dashboard(pool_id=pool_id)
+            self.logger.notice("daily_refresh.ai_account_health.start")
+            outputs["ai_account_health"] = self._run_ai_account_health()
+            if self.settings.scheduler.daily_refresh_generate_options_advice:
+                self.logger.notice("daily_refresh.ai_options_advice.start")
+                outputs["ai_options_advice"] = self._run_ai_options_advice()
+        return outputs
+
+    def _run_account_health(self) -> dict[str, Any]:
+        try:
+            from quant_platform.services.portfolio_health import AccountHealthService
+
+            result = AccountHealthService(self.settings).generate(as_of=now_beijing().date())
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "position_count": result.position_count,
+                "health_score": result.health_score,
+                "health_state": result.health_state,
+                "warning_count": result.warning_count,
+                "json_path": str(result.json_path),
+                "markdown_path": str(result.markdown_path),
+            }
+            self.logger.info("daily_refresh.account_health.success", **payload)
+            self.logger.notice(
+                "daily_refresh.account_health.success",
+                positions=result.position_count,
+                score=result.health_score,
+                state=result.health_state,
+                warnings=result.warning_count,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001 - account report must not break market data refresh.
+            self.logger.error("daily_refresh.account_health.error", error=str(exc))
+            self.logger.notice("daily_refresh.account_health.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _run_options_advice(self) -> dict[str, Any]:
+        try:
+            from quant_platform.options.advice import AccountOptionsAdviceService
+
+            result = AccountOptionsAdviceService(self.settings).generate(
+                as_of=now_beijing().date(),
+                max_workers=2,
+                timeout_seconds=60,
+                max_expirations_per_symbol=2,
+            )
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "position_count": result.position_count,
+                "advice_count": result.advice_count,
+                "error_count": result.error_count,
+                "json_path": str(result.json_path),
+                "markdown_path": str(result.markdown_path),
+            }
+            self.logger.info("daily_refresh.options_advice.success", **payload)
+            self.logger.notice(
+                "daily_refresh.options_advice.success",
+                positions=result.position_count,
+                advice=result.advice_count,
+                errors=result.error_count,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001 - option data can be unavailable.
+            self.logger.error("daily_refresh.options_advice.error", error=str(exc))
+            self.logger.notice("daily_refresh.options_advice.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _run_daily_report(self, *, pool_id: str, market_date: date) -> dict[str, Any]:
+        try:
+            from quant_platform.services.daily_report import DailyReportService
+
+            self.logger.notice("daily_refresh.daily_report.start", pool_id=pool_id, market_date_us=market_date.isoformat())
+            result = DailyReportService(self.settings).generate(pool_id=pool_id, market_date_us=market_date)
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "scanner_count": result.scanner_count,
+                "market_events_count": result.market_events_count,
+                "path": str(result.path),
+            }
+            self.logger.info("daily_refresh.daily_report.success", **payload)
+            self.logger.notice("daily_refresh.daily_report.success", path=str(result.path))
+            return payload
+        except Exception as exc:  # noqa: BLE001
+            self.logger.error("daily_refresh.daily_report.error", error=str(exc))
+            self.logger.notice("daily_refresh.daily_report.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _run_ai_dashboard(self, *, pool_id: str) -> dict[str, Any]:
+        try:
+            from quant_platform.services.ai_analysis import AutomatedAIAnalysisService
+
+            result = AutomatedAIAnalysisService(self.settings).analyze_dashboard(
+                pool_id=pool_id,
+                use_model=self.settings.scheduler.daily_refresh_ai_use_model,
+            )
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "snapshot_count": result.snapshot_count,
+                "model_status": result.model_status,
+                "warnings": result.warnings,
+                "json_path": str(result.json_path),
+                "markdown_path": str(result.markdown_path),
+            }
+            self.logger.info("daily_refresh.ai_dashboard.success", **_loggable(payload))
+            self.logger.notice(
+                "daily_refresh.ai_dashboard.success",
+                snapshots=result.snapshot_count,
+                model_status=result.model_status,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001
+            self.logger.error("daily_refresh.ai_dashboard.error", error=str(exc))
+            self.logger.notice("daily_refresh.ai_dashboard.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _run_ai_account_health(self) -> dict[str, Any]:
+        try:
+            from quant_platform.services.ai_analysis import AutomatedAIAnalysisService
+
+            result = AutomatedAIAnalysisService(self.settings).analyze_latest_account_health(
+                use_model=self.settings.scheduler.daily_refresh_ai_use_model,
+            )
+            payload = _ai_interpretation_payload(result)
+            self.logger.notice("daily_refresh.ai_account_health.success", model_status=result.model_status)
+            return payload
+        except Exception as exc:  # noqa: BLE001
+            self.logger.error("daily_refresh.ai_account_health.error", error=str(exc))
+            self.logger.notice("daily_refresh.ai_account_health.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _run_ai_options_advice(self) -> dict[str, Any]:
+        try:
+            from quant_platform.services.ai_analysis import AutomatedAIAnalysisService
+
+            result = AutomatedAIAnalysisService(self.settings).analyze_latest_options_advice(
+                use_model=self.settings.scheduler.daily_refresh_ai_use_model,
+            )
+            payload = _ai_interpretation_payload(result)
+            self.logger.notice("daily_refresh.ai_options_advice.success", model_status=result.model_status)
+            return payload
+        except Exception as exc:  # noqa: BLE001
+            self.logger.error("daily_refresh.ai_options_advice.error", error=str(exc))
+            self.logger.notice("daily_refresh.ai_options_advice.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
 
     def _summary_path(self, pool_id: str, market_date_us: date) -> Path:
         return self.settings.storage.reference_dir / "system" / "daily_refresh" / f"{pool_id}_{market_date_us.isoformat()}.json"
@@ -139,6 +364,7 @@ class DailyRefreshService:
             "snapshot_count": result.snapshot_count,
             "market_events_count": result.market_events_count,
             "history": result.history,
+            "supplemental_outputs": result.supplemental_outputs or {},
         }
         result.summary_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -154,3 +380,32 @@ def _history_status(cursor: str | None, market_date_us: date) -> str:
 
 def _count_history_status(history_results: dict[str, dict[str, Any]], status: str) -> int:
     return sum(1 for item in history_results.values() if item.get("status") == status)
+
+
+def _ai_interpretation_payload(result: Any) -> dict[str, Any]:
+    payload = {
+        "status": "success",
+        "generated_at_beijing": result.generated_at_beijing,
+        "scenario": result.scenario,
+        "target_id": result.target_id,
+        "model_status": result.model_status,
+        "warnings": result.warnings,
+        "source_paths": [str(path) for path in result.source_paths],
+        "json_path": str(result.json_path),
+        "markdown_path": str(result.markdown_path),
+    }
+    return payload
+
+
+def _loggable(payload: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in payload.items() if key != "warnings"}
+
+
+def _summarize_supplemental(outputs: dict[str, Any]) -> str:
+    if not outputs:
+        return "none"
+    parts = []
+    for name, payload in outputs.items():
+        status = payload.get("status") if isinstance(payload, dict) else "unknown"
+        parts.append(f"{name}:{status}")
+    return ",".join(parts)

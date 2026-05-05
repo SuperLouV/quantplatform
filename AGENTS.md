@@ -71,10 +71,12 @@ Only open deeper documents when needed:
 Do not spend the next stage mainly expanding UI. The current core track is:
 
 1. Scanner Strategy V1 output and daily report
-2. Risk advice: position sizing, ATR stop, event risk, PDT
-3. Daily Markdown report
-4. Minimal signal-driven backtest
-5. Strategy-enhancing data sources after the core loop works
+2. Post-market daily preparation package using real Longbridge holdings/watchlist, account health, options advice, AI interpretation, and terminal-visible logs
+3. Risk advice: position sizing, ATR stop, event risk, PDT
+4. Decision-panel AI chat backed by local structured artifacts, with no auto-execution authority
+5. Macro/news/sentiment risk module before relying on scanner candidates in one-way markets
+6. Minimal signal-driven backtest
+7. Strategy-enhancing data sources after the core loop works
 
 The optimized phase plan is in `tasks/plan.md`.
 

@@ -6,6 +6,7 @@
 - `stock_snapshots_YYYYMMDD.jsonl`: 股票池批量快照刷新、单标的快照写入、指标附加结果。
 - `ui_data_YYYYMMDD.jsonl`: UI/API 触发的快照读取、强制刷新、历史图表、分析和事件读取。
 - `yfinance_history_YYYYMMDD.jsonl`: 单标的历史 K 线更新、raw/processed 写入。
+- `daily_refresh_YYYYMMDD.jsonl`: 收盘后准备包，包含 Longbridge 股票池同步、历史/快照刷新、账户健康、期权建议、AI 解读和日报生成。
 
 每行是一条 JSON：
 
@@ -34,6 +35,11 @@
 - `market_events.provider.start/success/error`: 单个事件 provider 更新状态。
 - `daily_refresh.start/success`: 每日收盘后批量刷新历史、快照和事件的汇总。
 - `daily_refresh.history.empty`: 历史 K 线请求未报错，但 cursor 没有达到目标美股交易日。
+- `daily_refresh.longbridge_pool_sync.*`: Longbridge 真实持仓/自选股票池同步。
+- `daily_refresh.account_health.*`: 账户健康与风控报告生成。
+- `daily_refresh.options_advice.*`: 持仓期权策略建议生成。
+- `daily_refresh.ai_dashboard.* / daily_refresh.ai_account_health.* / daily_refresh.ai_options_advice.*`: AI 自动解读状态。
+- `daily_refresh.daily_report.*`: 每日 Markdown 报告生成。
 - `scheduler.start/stop/disabled`: UI 服务内置调度器启动、停止或关闭。
 - `scheduler.daily_refresh.start/success/error/skipped`: UI 服务内置调度器触发的盘后刷新状态。
 

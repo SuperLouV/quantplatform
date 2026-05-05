@@ -51,6 +51,12 @@ class SchedulerConfig:
     daily_refresh_pool: str = "data/reference/system/stock_pools/preset/default_core.json"
     daily_refresh_workers: int = 8
     daily_refresh_update_events: bool = True
+    daily_refresh_sync_longbridge_pool: bool = True
+    daily_refresh_generate_account_health: bool = True
+    daily_refresh_generate_options_advice: bool = True
+    daily_refresh_generate_daily_report: bool = True
+    daily_refresh_generate_ai_analysis: bool = True
+    daily_refresh_ai_use_model: bool = True
     poll_interval_seconds: int = 60
 
 
@@ -202,6 +208,30 @@ def load_settings(path: str | Path) -> Settings:
                 "QP_DAILY_REFRESH_UPDATE_EVENTS",
                 bool(scheduler.get("daily_refresh_update_events", True)),
             ),
+            daily_refresh_sync_longbridge_pool=_env_bool(
+                "QP_DAILY_REFRESH_SYNC_LONGBRIDGE_POOL",
+                bool(scheduler.get("daily_refresh_sync_longbridge_pool", True)),
+            ),
+            daily_refresh_generate_account_health=_env_bool(
+                "QP_DAILY_REFRESH_GENERATE_ACCOUNT_HEALTH",
+                bool(scheduler.get("daily_refresh_generate_account_health", True)),
+            ),
+            daily_refresh_generate_options_advice=_env_bool(
+                "QP_DAILY_REFRESH_GENERATE_OPTIONS_ADVICE",
+                bool(scheduler.get("daily_refresh_generate_options_advice", True)),
+            ),
+            daily_refresh_generate_daily_report=_env_bool(
+                "QP_DAILY_REFRESH_GENERATE_DAILY_REPORT",
+                bool(scheduler.get("daily_refresh_generate_daily_report", True)),
+            ),
+            daily_refresh_generate_ai_analysis=_env_bool(
+                "QP_DAILY_REFRESH_GENERATE_AI_ANALYSIS",
+                bool(scheduler.get("daily_refresh_generate_ai_analysis", True)),
+            ),
+            daily_refresh_ai_use_model=_env_bool(
+                "QP_DAILY_REFRESH_AI_USE_MODEL",
+                bool(scheduler.get("daily_refresh_ai_use_model", True)),
+            ),
             poll_interval_seconds=int(
                 os.environ.get("QP_SCHEDULER_POLL_INTERVAL_SECONDS")
                 or scheduler.get("poll_interval_seconds", 60)
@@ -230,6 +260,14 @@ def load_settings(path: str | Path) -> Settings:
             ),
         ),
     )
+
+
+def default_settings_path(project_root: str | Path) -> Path:
+    root = Path(project_root)
+    local_path = root / "config" / "settings.yaml"
+    if local_path.exists():
+        return local_path
+    return root / "config" / "settings.example.yaml"
 
 
 def _load_local_env(path: Path) -> None:
