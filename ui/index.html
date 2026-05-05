@@ -567,6 +567,110 @@
     .event-severity.high { color: var(--red); }
     .event-severity.medium { color: var(--amber); }
 
+    .macro-risk-panel {
+      display: grid;
+      gap: 8px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .macro-risk-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .macro-risk-badge {
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--amber);
+      background: #0b151d;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .chat-panel {
+      display: grid;
+      grid-template-rows: minmax(160px, 260px) auto;
+      gap: 10px;
+    }
+
+    .chat-messages {
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0b151d;
+      padding: 10px;
+    }
+
+    .chat-message {
+      max-width: 88%;
+      margin-bottom: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.55;
+      background: var(--surface-3);
+    }
+
+    .chat-message.user {
+      margin-left: auto;
+      border-color: rgba(19, 156, 255, 0.35);
+      color: var(--text);
+      background: #0c2434;
+    }
+
+    .chat-message.assistant.error {
+      border-color: rgba(255, 75, 11, 0.45);
+      color: var(--red);
+    }
+
+    .chat-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .chat-form textarea {
+      min-height: 52px;
+      max-height: 112px;
+      resize: vertical;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0b151d;
+      color: var(--text);
+      font: 12px/1.45 var(--font);
+    }
+
+    .chat-form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .chat-form button {
+      min-height: 52px;
+      padding: 0 14px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent);
+      background: transparent;
+      font-size: 12px;
+      font-weight: 620;
+      cursor: pointer;
+    }
+
+    .chat-form button:disabled {
+      opacity: 0.55;
+      cursor: progress;
+    }
+
     .collapsible .dashboard-section-head {
       cursor: pointer;
       user-select: none;
@@ -2581,6 +2685,16 @@
 
           <section class="dashboard-section">
             <div class="dashboard-section-head">
+              <h3>宏观与新闻风险</h3>
+              <span class="dashboard-section-sub" id="dashMacroMeta">--</span>
+            </div>
+            <div class="macro-risk-panel" id="dashMacroRisk">
+              <div class="empty">正在读取宏观、情绪和新闻风险快照。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
               <h3>今日候选</h3>
               <button class="dashboard-link-btn" type="button" id="dashOpenScanner">查看完整扫描</button>
             </div>
@@ -2616,6 +2730,22 @@
             </div>
             <div class="section-body" id="dashAI">
               <div class="empty">暂无 AI 研判。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
+              <h3>AI 对话</h3>
+              <span class="dashboard-section-sub">只读本地报告</span>
+            </div>
+            <div class="chat-panel">
+              <div class="chat-messages" id="dashChatMessages">
+                <div class="empty">可以询问当前持仓、候选、期权策略和风险。回答只基于本地结构化产物。</div>
+              </div>
+              <form class="chat-form" id="dashChatForm">
+                <textarea id="dashChatInput" maxlength="2000" placeholder="例如：我当前持仓里哪些股票明天最需要先看风险？"></textarea>
+                <button id="dashChatSubmit" type="submit">发送</button>
+              </form>
             </div>
           </section>
 
@@ -3043,6 +3173,7 @@
       activeItem: null,
       activeView: "dashboard",
       dashboardPayload: null,
+      chatMessages: [],
       scannerPayload: null,
       scannerSelection: null,
       currentPeriod: "1mo",
@@ -3123,6 +3254,10 @@
       document.getElementById("dashOpenScanner").addEventListener("click", () => {
         setView("scanner");
       });
+      document.getElementById("dashChatForm").addEventListener("submit", event => {
+        event.preventDefault();
+        sendDashboardChat().catch(error => appendChatMessage("assistant", `对话失败：${error.message || error}`, true));
+      });
       document.querySelectorAll(".dashboard-section.collapsible .section-toggle").forEach(node => {
         node.addEventListener("click", () => {
           node.closest(".collapsible")?.classList.toggle("collapsed");
@@ -3160,12 +3295,36 @@
         : `调度 ${schedulerState.last_status || (scheduler.enabled ? "待命" : "关闭")}`;
 
       renderDashMetrics(data);
+      renderMacroRisk(data.macro_risk || null);
       renderCandidateCards(data.scanner_top || []);
       renderDashboardPositions(data);
       renderDashboardEvents(data.events_upcoming || []);
       document.getElementById("dashAI").innerHTML = data.ai_summary
         ? `<p>${escapeHtml(data.ai_summary)}</p>`
         : '<div class="empty">暂无 AI 研判。运行 AI 分析后显示。</div>';
+    }
+
+    function renderMacroRisk(macro) {
+      const host = document.getElementById("dashMacroRisk");
+      const meta = document.getElementById("dashMacroMeta");
+      if (!macro) {
+        meta.textContent = "--";
+        host.innerHTML = '<div class="empty">暂无宏观风险快照。运行 macro-risk 或 daily-refresh 后显示。</div>';
+        return;
+      }
+      meta.textContent = macro.market_date_us
+        ? `${macro.market_date_us} · 新闻 ${macro.news_item_count || 0}`
+        : `新闻 ${macro.news_item_count || 0}`;
+      const warnings = (macro.warnings || []).slice(0, 2).map(item => `<div>${escapeHtml(item)}</div>`).join("");
+      host.innerHTML = `
+        <div class="macro-risk-line">
+          <span class="macro-risk-badge">${escapeHtml(macro.risk_state || "--")}</span>
+          <span class="macro-risk-badge">${escapeHtml(macro.sentiment_state || "--")}</span>
+          <span>${escapeHtml(macro.vix_state || "VIX --")}</span>
+        </div>
+        <div>${escapeHtml(macro.scanner_filter_hint || "缺少过滤提示。")}</div>
+        ${warnings ? `<div class="empty">${warnings}</div>` : ""}
+      `;
     }
 
     function renderDashMetrics(data) {
@@ -3282,6 +3441,48 @@
           button.textContent = "刷新全部";
         }, 2500);
       }
+    }
+
+    async function sendDashboardChat() {
+      const input = document.getElementById("dashChatInput");
+      const button = document.getElementById("dashChatSubmit");
+      const question = input.value.trim();
+      if (!question) return;
+      const history = state.chatMessages.slice(-6).map(item => ({
+        role: item.role,
+        content: item.content,
+      }));
+      input.value = "";
+      appendChatMessage("user", question);
+      button.disabled = true;
+      button.textContent = "处理中";
+      try {
+        const response = await apiJson("/api/chat", {
+          question,
+          symbol: state.activeItem?.symbol || null,
+          history,
+        });
+        const answer = response.answer_markdown
+          || (response.model_status === "skipped"
+            ? "AI provider 未启用，无法生成模型回答。请先确认本地 AI 配置。"
+            : "模型没有返回可展示内容。");
+        appendChatMessage("assistant", answer, response.model_status !== "success");
+      } finally {
+        button.disabled = false;
+        button.textContent = "发送";
+      }
+    }
+
+    function appendChatMessage(role, content, isError = false) {
+      state.chatMessages.push({ role, content, isError });
+      state.chatMessages = state.chatMessages.slice(-12);
+      const host = document.getElementById("dashChatMessages");
+      host.innerHTML = state.chatMessages.map(message => {
+        const className = `chat-message ${message.role}${message.isError ? " error" : ""}`;
+        const body = message.role === "assistant" ? markdownToHtml(message.content) : `<p>${escapeHtml(message.content)}</p>`;
+        return `<div class="${className}">${body}</div>`;
+      }).join("");
+      host.scrollTop = host.scrollHeight;
     }
 
     function showDashboardError(error) {

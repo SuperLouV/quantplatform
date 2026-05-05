@@ -36,6 +36,8 @@
 - `make daily-refresh` 已升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新股票池历史与快照，生成账户健康、期权建议、AI Dashboard / 账户健康 / 期权建议解读，再生成每日报告；补充任务结果写入 summary 的 `supplemental_outputs`
 - daily refresh 默认会在 terminal 打印关键步骤日志，便于第二天直接看到股票池刷新、账户/期权分析、AI 解读和日报是否成功；详细日志仍写入 `data/logs/*.jsonl`
 - 常用脚本优先读取本地 `config/settings.yaml`，不存在时回落到 `config/settings.example.yaml`；AI key 继续通过 `.env` / 环境变量读取，不提交 Git
+- 决策面板只读 AI 对话：新增 `/api/chat` 和 Dashboard 对话窗口，后端读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照作为上下文，输出中文保守分析，不输出自动交易指令
+- 宏观/新闻风险 MVP：新增 `make macro-risk` 和 `MacroRiskService`，优先读取 Longbridge `market-temp/news`，结合本地市场概览，写入 `data/reports/macro_risk/`；`daily-refresh` 默认会生成并打印 `daily_refresh.macro_risk.*`
 - 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
 - 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
 - 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
@@ -47,6 +49,7 @@
 - 默认首页已切换为“决策仪表板”，定位是信息处理和人工决策摘要，不再默认进入盯盘式个股 K 线终端
 - Dashboard 通过 `/api/dashboard` 聚合本地 scanner、账户健康度、事件、AI 解读和每日报告产物；缺数据时局部空状态降级，不应白屏
 - Dashboard 支持候选卡片跳转个股视图、候选卡片打开期权助手、持仓行跳转个股视图、折叠 AI 研判和每日报告
+- Dashboard 新增宏观与新闻风险区、AI 对话窗口；对话只读本地结构化产物，适合询问持仓、候选、期权建议和风险复盘
 - 默认列表
 - 自选列表
 - 中文化标签和部分公司中文名
@@ -81,7 +84,7 @@
 - `IndicatorEngine.compute()` 不再写共享 `self.indicator_columns`，指标列放入 `IndicatorComputation.indicator_columns`，避免 `ThreadingHTTPServer` 并发请求共享状态竞争
 - UI 内置调度器的 daily refresh completion 判断改为“摘要存在且至少一只成功”，避免单只退市/异常 symbol 导致当天无限重试
 - Longbridge CLI read-only client 已增加 symbol 白名单和 `nan/inf` 过滤
-- 新增 `/api/dashboard`、`/api/reports/latest`、`/api/reports?date=YYYY-MM-DD`、`/api/health` 和后台式 `POST /api/refresh`
+- 新增 `/api/dashboard`、`/api/reports/latest`、`/api/reports?date=YYYY-MM-DD`、`/api/health`、`POST /api/chat` 和后台式 `POST /api/refresh`
 - `yfinance` 历史数据
 - `yfinance` 搜索
 - 快照生成
@@ -98,6 +101,7 @@
 - 账户健康度与风控报告脚本
 - 历史交易复盘报告脚本
 - 股票 + 期权自动扫描报告脚本
+- 宏观/新闻风险快照脚本
 
 当前数据层已具备基础 provider 请求保护、交易日历、操作日志和数据质量检查，还缺少：
 
@@ -111,9 +115,9 @@
 
 1. 在正常 Python/Longbridge/网络环境下运行 `make daily-refresh`，确认 terminal 关键日志、`supplemental_outputs`、账户健康、期权建议、AI 解读和日报都成功生成。
 2. 用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的质量和边界措辞。
-3. 下一个开发任务：在决策面板增加只读 AI 对话窗口，后端读取最新日报、scanner、账户健康、期权建议和 AI 解读作为上下文，回答股票/期权策略问题，但不输出自动下单指令。
-4. 增加宏观/新闻风险模块第一版：优先 Longbridge news / market-temp，结合 SPY/QQQ/^VIX/sector ETF，形成 risk-on / neutral / risk-off 过滤条件。
-5. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
+3. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
+4. 用真实 Longbridge CLI 环境运行 `make macro-risk` / `make daily-refresh`，确认 `market-temp/news` 权限、terminal 日志和 `data/reports/macro_risk/` 产物质量。
+5. 下一个开发任务：把宏观/新闻风险转成 scanner 过滤字段和日报专章，再进入最小信号驱动回测。
 
 ## 建议的下一步顺序
 

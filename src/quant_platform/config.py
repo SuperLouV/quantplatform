@@ -54,6 +54,7 @@ class SchedulerConfig:
     daily_refresh_sync_longbridge_pool: bool = True
     daily_refresh_generate_account_health: bool = True
     daily_refresh_generate_options_advice: bool = True
+    daily_refresh_generate_macro_risk: bool = True
     daily_refresh_generate_daily_report: bool = True
     daily_refresh_generate_ai_analysis: bool = True
     daily_refresh_ai_use_model: bool = True
@@ -219,6 +220,10 @@ def load_settings(path: str | Path) -> Settings:
             daily_refresh_generate_options_advice=_env_bool(
                 "QP_DAILY_REFRESH_GENERATE_OPTIONS_ADVICE",
                 bool(scheduler.get("daily_refresh_generate_options_advice", True)),
+            ),
+            daily_refresh_generate_macro_risk=_env_bool(
+                "QP_DAILY_REFRESH_GENERATE_MACRO_RISK",
+                bool(scheduler.get("daily_refresh_generate_macro_risk", True)),
             ),
             daily_refresh_generate_daily_report=_env_bool(
                 "QP_DAILY_REFRESH_GENERATE_DAILY_REPORT",

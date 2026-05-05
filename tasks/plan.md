@@ -271,6 +271,12 @@
 - 新增 `/api/dashboard`、`/api/reports/latest`、`POST /api/refresh` 和 `/api/health`，Dashboard 只读取本地产物，不触发联网计算。
 - 保留原有个股分析、扫描器和期权助手视图，不改变已有核心模块接口。
 
+2026-05-06 更新：
+
+- 新增 `/api/chat` 和决策面板 AI 对话窗口。后端只读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照作为上下文，回答股票/期权辅助问题。
+- 新增 `MacroRiskService`、`make macro-risk` 和 Dashboard 宏观/新闻风险区。第一版优先 Longbridge `market-temp/news`，结合本地 `SPY/QQQ/DIA/^VIX/sector ETF` 市场概览。
+- `daily-refresh` 默认生成 `macro_risk` 补充产物，terminal 会打印 `daily_refresh.macro_risk.start/success/error`，日报补充产物表会展示宏观风险状态。
+
 工作内容：
 
 - 继续把股票列表展示信号方向、强度和风险等级。
@@ -285,6 +291,7 @@
 - `/api/signals`
 - `/api/dashboard`
 - `/api/reports/latest`
+- `/api/chat`
 - UI 对应面板
 
 验收：
@@ -317,14 +324,14 @@
 接下来优先做：
 
 1. 在真实 Longbridge 网络环境下运行新的 `make daily-refresh`，校验 Longbridge pool sync、账户健康、期权建议、日报和 AI 解读是否全部写入 `supplemental_outputs`，并确认 terminal 能看到关键步骤日志。
-2. 在用户本机网络环境用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的 prompt 长度、Markdown 质量和数据边界措辞。
-3. 下一个开发任务：在决策面板实现只读 AI 对话窗口，后端读取最新日报、scanner、账户健康、期权建议和 AI 解读作为上下文，输出股票/期权交易辅助建议，但明确禁止自动下单指令。
-4. 增加宏观/新闻风险模块第一版：优先 Longbridge news / market-temp，结合 SPY/QQQ/^VIX/sector ETF，形成 risk-on / neutral / risk-off 过滤条件，避免单边上涨行情让策略误判。
-5. 在本机依赖完整环境启动 UI，人工验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
+2. 在用户本机网络环境用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读和 `/api/chat` 的 prompt 长度、Markdown 质量和数据边界措辞。
+3. 在真实 Longbridge CLI 环境运行 `make macro-risk`，确认 `market-temp/news` 的字段、权限和失败降级质量。
+4. 下一个开发任务：把宏观/新闻风险转成 scanner 过滤字段和日报专章，形成 `risk_on / neutral / risk_off / overheated` 对候选和期权建议的约束。
+5. 在本机依赖完整环境启动 UI，人工验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
 6. 将历史复盘摘要和自选关注度进一步接入每日报告和 Dashboard。
-7. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
-8. 拆分 `ui/index.html`：先拆 CSS、Dashboard JS 和期权 JS，降低单文件复杂度。
-9. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
+7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
+8. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
+9. 拆分 `ui/index.html`：先拆 CSS、Dashboard JS 和期权 JS，降低单文件复杂度。
 
 暂缓：
 

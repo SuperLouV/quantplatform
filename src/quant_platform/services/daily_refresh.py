@@ -133,7 +133,7 @@ class DailyRefreshService:
             supplemental_outputs=supplemental_outputs,
         )
         self._write_summary(result)
-        supplemental_outputs.update(self._generate_pre_report_outputs(pool_id=pool.pool_id))
+        supplemental_outputs.update(self._generate_pre_report_outputs(pool_id=pool.pool_id, market_date=market_date))
         result.supplemental_outputs = supplemental_outputs
         self._write_summary(result)
         if self.settings.scheduler.daily_refresh_generate_daily_report:
@@ -190,7 +190,7 @@ class DailyRefreshService:
             self.logger.notice("daily_refresh.longbridge_pool_sync.error", error=str(exc))
             return {"status": "error", "error": str(exc)}
 
-    def _generate_pre_report_outputs(self, *, pool_id: str) -> dict[str, dict[str, Any]]:
+    def _generate_pre_report_outputs(self, *, pool_id: str, market_date: date) -> dict[str, dict[str, Any]]:
         outputs: dict[str, dict[str, Any]] = {}
         if self.settings.scheduler.daily_refresh_generate_account_health:
             self.logger.notice("daily_refresh.account_health.start")
@@ -198,6 +198,9 @@ class DailyRefreshService:
         if self.settings.scheduler.daily_refresh_generate_options_advice:
             self.logger.notice("daily_refresh.options_advice.start")
             outputs["options_advice"] = self._run_options_advice()
+        if self.settings.scheduler.daily_refresh_generate_macro_risk:
+            self.logger.notice("daily_refresh.macro_risk.start")
+            outputs["macro_risk"] = self._run_macro_risk(pool_id=pool_id, market_date=market_date)
         if self.settings.scheduler.daily_refresh_generate_ai_analysis:
             self.logger.notice("daily_refresh.ai_dashboard.start")
             outputs["ai_dashboard"] = self._run_ai_dashboard(pool_id=pool_id)
@@ -268,6 +271,64 @@ class DailyRefreshService:
             self.logger.error("daily_refresh.options_advice.error", error=str(exc))
             self.logger.notice("daily_refresh.options_advice.error", error=str(exc))
             return {"status": "error", "error": str(exc)}
+
+    def _run_macro_risk(self, *, pool_id: str, market_date: date) -> dict[str, Any]:
+        try:
+            from quant_platform.services.macro_risk import MacroRiskService
+
+            symbols = self._symbols_for_macro_news(pool_id)
+            result = MacroRiskService(self.settings).generate(
+                market_date_us=market_date,
+                symbols=symbols,
+                news_limit_per_symbol=3,
+            )
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "market_date_us": result.market_date_us,
+                "risk_state": result.risk_state,
+                "sentiment_state": result.sentiment_state,
+                "news_item_count": result.news_item_count,
+                "warnings": result.warnings,
+                "json_path": str(result.json_path),
+                "markdown_path": str(result.markdown_path),
+            }
+            self.logger.info("daily_refresh.macro_risk.success", **_loggable(payload))
+            self.logger.notice(
+                "daily_refresh.macro_risk.success",
+                risk_state=result.risk_state,
+                sentiment=result.sentiment_state,
+                news=result.news_item_count,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001
+            self.logger.error("daily_refresh.macro_risk.error", error=str(exc))
+            self.logger.notice("daily_refresh.macro_risk.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
+    def _symbols_for_macro_news(self, pool_id: str) -> list[str]:
+        symbols: list[str] = []
+        account_report = self.settings.storage.processed_dir.parent / "reports" / "account_health"
+        candidates = sorted(account_report.glob("account_health_*.json"))
+        if candidates:
+            try:
+                payload = json.loads(candidates[-1].read_text(encoding="utf-8"))
+                assessment = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+                positions = assessment.get("positions") if isinstance(assessment.get("positions"), list) else []
+                symbols.extend(str(item.get("symbol") or "") for item in positions if isinstance(item, dict))
+            except (OSError, json.JSONDecodeError):
+                pass
+        if not symbols:
+            pool_path = self.artifacts.layout.storage.reference_dir / "system" / "stock_pools"
+            matches = list(pool_path.glob(f"*/{pool_id}.json"))
+            if matches:
+                try:
+                    payload = json.loads(matches[0].read_text(encoding="utf-8"))
+                    raw_symbols = payload.get("symbols") if isinstance(payload.get("symbols"), list) else []
+                    symbols.extend(str(symbol) for symbol in raw_symbols[:8])
+                except (OSError, json.JSONDecodeError):
+                    pass
+        return symbols[:8]
 
     def _run_daily_report(self, *, pool_id: str, market_date: date) -> dict[str, Any]:
         try:

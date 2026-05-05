@@ -65,7 +65,9 @@ Codex 接手入口：
 - UI 默认首页已从个股 K 线工作台改为“决策仪表板”，一屏展示市场状态、今日候选、持仓风控、近期事件、AI 研判和每日报告；个股和扫描视图保留在顶栏切换中
 - 已将 `make daily-refresh` 升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新行情，生成账户健康、期权建议、AI 解读和每日报告，并默认在 terminal 打印关键步骤日志
 - 每日报告新增“持仓、期权与 AI 自动分析”章节，会读取 daily refresh summary 的 `supplemental_outputs` 并摘录 AI Markdown
-- 下一步重点是在决策面板增加只读 AI 对话窗口，并推进 Longbridge news / market-temp 驱动的宏观与新闻风险模块；历史复盘摘要、市场情绪过滤和最小回测随后接入日报/策略闭环
+- 已新增决策面板只读 AI 对话窗口：`POST /api/chat` 读取最新日报、scanner、账户健康、期权建议、宏观风险和 AI 解读等本地产物回答股票/期权问题，不输出自动下单指令
+- 已新增宏观/新闻风险快照 MVP：`make macro-risk` 优先读取 Longbridge `market-temp` 和 `news`，结合本地 `SPY/QQQ/DIA/^VIX/sector ETF` 市场概览，写入 `data/reports/macro_risk/` 并接入 Dashboard 与 `daily-refresh`
+- 下一步重点是把宏观/新闻风险更深地接入日报和 scanner 过滤规则，并实现最小信号驱动回测
 
 ## 当前主流程
 
@@ -151,6 +153,7 @@ Codex 新会话请先阅读：
 - 生成真实持仓期权策略建议：`make options-advice`（可用 `OPTIONS_ADVICE_ARGS="--timeout-seconds 45 --max-workers 2 --max-expirations-per-symbol 2"` 控制速度）
 - 生成账户健康度与风控报告：`make account-health`
 - 生成历史交易复盘报告：`make trade-review`
+- 生成宏观、情绪和新闻风险快照：`make macro-risk`（可用 `MACRO_RISK_ARGS="--symbol AAPL --symbol NVDA"` 指定新闻检查标的）
 - 生成股票 + 期权自动扫描报告：`make auto-scan`
 - 解析期权截图 OCR 文本并用 yfinance 验证：`make option-screenshot OPTION_SCREENSHOT_ARGS="--text-file ocr.txt --symbol AAPL"`
 - 更新单个标的历史日线：`PYTHONPATH=src python3 scripts/update_yfinance_history.py AAPL --start 2025-01-01 --end 2025-01-15`
@@ -176,6 +179,7 @@ Codex 新会话请先阅读：
 - 收盘刷新、宏观代理刷新后生成报告：`make daily-refresh-report`
 - UI 服务内置调度器状态：`curl http://127.0.0.1:8000/api/scheduler`
 - UI 决策仪表板数据：`curl http://127.0.0.1:8000/api/dashboard`
+- UI 决策面板 AI 对话：`curl -X POST http://127.0.0.1:8000/api/chat -H 'Content-Type: application/json' -d '{"question":"当前持仓最需要先看什么风险？"}'`
 - 最新每日报告 API：`curl http://127.0.0.1:8000/api/reports/latest`
 - 安装盘后自动刷新：`make schedule-install`
 - 查看盘后自动刷新状态：`make schedule-status`

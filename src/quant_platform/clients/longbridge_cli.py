@@ -76,6 +76,21 @@ class LongbridgeCLIClient:
             raise LongbridgeCLIError("Longbridge CLI watchlist output must be a JSON array.")
         return [item for item in payload if isinstance(item, dict)]
 
+    def fetch_market_temperature(self) -> dict[str, Any]:
+        payload = self._run_json(["market-temp"], label="market-temp")
+        if not isinstance(payload, dict):
+            raise LongbridgeCLIError("Longbridge CLI market-temp output must be a JSON object.")
+        return payload
+
+    def fetch_news(self, symbol: str, *, limit: int = 5) -> list[dict[str, Any]]:
+        provider_symbol = to_longbridge_symbol(symbol)
+        payload = self._run_json(["news", provider_symbol], label=f"news {provider_symbol}")
+        if isinstance(payload, dict):
+            payload = payload.get("items") or payload.get("news") or payload.get("data") or []
+        if not isinstance(payload, list):
+            raise LongbridgeCLIError("Longbridge CLI news output must be a JSON array or object with items/news/data.")
+        return [item for item in payload if isinstance(item, dict)][: max(0, limit)]
+
     def fetch_option_expirations(self, symbol: str) -> list[date]:
         provider_symbol = to_longbridge_symbol(symbol)
         payload = self._run_json(["option", "chain", provider_symbol], label=f"option chain {provider_symbol}")

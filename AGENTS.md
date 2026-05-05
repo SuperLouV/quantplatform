@@ -137,6 +137,13 @@ Already available:
 - Automated stock/options scanner reports:
   - combines Scanner Strategy V1 with account-aware covered call / cash-secured put ideas and CSP watch candidates
   - writes JSON + Markdown to `data/reports/scanner/`
+- Decision-panel AI chat:
+  - reads latest local daily report, scanner, account health, options advice, macro risk, AI interpretations, and optional symbol snapshot
+  - answers stock/options/risk questions through `/api/chat` with no auto-execution authority
+- Macro/news/sentiment risk MVP:
+  - reads Longbridge `market-temp` and `news` when available
+  - combines local `SPY/QQQ/DIA/^VIX/sector ETF` market overview into a scanner filter hint
+  - writes JSON + Markdown to `data/reports/macro_risk/`
 - Option screenshot parsing:
   - extracts expiry, strike, bid/ask from OCR text or local OCR image flow
   - supports yfinance cross-validation
@@ -152,7 +159,7 @@ Main missing pieces:
 - Market regime filter using SPY/QQQ/VIX/breadth
 - Strategy-enhancing data sources such as SEC 13F and FINRA short interest
 - Daily report integration for DeepSeek account/options/stock interpretations
-- News/sentiment layer using Longbridge news first, then other sources later
+- News/sentiment layer is MVP only; still needs relevance scoring, richer summaries, and direct scanner risk filtering
 - UI decomposition: `ui/index.html` is still too large and should be split after the current user-facing fixes
 
 ## Repository Structure

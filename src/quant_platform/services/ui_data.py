@@ -278,6 +278,7 @@ class UIDataService:
             "generated_at": self._now_iso(),
             "timezone": "Asia/Shanghai",
             "market_overview": None,
+            "macro_risk": None,
             "scheduler": None,
             "scanner_top": [],
             "positions_risk": [],
@@ -294,6 +295,7 @@ class UIDataService:
 
         for key, loader in (
             ("market_overview", self._dashboard_market_overview),
+            ("macro_risk", self._dashboard_macro_risk),
             ("scanner_top", self._dashboard_scanner_top),
             ("positions", self._dashboard_positions),
             ("events_upcoming", self._dashboard_events),
@@ -533,6 +535,24 @@ class UIDataService:
             "qqq": qqq,
             "vix": vix,
             "regime": regime,
+        }
+
+    def _dashboard_macro_risk(self) -> dict[str, object] | None:
+        report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports" / "macro_risk", "macro_risk_*.json")
+        if report_path is None:
+            return None
+        payload = _load_json(report_path) or {}
+        overview = payload.get("market_overview") if isinstance(payload.get("market_overview"), dict) else {}
+        overview_summary = overview.get("summary") if isinstance(overview.get("summary"), dict) else {}
+        return {
+            "generated_at_beijing": payload.get("generated_at_beijing"),
+            "market_date_us": payload.get("market_date_us"),
+            "risk_state": payload.get("risk_state"),
+            "sentiment_state": payload.get("sentiment_state"),
+            "scanner_filter_hint": payload.get("scanner_filter_hint"),
+            "vix_state": overview_summary.get("vix_state"),
+            "news_item_count": len(payload.get("news_items") or []) if isinstance(payload.get("news_items"), list) else 0,
+            "warnings": payload.get("warnings") if isinstance(payload.get("warnings"), list) else [],
         }
 
     def _latest_market_symbol_state(self, symbol: str) -> dict[str, object] | None:

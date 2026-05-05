@@ -12,9 +12,8 @@
   - 更新或归档早期 `PROJECT_STRUCTURE.md` 和 `us-stock-trading-system-outline.md`
 - 参考 TradingAgents-CN 设计，但不复制源码：
   - 报告模块拆分：技术、基本面、新闻、情绪、风控、最终建议
-  - 轻量 AI 研判接口：读取本地日报和扫描结果，输出结构化解释
-  - DeepSeek/OpenAI-compatible 分析层：股票基础分析、市场情绪摘要、期权策略解释
-  - 决策面板 AI 对话窗口：后端只读取最新结构化本地产物，回答股票/期权策略、风险和复盘问题，不输出自动下单指令
+  - 已有基础版：轻量 AI 研判接口、DeepSeek/OpenAI-compatible 分析层、决策面板 AI 对话窗口
+  - 后续增强：对话引用来源高亮、上下文日期选择、quick/deep model 路由
   - 新闻/舆情 relevance_score 过滤
   - LLM provider 抽象：quick model / deep model
 - 扩展日报市场概览所需历史数据：
@@ -39,7 +38,7 @@
 - Longbridge 数据源后续：
   - 账户摘要 UI：净值、保守 CSP 现金、持仓市值、总盈亏、当日盈亏、风险等级
   - 只读账户信息已接：`assets` / `portfolio` / `positions`，用于资金、购买力、持仓和成本价分析
-  - Longbridge news / market-temp：优先作为新闻、情绪和市场温度来源，写入宏观/新闻风险模块
+  - Longbridge news / market-temp 已接入宏观/新闻风险 MVP；后续补 relevance_score、新闻去重和正文摘要
   - 接 Longbridge `market_status` / `trading_days`
   - 接 Longbridge 期权链、期权成交量统计；具体合约 `option quote` 作为权限可用后的增强
   - 评估 Python SDK Provider，减少 CLI subprocess 依赖

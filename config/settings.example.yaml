@@ -36,6 +36,7 @@ scheduler:
   daily_refresh_sync_longbridge_pool: true
   daily_refresh_generate_account_health: true
   daily_refresh_generate_options_advice: true
+  daily_refresh_generate_macro_risk: true
   daily_refresh_generate_daily_report: true
   daily_refresh_generate_ai_analysis: true
   daily_refresh_ai_use_model: true

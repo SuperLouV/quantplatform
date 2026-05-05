@@ -12,6 +12,7 @@ OPTION_SCREENSHOT_ARGS ?= --help
 ACCOUNT_HEALTH_ARGS ?=
 AUTO_SCAN_ARGS ?=
 TRADE_REVIEW_ARGS ?=
+MACRO_RISK_ARGS ?=
 LONGBRIDGE_SYMBOL ?= AAPL
 OPTION_SCAN_SYMBOL ?= AAPL
 ANALYZE_ARGS ?=
@@ -22,7 +23,7 @@ LOG_TO_CONSOLE ?= 0
 UPDATE_HISTORY ?= 0
 CONSOLE_LOG_ENV = QP_LOG_TO_CONSOLE=$(LOG_TO_CONSOLE)
 
-.PHONY: ui check analyze ai-analyze ai-options ai-stock events history history-full option-evaluate option-scan-symbol option-screenshot options-advice account-health trade-review auto-scan longbridge-quote longbridge-pool-sync longbridge-portfolio-analysis market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
+.PHONY: ui check analyze ai-analyze ai-options ai-stock events history history-full option-evaluate option-scan-symbol option-screenshot options-advice account-health trade-review macro-risk auto-scan longbridge-quote longbridge-pool-sync longbridge-portfolio-analysis market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
 
 ui:
 	@$(CONSOLE_LOG_ENV) $(PYTHON) scripts/serve_ui.py $(PORT)
@@ -70,6 +71,9 @@ account-health:
 
 trade-review:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/review_trades.py $(TRADE_REVIEW_ARGS)
+
+macro-risk:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/generate_macro_risk.py $(MACRO_RISK_ARGS)
 
 auto-scan:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/run_auto_scan.py --pool-id $(POOL_ID) $(AUTO_SCAN_ARGS)

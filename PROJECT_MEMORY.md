@@ -49,6 +49,7 @@
 - UI 服务内置北京时间 06:30 盘后刷新调度器。
 - 本地操作日志 `data/logs/*.jsonl`。
 - `make daily-refresh` 和 UI 内置调度会默认打印关键步骤日志，便于第二天从 terminal 看到 Longbridge 股票池同步、行情刷新、账户健康、期权建议、AI 解读和日报生成状态。
+- `daily-refresh` 默认还会生成宏观/新闻风险快照并打印 `daily_refresh.macro_risk.*`，用于避免单边行情下 scanner 候选被过度放大。
 - 美股交易日历，避免盘中把未完成交易日当作收盘日。
 - 重大事件日历：Fed FOMC、Census、FRED release calendar。
 - 指标引擎：SMA、EMA、MACD、RSI6/12/14/24、ROC、Bollinger、ATR、volume ratio。
@@ -102,6 +103,12 @@
 - 自动扫描报告：
   - `make auto-scan` 汇总 Scanner Strategy V1、真实持仓 covered call / cash-secured put 建议和 CSP 观察候选
   - 自动扫描只输出研究报告，不生成订单动作
+- 决策面板 AI 对话：
+  - Dashboard 新增只读 AI 对话窗口，后端 `/api/chat` 读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照
+  - AI 回答股票和期权辅助问题时必须说明数据依据、风险、人工复核项和不能自动执行的边界
+- 宏观/新闻风险：
+  - `make macro-risk` 优先读取 Longbridge `market-temp/news`，结合本地 `SPY/QQQ/DIA/^VIX/sector ETF` 市场概览
+  - 输出 `risk_on / neutral / risk_off / caution_overheated` 等风险状态和 scanner 过滤提示，写入 `data/reports/macro_risk/`
 - 期权截图解析：
   - `make option-screenshot` 可解析 OCR 文本或本机 OCR 图片中的 expiry、strike、bid/ask
   - 截图结果可用 yfinance 期权链交叉验证；仍需用户在券商界面人工确认
@@ -160,9 +167,9 @@
 当前最值得继续推进的顺序：
 
 1. 在用户正常 Python/Longbridge 网络环境运行 `make account-health`、`make trade-review`、`make auto-scan`，用真实本地产物校验账户、成交和期权链权限。
-2. 在依赖完整的本机环境验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
-3. 将账户健康度、风控建议、交易复盘摘要、期权建议、自选关注度和 scanner 候选接入每日报告。
-4. 扩展市场概览历史数据：DIA、^VIX 和 11 个 SPDR sector ETF。
+2. 在依赖完整的本机环境验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
+3. 用真实 Longbridge CLI 环境验证 `make macro-risk` 的 `market-temp/news` 字段、权限和失败降级。
+4. 将宏观/新闻风险接入 scanner 过滤字段和日报专章，并继续接入交易复盘摘要、自选关注度。
 5. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
 6. 扩展交易复盘口径：期权成交、费用、部分成交、转仓和做空。
 7. 将 DeepSeek 账户/期权/个股解读接入每日报告。

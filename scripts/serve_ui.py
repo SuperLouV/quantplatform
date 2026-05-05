@@ -29,7 +29,7 @@ from quant_platform.options import (
     SellPutScanConfig,
     StockOptionContext,
 )
-from quant_platform.services import DailyRefreshScheduler, LongbridgeAccountService, UIDataService
+from quant_platform.services import DailyRefreshScheduler, DecisionChatService, LongbridgeAccountService, UIDataService
 from quant_platform.time_utils import iso_beijing, latest_completed_us_market_date, now_beijing
 
 
@@ -41,6 +41,7 @@ SETTINGS = load_settings(_settings_path())
 UI_SERVICE = UIDataService(SETTINGS)
 OPTIONS_SERVICE = OptionsAssistantService()
 ACCOUNT_SERVICE = LongbridgeAccountService(SETTINGS)
+CHAT_SERVICE = DecisionChatService(SETTINGS)
 SCHEDULER = DailyRefreshScheduler(SETTINGS, project_root=PROJECT_ROOT)
 REFRESH_LOCK = threading.Lock()
 REFRESH_STATE: dict[str, object] = {
@@ -74,6 +75,9 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             return
         if parsed.path == "/api/options/scan-sell-put":
             self._handle_options_scan_sell_put()
+            return
+        if parsed.path == "/api/chat":
+            self._handle_chat()
             return
         self.send_error(HTTPStatus.NOT_FOUND, "Unknown API endpoint")
 
@@ -179,6 +183,26 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             with quiet_known_native_stderr():
                 result = _sell_put_scan_from_payload(payload)
             self._respond_json({"scan": result.to_dict()})
+        except Exception as exc:  # noqa: BLE001
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+
+    def _handle_chat(self) -> None:
+        try:
+            payload = self._read_json_body()
+            question = str(payload.get("question") or "")
+            symbol = str(payload.get("symbol") or "").upper() or None
+            history = payload.get("history") if isinstance(payload.get("history"), list) else []
+            result = CHAT_SERVICE.ask(question, symbol=symbol, history=history)  # type: ignore[arg-type]
+            self._respond_json(
+                {
+                    "generated_at_beijing": result.generated_at_beijing,
+                    "model_status": result.model_status,
+                    "answer_markdown": result.answer_markdown,
+                    "warnings": result.warnings,
+                    "source_paths": [str(path) for path in result.source_paths],
+                    "execution_boundary": "read_only_analysis_no_auto_order",
+                }
+            )
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 

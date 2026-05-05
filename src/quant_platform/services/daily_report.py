@@ -327,6 +327,7 @@ def _render_supplemental_outputs(outputs: dict[str, Any]) -> str:
         "longbridge_pool_sync",
         "account_health",
         "options_advice",
+        "macro_risk",
         "ai_dashboard",
         "ai_account_health",
         "ai_options_advice",
@@ -371,6 +372,7 @@ def _supplemental_label(key: str) -> str:
         "longbridge_pool_sync": "Longbridge 持仓/自选池",
         "account_health": "账户健康与风控",
         "options_advice": "持仓期权策略",
+        "macro_risk": "宏观/新闻风险",
         "ai_dashboard": "AI 股票池解读",
         "ai_account_health": "AI 账户风控解读",
         "ai_options_advice": "AI 期权建议解读",
@@ -391,6 +393,10 @@ def _supplemental_key_result(key: str, payload: dict[str, Any]) -> str:
     if key == "options_advice":
         return _plain_table_text(
             f"positions={payload.get('position_count', '-')} advice={payload.get('advice_count', '-')} errors={payload.get('error_count', '-')}"
+        )
+    if key == "macro_risk":
+        return _plain_table_text(
+            f"risk={payload.get('risk_state', '-')} sentiment={payload.get('sentiment_state', '-')} news={payload.get('news_item_count', '-')}"
         )
     if key.startswith("ai_"):
         return _plain_table_text(f"model_status={payload.get('model_status', '-')}")
