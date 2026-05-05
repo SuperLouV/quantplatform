@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
-from datetime import date
+import threading
+from datetime import date, timedelta
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -28,12 +30,29 @@ from quant_platform.options import (
     StockOptionContext,
 )
 from quant_platform.services import DailyRefreshScheduler, LongbridgeAccountService, UIDataService
+from quant_platform.time_utils import iso_beijing, latest_completed_us_market_date, now_beijing
 
-SETTINGS = load_settings(PROJECT_ROOT / "config" / "settings.example.yaml")
+
+def _settings_path() -> Path:
+    local_path = PROJECT_ROOT / "config" / "settings.yaml"
+    if local_path.exists():
+        return local_path
+    return PROJECT_ROOT / "config" / "settings.example.yaml"
+
+
+SETTINGS = load_settings(_settings_path())
 UI_SERVICE = UIDataService(SETTINGS)
 OPTIONS_SERVICE = OptionsAssistantService()
 ACCOUNT_SERVICE = LongbridgeAccountService(SETTINGS)
 SCHEDULER = DailyRefreshScheduler(SETTINGS, project_root=PROJECT_ROOT)
+REFRESH_LOCK = threading.Lock()
+REFRESH_STATE: dict[str, object] = {
+    "running": False,
+    "last_started_at_beijing": None,
+    "last_finished_at_beijing": None,
+    "last_status": None,
+    "last_error": None,
+}
 
 
 class QuantPlatformHandler(SimpleHTTPRequestHandler):
@@ -50,6 +69,9 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
+        if parsed.path == "/api/refresh":
+            self._handle_refresh()
+            return
         if parsed.path == "/api/options/evaluate":
             self._handle_options_evaluate()
             return
@@ -61,6 +83,26 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
     def _handle_api(self, parsed) -> None:
         query = parse_qs(parsed.query)
         try:
+            if parsed.path == "/api/health":
+                self._respond_json({"status": "ok", "generated_at": iso_beijing()})
+                return
+            if parsed.path == "/api/dashboard":
+                with quiet_known_native_stderr():
+                    payload = UI_SERVICE.get_dashboard_data()
+                payload["scheduler"] = SCHEDULER.status()
+                payload["refresh"] = dict(REFRESH_STATE)
+                self._respond_json(payload)
+                return
+            if parsed.path == "/api/reports/latest":
+                report_date = _optional_date(query.get("date", [""])[0])
+                payload = UI_SERVICE.latest_daily_report(report_date=report_date)
+                self._respond_json(payload)
+                return
+            if parsed.path == "/api/reports":
+                report_date = _optional_date(query.get("date", [""])[0])
+                payload = UI_SERVICE.latest_daily_report(report_date=report_date)
+                self._respond_json(payload)
+                return
             if parsed.path == "/api/pools":
                 with quiet_known_native_stderr():
                     payload = {"pools": UI_SERVICE.list_pools()}
@@ -153,6 +195,38 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
+    def _handle_refresh(self) -> None:
+        if not REFRESH_LOCK.acquire(blocking=False):
+            self._respond_json(
+                {
+                    "status": "running",
+                    "message": "刷新已在运行中。",
+                    "refresh": dict(REFRESH_STATE),
+                },
+                status=HTTPStatus.ACCEPTED,
+            )
+            return
+
+        thread = threading.Thread(target=_run_refresh_job, name="quantplatform-manual-refresh", daemon=True)
+        REFRESH_STATE.update(
+            {
+                "running": True,
+                "last_started_at_beijing": iso_beijing(),
+                "last_finished_at_beijing": None,
+                "last_status": "running",
+                "last_error": None,
+            }
+        )
+        thread.start()
+        self._respond_json(
+            {
+                "status": "started",
+                "message": "刷新已启动，预计 2-5 分钟完成。",
+                "refresh": dict(REFRESH_STATE),
+            },
+            status=HTTPStatus.ACCEPTED,
+        )
+
     def _read_json_body(self) -> dict[str, object]:
         length = int(self.headers.get("Content-Length") or 0)
         if length <= 0:
@@ -175,6 +249,64 @@ def _optional_date(value: str) -> date | None:
     if not value:
         return None
     return date.fromisoformat(value)
+
+
+def _run_refresh_job() -> None:
+    try:
+        market_date = latest_completed_us_market_date(now_beijing())
+        pool_path = _scheduled_pool_path()
+        with quiet_known_native_stderr():
+            from quant_platform.services import DailyRefreshService, DailyReportService
+            from quant_platform.services.market_overview import MARKET_OVERVIEW_SYMBOLS
+            from quant_platform.services.yfinance_history import YFinanceHistoryUpdater
+
+            refresh_service = DailyRefreshService(SETTINGS)
+            refresh_result = refresh_service.run(
+                pool_path=pool_path,
+                market_date_us=market_date,
+                workers=SETTINGS.scheduler.daily_refresh_workers,
+                update_events=SETTINGS.scheduler.daily_refresh_update_events,
+            )
+
+            overview_updater = YFinanceHistoryUpdater(SETTINGS)
+            for symbol in MARKET_OVERVIEW_SYMBOLS:
+                try:
+                    overview_updater.update_symbol(symbol, end=market_date + timedelta(days=1))
+                except Exception:
+                    continue
+
+            report_service = DailyReportService(SETTINGS)
+            report_result = report_service.generate(pool_id=refresh_result.pool_id, market_date_us=market_date)
+
+        REFRESH_STATE.update(
+            {
+                "running": False,
+                "last_finished_at_beijing": iso_beijing(),
+                "last_status": "success",
+                "last_error": None,
+                "last_market_date_us": market_date.isoformat(),
+                "last_summary_path": str(refresh_result.summary_path),
+                "last_report_path": str(report_result.path),
+            }
+        )
+    except Exception as exc:  # noqa: BLE001 - manual refresh must report failure without crashing server.
+        REFRESH_STATE.update(
+            {
+                "running": False,
+                "last_finished_at_beijing": iso_beijing(),
+                "last_status": "error",
+                "last_error": str(exc),
+            }
+        )
+    finally:
+        REFRESH_LOCK.release()
+
+
+def _scheduled_pool_path() -> Path:
+    path = Path(SETTINGS.scheduler.daily_refresh_pool)
+    if path.is_absolute():
+        return path
+    return PROJECT_ROOT / path
 
 
 def _env_bool(name: str) -> bool:
@@ -319,7 +451,10 @@ def _bool(value: object, default: bool) -> bool:
 def _optional_float(value: object) -> float | None:
     if value in (None, ""):
         return None
-    return float(value)
+    result = float(value)
+    if not math.isfinite(result):
+        return None
+    return result
 
 
 def _optional_int(value: object) -> int | None:

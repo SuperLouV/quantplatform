@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -29,7 +29,6 @@ class IndicatorEngine:
     momentum_skip_days: int = 5
     momentum_windows: tuple[int, ...] = (20, 60, 120)
     rsi_delta_window: int = 5
-    indicator_columns: list[str] = field(default_factory=list)
 
     def compute(self, frame: pd.DataFrame) -> IndicatorComputation:
         result = prepare_ohlcv_frame(frame)
@@ -93,10 +92,10 @@ class IndicatorEngine:
             ]
         )
 
-        self.indicator_columns = indicator_columns
         return IndicatorComputation(
             series=result,
             latest=latest_from_frame(result, indicator_columns),
+            indicator_columns=indicator_columns,
         )
 
     def compute_from_parquet(self, path: str | Path) -> IndicatorComputation:

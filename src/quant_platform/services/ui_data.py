@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -23,7 +24,7 @@ from quant_platform.services.market_events import MarketEventService
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.services.stock_snapshot_batch import StockSnapshotBatchService
 from quant_platform.screeners import MarketScanner
-from quant_platform.time_utils import iso_beijing, latest_expected_us_market_data_date, to_us_eastern
+from quant_platform.time_utils import iso_beijing, latest_expected_us_market_data_date, now_beijing, to_us_eastern
 
 SCANNER_REQUIRED_INDICATORS = {
     "ret_20d_skip5",
@@ -271,6 +272,78 @@ class UIDataService:
             self.logger.error("ui.market_events.load.error", start=start, end=end, error=str(exc))
             raise
 
+    def get_dashboard_data(self) -> dict[str, object]:
+        self.logger.info("ui.dashboard.load.start")
+        payload: dict[str, object] = {
+            "generated_at": self._now_iso(),
+            "timezone": "Asia/Shanghai",
+            "market_overview": None,
+            "scheduler": None,
+            "scanner_top": [],
+            "positions_risk": [],
+            "total_position_pct": None,
+            "available_cash": None,
+            "cash_ratio_pct": None,
+            "pdt": None,
+            "events_upcoming": [],
+            "ai_summary": None,
+            "daily_report_available": False,
+            "daily_report_date": None,
+        }
+        errors: dict[str, str] = {}
+
+        for key, loader in (
+            ("market_overview", self._dashboard_market_overview),
+            ("scanner_top", self._dashboard_scanner_top),
+            ("positions", self._dashboard_positions),
+            ("events_upcoming", self._dashboard_events),
+            ("ai_summary", self._dashboard_ai_summary),
+            ("daily_report", self._dashboard_daily_report_meta),
+        ):
+            try:
+                value = loader()
+                if key == "positions" and isinstance(value, dict):
+                    payload.update(value)
+                elif key == "daily_report" and isinstance(value, dict):
+                    payload.update(value)
+                else:
+                    payload[key] = value
+            except Exception as exc:  # noqa: BLE001 - dashboard blocks must degrade independently.
+                errors[key] = str(exc)
+                self.logger.error("ui.dashboard.block.error", block=key, error=str(exc))
+
+        if errors:
+            payload["errors"] = errors
+        self.logger.info(
+            "ui.dashboard.load.success",
+            scanner_top=len(payload.get("scanner_top") or []),
+            positions=len(payload.get("positions_risk") or []),
+            events=len(payload.get("events_upcoming") or []),
+            has_report=payload.get("daily_report_available"),
+        )
+        return payload
+
+    def latest_daily_report(self, *, report_date: date | None = None) -> dict[str, object]:
+        reports_dir = self.settings.storage.processed_dir.parent / "reports"
+        if report_date is not None:
+            candidates = [
+                reports_dir / f"daily_{report_date.isoformat()}.md",
+                *sorted(reports_dir.glob(f"daily_*_{report_date.isoformat()}.md")),
+            ]
+            path = next((item for item in candidates if item.exists()), None)
+        else:
+            path = _latest_file(reports_dir, "daily*.md")
+        if path is None:
+            raise FileNotFoundError("Daily report not found.")
+        content = path.read_text(encoding="utf-8")
+        return {
+            "date": _daily_report_date(path),
+            "pool_id": _daily_report_pool_id(path),
+            "content_markdown": content,
+            "generated_at": datetime.fromtimestamp(path.stat().st_mtime, tz=UTC).astimezone().isoformat(),
+            "path": str(path),
+        }
+
     def _attach_local_scanner_indicators(self, payload: dict[str, object]) -> dict[str, object]:
         symbol = str(payload.get("symbol") or "")
         indicators = payload.get("indicators") if isinstance(payload.get("indicators"), dict) else {}
@@ -450,6 +523,146 @@ class UIDataService:
     def _now_iso() -> str:
         return iso_beijing()
 
+    def _dashboard_market_overview(self) -> dict[str, object] | None:
+        spy = self._latest_market_symbol_state("SPY")
+        qqq = self._latest_market_symbol_state("QQQ")
+        vix = self._latest_market_symbol_state("^VIX")
+        regime = _market_regime(spy, qqq, vix)
+        return {
+            "spy": spy,
+            "qqq": qqq,
+            "vix": vix,
+            "regime": regime,
+        }
+
+    def _latest_market_symbol_state(self, symbol: str) -> dict[str, object] | None:
+        snapshot_path = self.settings.storage.processed_dir / "snapshots" / f"{symbol}.json"
+        if snapshot_path.exists():
+            payload = _load_json(snapshot_path) or {}
+            price = _optional_float(payload.get("current_price") or payload.get("latest_close"))
+            previous = _optional_float(payload.get("previous_close"))
+            return {
+                "symbol": symbol,
+                "price": price,
+                "change_pct": _optional_float(payload.get("change_percent")) or _pct_change(price, previous),
+                "as_of": payload.get("latest_history_date_us") or payload.get("as_of"),
+                "state": _vix_state(price) if symbol == "^VIX" else _trend_state_from_snapshot(payload, price),
+            }
+
+        bars_path = self.artifacts.layout.processed_symbol_path(self.client.provider_name, "bars", symbol)
+        if not bars_path.exists():
+            return None
+        frame = pd.read_parquet(bars_path)
+        if frame.empty:
+            return None
+        computed = self.indicator_engine.compute(frame).series
+        latest = computed.iloc[-1]
+        previous = computed.iloc[-2] if len(computed.index) >= 2 else None
+        price = _optional_float(latest.get("close"))
+        previous_close = _optional_float(previous.get("close")) if previous is not None else None
+        sma50 = _optional_float(latest.get("sma_50"))
+        return {
+            "symbol": symbol,
+            "price": price,
+            "change_pct": _pct_change(price, previous_close),
+            "as_of": _history_market_date_us(latest.get("timestamp")),
+            "sma50_state": _price_vs_sma(price, sma50),
+            "state": _vix_state(price) if symbol == "^VIX" else _trend_state(price, sma50),
+        }
+
+    def _dashboard_scanner_top(self) -> list[dict[str, object]]:
+        scan_path = _latest_file(self.settings.storage.reference_dir / "system" / "scan_results", "*.json")
+        if scan_path is None:
+            return []
+        payload = _load_json(scan_path) or {}
+        candidates = [item for item in payload.get("candidates", []) if isinstance(item, dict)]
+        candidates = sorted(candidates, key=lambda item: _optional_float(item.get("score")) or 0, reverse=True)
+        result: list[dict[str, object]] = []
+        for item in candidates[:6]:
+            signals = item.get("signals") if isinstance(item.get("signals"), list) else []
+            result.append(
+                {
+                    "symbol": item.get("symbol"),
+                    "company_name": item.get("company_name"),
+                    "price": _optional_float(item.get("price")),
+                    "change_pct": _optional_float(item.get("change_percent")),
+                    "score": _optional_float(item.get("score")),
+                    "action": item.get("action"),
+                    "risk_level": item.get("risk_level"),
+                    "signals": _signal_labels(signals, item.get("reasons")),
+                    "atr_stop_price": _candidate_atr_stop(item),
+                    "latest_history_date_us": item.get("latest_history_date_us"),
+                }
+            )
+        return result
+
+    def _dashboard_positions(self) -> dict[str, object]:
+        report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports" / "account_health", "account_health_*.json")
+        if report_path is None:
+            return {"positions_risk": []}
+        payload = _load_json(report_path) or {}
+        account = payload.get("account") if isinstance(payload.get("account"), dict) else {}
+        risk = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+        positions = [item for item in risk.get("positions", []) if isinstance(item, dict)]
+        positions = sorted(positions, key=_position_priority, reverse=True)
+        return {
+            "positions_risk": [_position_risk_payload(item) for item in positions[:8]],
+            "total_position_pct": _invested_pct(risk),
+            "available_cash": _optional_float(account.get("available_cash") or risk.get("cash")),
+            "cash_ratio_pct": _optional_float(risk.get("cash_ratio_pct")),
+            "pdt": risk.get("pdt") if isinstance(risk.get("pdt"), dict) else None,
+            "portfolio_health_state": risk.get("health_state"),
+            "portfolio_warnings": (risk.get("warnings") or [])[:5] if isinstance(risk.get("warnings"), list) else [],
+        }
+
+    def _dashboard_events(self) -> list[dict[str, object]]:
+        now_date = now_beijing().date()
+        events = self.market_events.load_events(start=now_date, end=now_date + timedelta(days=14))
+        result: list[dict[str, object]] = []
+        for item in events[:8]:
+            event_time = item.get("event_time")
+            result.append(
+                {
+                    "date": str(event_time)[:10] if event_time else None,
+                    "title": item.get("title"),
+                    "severity": item.get("importance") or item.get("severity"),
+                    "source": item.get("source"),
+                    "category": item.get("category"),
+                }
+            )
+        return result
+
+    def _dashboard_ai_summary(self) -> str | None:
+        report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports" / "ai_analysis", "*.json")
+        if report_path is None:
+            return None
+        payload = _load_json(report_path) or {}
+        model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
+        markdown = str(model.get("markdown") or "").strip()
+        if markdown:
+            return _first_meaningful_line(markdown)
+        prompt = payload.get("prompt_payload") if isinstance(payload.get("prompt_payload"), dict) else {}
+        context = prompt.get("structured_context") if isinstance(prompt.get("structured_context"), dict) else {}
+        risk = context.get("risk_summary") if isinstance(context.get("risk_summary"), dict) else {}
+        recommendations = risk.get("recommendations") if isinstance(risk.get("recommendations"), list) else []
+        if recommendations:
+            return "；".join(str(item) for item in recommendations[:2])
+        summary = context.get("account_summary") if isinstance(context.get("account_summary"), dict) else {}
+        if summary:
+            return (
+                f"账户风险状态 {summary.get('risk_level') or '--'}，"
+                f"现金 {summary.get('available_cash') or '--'}，"
+                f"持仓数 {summary.get('position_count') or '--'}。"
+            )
+        return None
+
+    def _dashboard_daily_report_meta(self) -> dict[str, object]:
+        report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports", "daily*.md")
+        return {
+            "daily_report_available": report_path is not None,
+            "daily_report_date": _daily_report_date(report_path) if report_path else None,
+        }
+
 
 def _append_screening_reason(payload: dict[str, object], reason: str) -> None:
     reasons = payload.get("screening_reasons")
@@ -507,6 +720,180 @@ def _optional_float(value: object) -> float | None:
     if value is None:
         return None
     try:
-        return float(value)
+        result = float(value)
     except (TypeError, ValueError):
         return None
+    if not math.isfinite(result):
+        return None
+    return result
+
+
+def _load_json(path: Path) -> dict[str, object] | None:
+    if not path.exists():
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return payload if isinstance(payload, dict) else None
+
+
+def _latest_file(base: Path, pattern: str) -> Path | None:
+    if not base.exists():
+        return None
+    matches = [path for path in base.glob(pattern) if path.is_file()]
+    if not matches:
+        return None
+    return max(matches, key=lambda path: (path.stat().st_mtime, path.name))
+
+
+def _pct_change(value: float | None, base: float | None) -> float | None:
+    if value is None or base in (None, 0):
+        return None
+    return ((value - base) / base) * 100
+
+
+def _price_vs_sma(price: float | None, sma: float | None) -> str | None:
+    if price is None or sma is None:
+        return None
+    return "above" if price >= sma else "below"
+
+
+def _trend_state(price: float | None, sma50: float | None) -> str:
+    state = _price_vs_sma(price, sma50)
+    if state == "above":
+        return "偏多"
+    if state == "below":
+        return "偏空"
+    return "未知"
+
+
+def _trend_state_from_snapshot(payload: dict[str, object], price: float | None) -> str:
+    indicators = payload.get("indicators") if isinstance(payload.get("indicators"), dict) else {}
+    sma50 = _optional_float(indicators.get("sma_50")) if isinstance(indicators, dict) else None
+    return _trend_state(price, sma50)
+
+
+def _vix_state(price: float | None) -> str:
+    if price is None:
+        return "未知"
+    if price >= 25:
+        return "高波动"
+    if price >= 18:
+        return "偏紧张"
+    return "正常"
+
+
+def _market_regime(
+    spy: dict[str, object] | None,
+    qqq: dict[str, object] | None,
+    vix: dict[str, object] | None,
+) -> str:
+    spy_state = str((spy or {}).get("state") or "")
+    qqq_state = str((qqq or {}).get("state") or "")
+    vix_price = _optional_float((vix or {}).get("price"))
+    if vix_price is not None and vix_price >= 25:
+        return "偏空"
+    if spy_state == "偏多" and qqq_state == "偏多" and (vix_price is None or vix_price < 18):
+        return "偏多"
+    if spy_state == "偏空" and qqq_state == "偏空":
+        return "偏空"
+    return "中性"
+
+
+def _signal_labels(signals: list[object], reasons: object) -> list[str]:
+    labels: list[str] = []
+    for signal in signals:
+        if not isinstance(signal, dict):
+            continue
+        reason = signal.get("reason")
+        state = signal.get("state")
+        if reason:
+            labels.append(str(reason))
+        elif state:
+            labels.append(str(state))
+        if len(labels) >= 3:
+            break
+    if not labels and isinstance(reasons, list):
+        labels = [str(item) for item in reasons[:3]]
+    return labels
+
+
+def _candidate_atr_stop(item: dict[str, object]) -> float | None:
+    price = _optional_float(item.get("price"))
+    if price is None:
+        return None
+    for signal in item.get("signals", []) if isinstance(item.get("signals"), list) else []:
+        if not isinstance(signal, dict):
+            continue
+        evidence = signal.get("evidence") if isinstance(signal.get("evidence"), dict) else {}
+        atr = _optional_float(evidence.get("atr_14")) if isinstance(evidence, dict) else None
+        if atr is not None:
+            return max(0.0, price - 2 * atr)
+    return None
+
+
+def _position_priority(item: dict[str, object]) -> float:
+    score = _optional_float(item.get("weight_pct")) or 0
+    atr_stop = item.get("atr_stop") if isinstance(item.get("atr_stop"), dict) else {}
+    stop_distance = _optional_float(atr_stop.get("stop_distance_pct")) if isinstance(atr_stop, dict) else None
+    if item.get("concentration_status") == "breach":
+        score += 100
+    if item.get("max_loss_status") not in {None, "ok"}:
+        score += 80
+    if stop_distance is not None and stop_distance <= 3:
+        score += 60
+    return score
+
+
+def _position_risk_payload(item: dict[str, object]) -> dict[str, object]:
+    atr_stop = item.get("atr_stop") if isinstance(item.get("atr_stop"), dict) else {}
+    status = "健康"
+    if item.get("concentration_status") == "breach" or item.get("max_loss_status") not in {None, "ok"}:
+        status = "警告"
+    stop_distance = _optional_float(atr_stop.get("stop_distance_pct")) if isinstance(atr_stop, dict) else None
+    if stop_distance is not None and stop_distance <= 3:
+        status = "临近止损"
+    return {
+        "symbol": item.get("symbol"),
+        "name": item.get("name"),
+        "status": status,
+        "current_price": _optional_float(item.get("current_price")),
+        "weight_pct": _optional_float(item.get("weight_pct")),
+        "stop_price": _optional_float(atr_stop.get("stop_price")) if isinstance(atr_stop, dict) else None,
+        "stop_distance_pct": stop_distance,
+        "unrealized_pl_pct": _optional_float(item.get("unrealized_pl_pct")),
+        "flags": item.get("flags") if isinstance(item.get("flags"), list) else [],
+    }
+
+
+def _invested_pct(risk: dict[str, object]) -> float | None:
+    invested = _optional_float(risk.get("invested_value"))
+    equity = _optional_float(risk.get("equity"))
+    if invested is None or equity in (None, 0):
+        return None
+    return invested / equity * 100
+
+
+def _first_meaningful_line(markdown: str) -> str:
+    for raw_line in markdown.splitlines():
+        line = raw_line.strip().strip("#").strip()
+        if line:
+            return line
+    return markdown[:240]
+
+
+def _daily_report_date(path: Path | None) -> str | None:
+    if path is None:
+        return None
+    for part in reversed(path.stem.split("_")):
+        try:
+            date.fromisoformat(part)
+            return part
+        except ValueError:
+            continue
+    return None
+
+
+def _daily_report_pool_id(path: Path) -> str | None:
+    parts = path.stem.split("_")
+    if len(parts) > 2 and parts[0] == "daily":
+        return "_".join(parts[1:-1])
+    return None

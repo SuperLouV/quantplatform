@@ -32,7 +32,7 @@
 - 简单市场宏观分析：`SPY/QQQ/DIA/^VIX`，其中 VIX 状态会进入日报和 AI 分析提示
 - Longbridge 真实股票池同步：`make longbridge-pool-sync` 读取只读 `positions/watchlist`，生成本地敏感 `longbridge_core` 股票池，过滤指数、期权和非 US 市场
 - 真实持仓/自选策略分析：`make longbridge-portfolio-analysis` 输出 JSON + Markdown，包含持仓健康度和自选关注度，复用 indicators、signals 和 `MarketScanner`
-- 自动化 AI 分析报告：`make analyze` 读取本地快照、指标和最新持仓健康度，输出 `data/reports/ai_analysis/` JSON + Markdown；OpenAI-compatible 模型层可配置，失败时降级为规则结构化报告
+- 模型驱动 AI 解读报告：`make ai-analyze` 读取最新账户健康 JSON，`make ai-options` 读取最新期权建议 JSON，`make ai-stock SYMBOL=AAPL` 读取单股快照并调用 DeepSeek/OpenAI-compatible provider 输出 Markdown；失败时明确标记 `model_status=error/skipped`，不再用 placeholder 替代真实模型解读
 - 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
 - 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
 - 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
@@ -41,6 +41,9 @@
 
 前端当前已经实现：
 
+- 默认首页已切换为“决策仪表板”，定位是信息处理和人工决策摘要，不再默认进入盯盘式个股 K 线终端
+- Dashboard 通过 `/api/dashboard` 聚合本地 scanner、账户健康度、事件、AI 解读和每日报告产物；缺数据时局部空状态降级，不应白屏
+- Dashboard 支持候选卡片跳转个股视图、候选卡片打开期权助手、持仓行跳转个股视图、折叠 AI 研判和每日报告
 - 默认列表
 - 自选列表
 - 中文化标签和部分公司中文名
@@ -71,6 +74,11 @@
 
 后端当前已经实现：
 
+- UI 服务配置加载已改为优先 `config/settings.yaml`，不存在时回落到 `config/settings.example.yaml`
+- `IndicatorEngine.compute()` 不再写共享 `self.indicator_columns`，指标列放入 `IndicatorComputation.indicator_columns`，避免 `ThreadingHTTPServer` 并发请求共享状态竞争
+- UI 内置调度器的 daily refresh completion 判断改为“摘要存在且至少一只成功”，避免单只退市/异常 symbol 导致当天无限重试
+- Longbridge CLI read-only client 已增加 symbol 白名单和 `nan/inf` 过滤
+- 新增 `/api/dashboard`、`/api/reports/latest`、`/api/reports?date=YYYY-MM-DD`、`/api/health` 和后台式 `POST /api/refresh`
 - `yfinance` 历史数据
 - `yfinance` 搜索
 - 快照生成
@@ -81,7 +89,7 @@
 - 调度器状态接口 `/api/scheduler`
 - Longbridge 真实股票池同步脚本
 - Longbridge 真实持仓/自选策略分析脚本
-- 自动化 AI 分析脚本
+- 自动化 AI 分析脚本和 DeepSeek 结构化报告解读入口
 - 真实持仓期权建议脚本
 - 期权截图 OCR 文本解析和 yfinance 交叉验证工具
 - 账户健康度与风控报告脚本
@@ -99,10 +107,11 @@
 接下来最重要的不是继续扩 UI，而是进入核心系统阶段：
 
 1. 在正常 Python/网络环境下运行 `make account-health`、`make options-advice`、`make trade-review`、`make auto-scan`，校验真实账户、历史成交和期权链权限，并重点复核 CRCL 等大幅盈亏的券商成本价口径
-2. 把账户健康度、风控建议、历史复盘摘要、期权建议、自选关注度和 scanner 输出接入日报
-3. 扩展市场概览 ETF 历史更新：11 个 SPDR sector ETF
-4. 最小回测框架
-5. 继续收口 DeepSeek/OpenAI-compatible 分析层读取这些结构化报告
+2. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染
+3. 把账户健康度、风控建议、历史复盘摘要、期权建议、自选关注度和 scanner 输出接入日报
+4. 扩展市场概览 ETF 历史更新：11 个 SPDR sector ETF
+5. 最小回测框架
+6. 在用户本机网络环境运行 `make ai-analyze`、`make ai-options`、`make ai-stock SYMBOL=AAPL`，复核真实 DeepSeek 输出质量，然后接入日报
 
 ## 建议的下一步顺序
 

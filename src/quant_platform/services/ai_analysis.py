@@ -1,4 +1,4 @@
-"""Structured analysis helpers for snapshot-level reasoning."""
+"""Structured analysis helpers for model-backed research interpretation."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ from quant_platform.time_utils import iso_beijing
 
 
 class AIAnalysisService:
-    """Prepare structured AI analysis outputs without binding to a specific model provider yet."""
+    """Prepare lightweight deterministic analysis for UI and snapshot pipelines."""
 
-    def create_placeholder_for_snapshot(self, snapshot: StockSnapshot) -> AIAnalysisResult:
+    def create_basic_for_snapshot(self, snapshot: StockSnapshot) -> AIAnalysisResult:
         key_points = [
             f"screening_status={snapshot.screening_status}",
             f"latest_close={snapshot.latest_close}",
@@ -32,20 +32,20 @@ class AIAnalysisService:
             target_id=snapshot.symbol,
             risk_level=_infer_risk(snapshot.screening_status),
             recommendation=_infer_recommendation(snapshot.screening_status),
-            summary="Placeholder analysis result. Replace with model-backed interpretation later.",
+            summary="基于本地快照字段生成的基础结构化分析；深度解读请使用 ai-stock。",
             key_points=key_points,
             warnings=warnings,
             generated_at=_utcnow(),
         )
 
-    def create_placeholder_for_pool(self, pool: StockPoolSnapshot) -> AIAnalysisResult:
+    def create_basic_for_pool(self, pool: StockPoolSnapshot) -> AIAnalysisResult:
         return AIAnalysisResult(
             analysis_id=f"pool:{pool.pool_id}:{_utcnow().strftime('%Y%m%dT%H%M%SZ')}",
             target_type="stock_pool",
             target_id=pool.pool_id,
             risk_level="unknown",
             recommendation="review",
-            summary="Placeholder pool-level analysis result. Replace with model-backed interpretation later.",
+            summary="基于股票池元数据生成的基础结构化分析；深度解读请使用模型分析入口。",
             key_points=[
                 f"member_count={len(pool.members)}",
                 f"pool_type={pool.pool_type}",
@@ -200,6 +200,18 @@ class AutomatedAIAnalysisRunResult:
     warnings: list[str]
 
 
+@dataclass(slots=True)
+class AIInterpretationRunResult:
+    generated_at_beijing: str
+    json_path: Path
+    markdown_path: Path
+    scenario: str
+    target_id: str
+    model_status: str
+    source_paths: list[Path]
+    warnings: list[str]
+
+
 class AutomatedAIAnalysisService:
     """Generate deterministic context plus optional model interpretation.
 
@@ -270,6 +282,64 @@ class AutomatedAIAnalysisService:
             warnings=warnings + list(model_summary.get("warnings") or []),
         )
 
+    def analyze_latest_account_health(self, *, use_model: bool = True) -> AIInterpretationRunResult:
+        source_path = _latest_report_path(
+            self.settings.storage.processed_dir.parent / "reports" / "account_health",
+            "account_health_*.json",
+        )
+        source_payload = _read_json_object(source_path)
+        context = _account_health_prompt_context(source_payload)
+        return self._analyze_structured_context(
+            scenario="account_health",
+            target_id=str(source_payload.get("analysis_id") or "latest_account_health"),
+            context=context,
+            source_paths=[source_path],
+            use_model=use_model,
+            max_tokens=1800,
+        )
+
+    def analyze_latest_options_advice(self, *, use_model: bool = True) -> AIInterpretationRunResult:
+        source_path = _latest_report_path(
+            self.settings.storage.processed_dir.parent / "reports" / "options_advice",
+            "options_advice_*.json",
+        )
+        source_payload = _read_json_object(source_path)
+        context = _options_advice_prompt_context(source_payload)
+        return self._analyze_structured_context(
+            scenario="options_advice",
+            target_id=str(source_payload.get("analysis_id") or "latest_options_advice"),
+            context=context,
+            source_paths=[source_path],
+            use_model=use_model,
+            max_tokens=1800,
+        )
+
+    def analyze_stock_technical(self, symbol: str, *, use_model: bool = True) -> AIInterpretationRunResult:
+        normalized = symbol.upper().strip()
+        if not normalized:
+            raise ValueError("symbol is required.")
+        snapshot, snapshot_path = self._load_stock_snapshot(normalized)
+        account_payload, account_path = self._load_optional_latest_report("account_health", "account_health_*.json")
+        options_payload, options_path = self._load_optional_latest_report("options_advice", "options_advice_*.json")
+        context = _stock_prompt_context(
+            snapshot,
+            account_payload=account_payload,
+            options_payload=options_payload,
+        )
+        source_paths = [snapshot_path]
+        if account_path:
+            source_paths.append(account_path)
+        if options_path:
+            source_paths.append(options_path)
+        return self._analyze_structured_context(
+            scenario="stock_technical",
+            target_id=normalized,
+            context=context,
+            source_paths=source_paths,
+            use_model=use_model,
+            max_tokens=1600,
+        )
+
     def _load_dashboard_snapshots(self, *, max_symbols: int) -> list[StockSnapshot]:
         dashboard_path = self.settings.storage.reference_dir / "system" / "dashboard_data.json"
         snapshots: list[StockSnapshot] = []
@@ -297,6 +367,113 @@ class AutomatedAIAnalysisService:
         except json.JSONDecodeError:
             return {"positions": []}
         return payload if isinstance(payload, dict) else {"positions": []}
+
+    def _load_stock_snapshot(self, symbol: str) -> tuple[StockSnapshot, Path]:
+        snapshot_path = self.settings.storage.processed_dir / "snapshots" / f"{symbol}.json"
+        if snapshot_path.exists():
+            return _snapshot_from_mapping(_read_json_object(snapshot_path)), snapshot_path
+
+        dashboard_path = self.settings.storage.reference_dir / "system" / "dashboard_data.json"
+        if dashboard_path.exists():
+            payload = _read_json_object(dashboard_path)
+            for item in payload.get("snapshots") or []:
+                if isinstance(item, dict) and str(item.get("symbol") or "").upper() == symbol:
+                    return _snapshot_from_mapping(item), dashboard_path
+        raise FileNotFoundError(f"缺少 {symbol} 本地快照；先运行 daily-refresh、pool-refresh 或 history/快照刷新。")
+
+    def _load_optional_latest_report(self, folder_name: str, pattern: str) -> tuple[dict[str, Any] | None, Path | None]:
+        directory = self.settings.storage.processed_dir.parent / "reports" / folder_name
+        candidates = sorted(directory.glob(pattern))
+        if not candidates:
+            return None, None
+        path = candidates[-1]
+        try:
+            return _read_json_object(path), path
+        except (OSError, json.JSONDecodeError, ValueError):
+            return None, path
+
+    def _analyze_structured_context(
+        self,
+        *,
+        scenario: str,
+        target_id: str,
+        context: dict[str, Any],
+        source_paths: list[Path],
+        use_model: bool,
+        max_tokens: int,
+    ) -> AIInterpretationRunResult:
+        warnings: list[str] = []
+        model_status = "skipped"
+        model_text = ""
+        prompt_payload = _build_model_prompt_payload(scenario=scenario, target_id=target_id, context=context)
+        if use_model:
+            model_status, model_text, model_warnings = self._call_interpretation_model(prompt_payload, max_tokens=max_tokens)
+            warnings.extend(model_warnings)
+        else:
+            warnings.append("已按参数跳过模型调用；本报告只包含结构化输入摘要。")
+
+        payload = {
+            "analysis_id": f"ai_{scenario}:{datetime.now(tz=UTC).strftime('%Y%m%dT%H%M%SZ')}",
+            "generated_at_beijing": iso_beijing(),
+            "timezone": "Asia/Shanghai",
+            "scenario": scenario,
+            "target_id": target_id,
+            "execution_boundary": "read_only_analysis_no_auto_order",
+            "source_paths": [str(path) for path in source_paths],
+            "model_status": model_status,
+            "model": {
+                "provider": self.settings.ai.provider,
+                "model": self.settings.ai.model,
+                "markdown": model_text,
+            },
+            "prompt_payload": prompt_payload,
+            "warnings": warnings,
+        }
+        json_path, markdown_path = self._write_interpretation_outputs(payload)
+        return AIInterpretationRunResult(
+            generated_at_beijing=str(payload["generated_at_beijing"]),
+            json_path=json_path,
+            markdown_path=markdown_path,
+            scenario=scenario,
+            target_id=target_id,
+            model_status=model_status,
+            source_paths=source_paths,
+            warnings=warnings,
+        )
+
+    def _call_interpretation_model(self, prompt_payload: dict[str, Any], *, max_tokens: int) -> tuple[str, str, list[str]]:
+        config = self.settings.ai
+        warnings: list[str] = []
+        provider = (config.provider or "").strip().lower()
+        if provider in {"", "none", "off", "disabled"}:
+            return "skipped", "", ["AI provider 未启用，未调用模型。"]
+        if not config.base_url:
+            return "error", "", ["AI base_url 未配置，无法调用模型。"]
+        if provider in {"deepseek", "openai"} and not config.api_key:
+            return "error", "", ["托管 AI provider 缺少 API key，无法调用模型。"]
+
+        client = self.client or OpenAICompatibleClient.from_ai_config(config)
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "你是 QuantPlatform 的保守美股交易辅助分析助手。"
+                    "你只能基于用户给出的结构化 JSON 做解释、风险研判和人工复核建议。"
+                    "你不是自动交易系统，不得输出下单、撤单、改单或自动执行指令。"
+                    "如果数据不足、过期或存在 provider 限制，必须明确写出。"
+                    "请用中文 Markdown 输出。"
+                ),
+            },
+            {"role": "user", "content": json.dumps(prompt_payload, ensure_ascii=False, default=str)},
+        ]
+        try:
+            response = client.chat(messages, temperature=0.15, max_tokens=max_tokens)
+            text = extract_chat_text(response).strip()
+        except Exception as exc:  # noqa: BLE001 - write an explicit failed model report instead of a fake analysis.
+            return "error", "", [f"模型调用失败：{exc}"]
+        if not text:
+            return "error", "", ["模型返回为空，未生成 AI 解读。"]
+        return "success", text, warnings
 
     def _analyze_snapshot(self, snapshot: StockSnapshot, portfolio_item: dict[str, Any] | None) -> dict[str, Any]:
         technical = _technical_interpretation(snapshot)
@@ -387,6 +564,18 @@ class AutomatedAIAnalysisService:
         markdown_path.write_text(_render_analysis_markdown(payload), encoding="utf-8")
         return json_path, markdown_path
 
+    def _write_interpretation_outputs(self, payload: dict[str, Any]) -> tuple[Path, Path]:
+        output_dir = self.settings.storage.processed_dir.parent / "reports" / "ai_analysis"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%SZ")
+        scenario = str(payload.get("scenario") or "analysis")
+        target = _safe_filename(str(payload.get("target_id") or "latest"))
+        json_path = output_dir / f"ai_{scenario}_{target}_{timestamp}.json"
+        markdown_path = output_dir / f"ai_{scenario}_{target}_{timestamp}.md"
+        json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        markdown_path.write_text(_render_interpretation_markdown(payload), encoding="utf-8")
+        return json_path, markdown_path
+
 
 def _snapshot_from_mapping(payload: dict[str, Any]) -> StockSnapshot:
     allowed = {field.name for field in fields(StockSnapshot)}
@@ -397,6 +586,338 @@ def _snapshot_from_mapping(payload: dict[str, Any]) -> StockSnapshot:
         except ValueError:
             data["as_of"] = None
     return StockSnapshot(**data)
+
+
+def _latest_report_path(directory: Path, pattern: str) -> Path:
+    candidates = sorted(directory.glob(pattern))
+    if not candidates:
+        raise FileNotFoundError(f"没有找到结构化报告：{directory / pattern}")
+    return candidates[-1]
+
+
+def _read_json_object(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"JSON report must be an object: {path}")
+    return payload
+
+
+def _account_health_prompt_context(payload: dict[str, Any]) -> dict[str, Any]:
+    assessment = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+    account = payload.get("account") if isinstance(payload.get("account"), dict) else {}
+    positions = assessment.get("positions") if isinstance(assessment.get("positions"), list) else []
+    sectors = assessment.get("sector_exposures") if isinstance(assessment.get("sector_exposures"), list) else []
+    return {
+        "report_type": "account_health",
+        "as_of": payload.get("as_of"),
+        "generated_at_beijing": payload.get("generated_at_beijing"),
+        "data_sources": payload.get("data_sources"),
+        "account_summary": _pick(
+            account,
+            [
+                "currency",
+                "net_assets",
+                "market_value",
+                "total_cash",
+                "available_cash",
+                "buy_power",
+                "total_pl",
+                "total_today_pl",
+                "risk_level",
+                "cash_for_cash_secured_put",
+                "position_count",
+            ],
+        ),
+        "risk_summary": _pick(
+            assessment,
+            [
+                "equity",
+                "cash",
+                "cash_ratio_pct",
+                "invested_value",
+                "position_count",
+                "hhi",
+                "health_score",
+                "health_state",
+                "pdt",
+                "max_loss_checks",
+                "recommendations",
+                "warnings",
+            ],
+        ),
+        "top_positions_by_weight": _limit_list(_sort_dicts_by_number(positions, "weight_pct"), 12, _compact_risk_position),
+        "sector_exposures": _limit_list(_sort_dicts_by_number(sectors, "weight_pct"), 10, lambda item: item),
+        "event_risks": _limit_list(assessment.get("event_risks") or [], 10, lambda item: item),
+        "position_actions": _limit_list(payload.get("position_actions") or [], 10, lambda item: item),
+        "improvement_plan": _limit_list(payload.get("improvement_plan") or [], 8, lambda item: item),
+        "snapshot_notes": _limit_list(payload.get("snapshot_notes") or [], 10, lambda item: item),
+        "analysis_requirements": [
+            "用账户健康度报告解释当前组合最重要的风险。",
+            "说明哪些建议只是控仓/复核建议，不是自动交易指令。",
+            "指出现金、PDT、事件风险、集中度和 ATR 止损的含义。",
+            "给出人工复盘优先级和需要补充确认的数据。",
+        ],
+    }
+
+
+def _options_advice_prompt_context(payload: dict[str, Any]) -> dict[str, Any]:
+    positions = payload.get("positions") if isinstance(payload.get("positions"), list) else []
+    return {
+        "report_type": "options_advice",
+        "as_of": payload.get("as_of"),
+        "generated_at_beijing": payload.get("generated_at_beijing"),
+        "data_sources": payload.get("data_sources"),
+        "account_summary": payload.get("account_summary"),
+        "scan_policy": payload.get("scan_policy"),
+        "summary": payload.get("summary"),
+        "positions": _limit_list(positions, 20, _compact_options_position),
+        "errors": payload.get("errors") or [],
+        "analysis_requirements": [
+            "解释 covered call 和 cash-secured put 建议为什么适合或不适合。",
+            "重点说明现金担保、100 股要求、流动性、bid/ask 估算和 yfinance 数据限制。",
+            "不要把期权候选写成下单指令；必须要求用户在券商界面人工核对合约、价格和权限。",
+            "按风险优先级给出人工复核清单。",
+        ],
+    }
+
+
+def _stock_prompt_context(
+    snapshot: StockSnapshot,
+    *,
+    account_payload: dict[str, Any] | None,
+    options_payload: dict[str, Any] | None,
+) -> dict[str, Any]:
+    technical = _technical_interpretation(snapshot)
+    health = _holding_health(snapshot, _matching_account_position(account_payload, snapshot.symbol), technical)
+    risks = _risk_warnings(snapshot, _matching_account_position(account_payload, snapshot.symbol), technical, health)
+    return {
+        "report_type": "stock_technical",
+        "symbol": snapshot.symbol,
+        "snapshot": _compact_stock_snapshot_for_prompt(snapshot),
+        "technical_interpretation": technical,
+        "risk_warnings": risks,
+        "matched_account_position": _matching_account_position(account_payload, snapshot.symbol),
+        "matched_position_action": _matching_position_action(account_payload, snapshot.symbol),
+        "matched_options_advice": _matching_options_position(options_payload, snapshot.symbol),
+        "analysis_requirements": [
+            "解释该股票技术面状态，包括趋势、RSI、MACD、ATR、成交量和数据新鲜度。",
+            "如有真实持仓或期权建议，结合仓位、成本、风险动作做保守解读。",
+            "不要给自动买卖指令；只能给观察、复核和人工决策前检查项。",
+            "明确哪些结论来自本地指标，哪些因为缺数据需要谨慎。",
+        ],
+    }
+
+
+def _build_model_prompt_payload(*, scenario: str, target_id: str, context: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "role": "trading_assistance_analysis_not_auto_trading",
+        "scenario": scenario,
+        "target_id": target_id,
+        "language": "zh-CN",
+        "output_format": {
+            "format": "markdown",
+            "required_sections": [
+                "一句话结论",
+                "数据依据",
+                "主要风险",
+                "人工复盘建议",
+                "不能自动执行的边界",
+                "需要补充确认的问题",
+            ],
+        },
+        "style_requirements": [
+            "保守，不夸大预测能力。",
+            "必须基于 JSON 字段解释，不能编造未提供的新闻、财报或实时行情。",
+            "建议必须是人工复核和风险控制语言，不得写成订单或自动执行动作。",
+            "遇到数据缺失、报价源限制或时间滞后时要明确提示。",
+        ],
+        "structured_context": context,
+    }
+
+
+def _compact_stock_snapshot_for_prompt(snapshot: StockSnapshot) -> dict[str, Any]:
+    selected = _compact_snapshot(snapshot)
+    selected.update(
+        {
+            "company_name": snapshot.company_name,
+            "sector": snapshot.sector,
+            "industry": snapshot.industry,
+            "previous_close": snapshot.previous_close,
+            "open_price": snapshot.open_price,
+            "high_price": snapshot.high_price,
+            "low_price": snapshot.low_price,
+            "regular_market_price": snapshot.regular_market_price,
+            "pre_market_price": snapshot.pre_market_price,
+            "post_market_price": snapshot.post_market_price,
+            "market_state": snapshot.market_state,
+            "market_cap": snapshot.market_cap,
+            "avg_dollar_volume": snapshot.avg_dollar_volume,
+            "trailing_pe": snapshot.trailing_pe,
+            "forward_pe": snapshot.forward_pe,
+            "next_earnings_date": snapshot.next_earnings_date,
+            "screening_reasons": snapshot.screening_reasons,
+            "events": snapshot.events,
+            "indicators": _selected_indicators(snapshot.indicators or {}),
+        }
+    )
+    return selected
+
+
+def _selected_indicators(indicators: dict[str, Any]) -> dict[str, Any]:
+    keys = [
+        "sma_5",
+        "sma_20",
+        "sma_50",
+        "sma_200",
+        "ema_12",
+        "ema_26",
+        "macd",
+        "macd_signal",
+        "macd_histogram",
+        "rsi_6",
+        "rsi_14",
+        "rsi_24",
+        "rsi_14_delta_5d",
+        "roc_10",
+        "ret_20d_skip5",
+        "ret_60d_skip5",
+        "ret_120d_skip5",
+        "bbands_upper",
+        "bbands_middle",
+        "bbands_lower",
+        "atr_14",
+        "volume_ratio_20",
+        "volume_zscore_60",
+        "trend_distance_sma50_atr14",
+        "indicators_as_of",
+        "indicators_provider",
+    ]
+    return {key: indicators.get(key) for key in keys if key in indicators}
+
+
+def _compact_risk_position(item: dict[str, Any]) -> dict[str, Any]:
+    return _pick(
+        item,
+        [
+            "symbol",
+            "name",
+            "sector",
+            "quantity",
+            "cost_price",
+            "current_price",
+            "market_value",
+            "weight_pct",
+            "unrealized_pl",
+            "unrealized_pl_pct",
+            "atr_14",
+            "atr_stop_price",
+            "atr_stop_loss",
+            "concentration_status",
+            "max_loss_status",
+            "warnings",
+        ],
+    )
+
+
+def _compact_options_position(item: dict[str, Any]) -> dict[str, Any]:
+    result = _pick(
+        item,
+        [
+            "symbol",
+            "name",
+            "quantity",
+            "available_quantity",
+            "cost_price",
+            "underlying_price",
+            "as_of",
+            "scan_status",
+            "skip_reason",
+            "notes",
+        ],
+    )
+    suggestions = item.get("suggestions") if isinstance(item.get("suggestions"), list) else []
+    result["suggestions"] = [_compact_option_suggestion(suggestion) for suggestion in suggestions[:4] if isinstance(suggestion, dict)]
+    return result
+
+
+def _compact_option_suggestion(item: dict[str, Any]) -> dict[str, Any]:
+    return _pick(
+        item,
+        [
+            "strategy",
+            "symbol",
+            "decision",
+            "reason",
+            "option_type",
+            "contract_symbol",
+            "strike",
+            "expiration",
+            "bid",
+            "ask",
+            "mid",
+            "capital_required",
+            "premium_income",
+            "max_loss_estimate",
+            "breakeven",
+            "return_on_capital_pct",
+            "annualized_return_pct",
+            "dte",
+            "spread_pct",
+            "violations",
+            "warnings",
+            "confirmations",
+            "data_warnings",
+            "required_shares",
+            "available_shares",
+        ],
+    )
+
+
+def _matching_account_position(payload: dict[str, Any] | None, symbol: str) -> dict[str, Any] | None:
+    if not payload:
+        return None
+    assessment = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+    for item in assessment.get("positions") or []:
+        if isinstance(item, dict) and _same_symbol(item.get("symbol"), symbol):
+            return _compact_risk_position(item)
+    return None
+
+
+def _matching_position_action(payload: dict[str, Any] | None, symbol: str) -> dict[str, Any] | None:
+    if not payload:
+        return None
+    for item in payload.get("position_actions") or []:
+        if isinstance(item, dict) and _same_symbol(item.get("symbol"), symbol):
+            return item
+    return None
+
+
+def _matching_options_position(payload: dict[str, Any] | None, symbol: str) -> dict[str, Any] | None:
+    if not payload:
+        return None
+    for item in payload.get("positions") or []:
+        if isinstance(item, dict) and _same_symbol(item.get("symbol"), symbol):
+            return _compact_options_position(item)
+    return None
+
+
+def _same_symbol(left: Any, right: str) -> bool:
+    return str(left or "").upper().replace(".US", "") == right.upper().replace(".US", "")
+
+
+def _pick(payload: dict[str, Any], keys: list[str]) -> dict[str, Any]:
+    return {key: payload.get(key) for key in keys if key in payload}
+
+
+def _sort_dicts_by_number(items: list[Any], key: str) -> list[dict[str, Any]]:
+    dicts = [item for item in items if isinstance(item, dict)]
+    return sorted(dicts, key=lambda item: _finite_float(item.get(key)) or 0.0, reverse=True)
+
+
+def _limit_list(items: Any, limit: int, transform: Any) -> list[Any]:
+    if not isinstance(items, list):
+        return []
+    return [transform(item) for item in items[:limit]]
 
 
 def _technical_interpretation(snapshot: StockSnapshot) -> dict[str, Any]:
@@ -681,6 +1202,105 @@ def _render_analysis_markdown(payload: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _render_interpretation_markdown(payload: dict[str, Any]) -> str:
+    scenario = str(payload.get("scenario") or "analysis")
+    target_id = str(payload.get("target_id") or "latest")
+    model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
+    model_markdown = str(model.get("markdown") or "").strip()
+    prompt_payload = payload.get("prompt_payload") if isinstance(payload.get("prompt_payload"), dict) else {}
+    context = prompt_payload.get("structured_context") if isinstance(prompt_payload.get("structured_context"), dict) else {}
+    source_paths = payload.get("source_paths") if isinstance(payload.get("source_paths"), list) else []
+    lines = [
+        f"# AI 解读报告：{_scenario_label(scenario)}",
+        "",
+        f"- 目标：{target_id}",
+        f"- 生成时间（北京）：{payload.get('generated_at_beijing')}",
+        f"- 模型状态：{payload.get('model_status')}",
+        f"- 模型：{model.get('provider')} / {model.get('model')}",
+        "- 边界：只读分析，不自动下单、撤单或改单",
+        "",
+        "## 来源",
+        "",
+    ]
+    if source_paths:
+        lines.extend(f"- {path}" for path in source_paths)
+    else:
+        lines.append("- 未记录来源路径")
+
+    if model_markdown:
+        lines.extend(["", "## DeepSeek 解读", "", model_markdown])
+    else:
+        lines.extend(
+            [
+                "",
+                "## DeepSeek 解读",
+                "",
+                "本次没有可用的模型解读。请查看模型状态和数据提示；系统没有用占位结论替代真实模型输出。",
+            ]
+        )
+
+    warnings = payload.get("warnings") if isinstance(payload.get("warnings"), list) else []
+    if warnings:
+        lines.extend(["", "## 数据提示", ""])
+        lines.extend(f"- {warning}" for warning in warnings)
+
+    lines.extend(["", "## 结构化输入摘要", "", "```json"])
+    lines.append(json.dumps(_preview_context(context), ensure_ascii=False, indent=2, default=str))
+    lines.extend(["```", "", "## 人工复核边界", ""])
+    lines.extend(
+        [
+            "- AI 解读只读取本地结构化 JSON，不代表实时行情或券商最终报价。",
+            "- 任何观察项都必须由用户在券商界面人工确认，尤其是期权合约、bid/ask、现金占用和持仓成本。",
+            "- 没有回测或规则验证支撑的观点，不能升级为交易策略。",
+        ]
+    )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _preview_context(context: dict[str, Any]) -> dict[str, Any]:
+    keys = [
+        "report_type",
+        "as_of",
+        "generated_at_beijing",
+        "data_sources",
+        "account_summary",
+        "risk_summary",
+        "summary",
+        "symbol",
+        "snapshot",
+        "technical_interpretation",
+        "risk_warnings",
+        "matched_account_position",
+        "matched_position_action",
+        "matched_options_advice",
+        "position_actions",
+        "improvement_plan",
+        "errors",
+    ]
+    result = {key: context.get(key) for key in keys if key in context}
+    if "top_positions_by_weight" in context:
+        result["top_positions_by_weight"] = context["top_positions_by_weight"][:5]
+    if "positions" in context:
+        result["positions"] = context["positions"][:6]
+    if "event_risks" in context:
+        result["event_risks"] = context["event_risks"][:5]
+    return result
+
+
+def _scenario_label(scenario: str) -> str:
+    labels = {
+        "account_health": "账户健康度",
+        "options_advice": "期权建议",
+        "stock_technical": "个股技术面",
+    }
+    return labels.get(scenario, scenario)
+
+
+def _safe_filename(value: str) -> str:
+    safe = "".join(char if char.isalnum() or char in {"-", "_", "."} else "_" for char in value)
+    return safe[:80] or "latest"
 
 
 def _finite_float(value: Any) -> float | None:

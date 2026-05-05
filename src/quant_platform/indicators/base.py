@@ -16,6 +16,7 @@ OHLCV_COLUMNS = ("open", "high", "low", "close", "volume")
 class IndicatorComputation:
     series: pd.DataFrame
     latest: dict[str, float | None]
+    indicator_columns: list[str]
 
 
 def prepare_ohlcv_frame(frame: pd.DataFrame) -> pd.DataFrame:

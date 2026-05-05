@@ -63,15 +63,15 @@
 - `Scanner Strategy V1` 初步落地：截面动量排名、跳过最近 5 日收益、RSI 变化、成交量 z-score、ATR 归一化趋势距离
 - Longbridge 真实股票池同步：只读 `positions/watchlist` 生成 `longbridge_positions / longbridge_watchlist / longbridge_core`
 - 真实持仓/自选基本策略分析：复用 indicators、signals、MarketScanner，输出持仓健康度和自选关注度 JSON + Markdown
-- 自动化 AI 分析层：读取本地 `StockSnapshot`、指标和最新持仓健康度，生成结构化 JSON + 中文 Markdown；可配置 OpenAI-compatible provider 追加模型综合摘要
+- 模型驱动 AI 解读层：读取本地 `StockSnapshot`、最新账户健康 JSON 和期权建议 JSON，构建结构化 prompt，调用 DeepSeek/OpenAI-compatible provider 生成保守中文 Markdown；模型失败时明确写入错误状态，不使用 placeholder
 - 真实持仓期权建议：读取 Longbridge 只读持仓，使用 yfinance 期权链筛选 covered call / cash-secured put，输出 strike、到期日、权利金和年化回报；默认只扫描高流动性期权标的，ETF/BRK.B/非白名单持仓跳过并写明原因
 - 账户健康度报告：保留 `BRK.B` 等 class-share symbol，VOO/QQQ/EWT/EWJ/DRAM、BRK.B/CRCL/XE/NOK 有行业兜底，缺 ATR 时尝试补齐 yfinance 日线并即时计算指标，报告输出可量化控仓动作
 - 期权截图解析工具：从 OCR 文本或本机 OCR 图片中提取 expiry、strike、bid/ask，并支持 yfinance 交叉验证
 
 当前主要缺口：
 
-- 风控建议：仓位、止损、PDT、事件阻断
 - 真实持仓健康度、自选关注度和风控建议接入每日报告
+- DeepSeek 账户健康、期权建议和个股技术面解读接入每日报告
 - 最小回测框架
 - 市场状态过滤：SPY/QQQ/VIX/市场宽度
 - provider fallback 和更可靠行情源
@@ -83,6 +83,9 @@
 本阶段完成：
 
 - `make analyze`：基于本地结构化快照生成 AI 分析报告，模型层可通过 `QP_AI_PROVIDER / QP_AI_BASE_URL / QP_AI_MODEL / QP_AI_API_KEY` 或配置文件选择 OpenAI-compatible provider。
+- `make ai-analyze`：读取最新账户健康 JSON，构建账户风险 prompt，并调用 DeepSeek/OpenAI-compatible provider 输出 Markdown 解读。
+- `make ai-options`：读取最新期权建议 JSON，解释 covered call / cash-secured put 的适合性、现金担保、100 股要求和报价风险。
+- `make ai-stock SYMBOL=AAPL`：读取单股 snapshot，并结合最新账户健康/期权建议中的匹配项做技术面和人工复核建议。
 - `make options-advice`：读取 Longbridge 真实持仓，用 yfinance 期权链给每只持仓股生成 covered call / cash-secured put 简单建议。
 - `make option-screenshot`：解析期权截图 OCR 文本或本机 OCR 图片，提取 strike、bid/ask、expiry，并可用 yfinance 验证。
 
@@ -261,18 +264,27 @@
 
 目标：只展示已经稳定的指标、信号和报告，不让 UI 领先后端太多。
 
+2026-05-05 更新：
+
+- 已按 Claude Code 全面审核方案，先修复 5 个 P0 运行可靠性问题。
+- UI 产品方向从默认“盯盘终端”调整为默认“决策仪表板”：打开后优先展示市场状态、今日候选、持仓风控、事件、AI 研判和每日报告。
+- 新增 `/api/dashboard`、`/api/reports/latest`、`POST /api/refresh` 和 `/api/health`，Dashboard 只读取本地产物，不触发联网计算。
+- 保留原有个股分析、扫描器和期权助手视图，不改变已有核心模块接口。
+
 工作内容：
 
-- 股票列表展示信号方向、强度和风险等级。
-- 个股页展示关键指标、信号原因、建议止损和仓位。
+- 继续把股票列表展示信号方向、强度和风险等级。
+- 继续在个股页展示关键指标、信号原因、建议止损和仓位。
 - 图表叠加 SMA、布林带，副图展示 RSI 或 MACD。
-- 新增每日报告视图，支持查看最新报告和复制 AI prompt。
+- 完善每日报告视图，支持更好的 Markdown 表格渲染和报告日期选择。
+- 后续拆分 `ui/index.html`，优先拆 CSS、Dashboard JS、Options JS。
 
 交付物：
 
 - `/api/indicators`
 - `/api/signals`
-- `/api/reports`
+- `/api/dashboard`
+- `/api/reports/latest`
 - UI 对应面板
 
 验收：
@@ -305,11 +317,11 @@
 接下来优先做：
 
 1. 在真实 Longbridge 网络环境下运行 `make account-health`、`make trade-review` 和 `make auto-scan`，校验账户、历史成交和期权链权限的真实产物。
-2. 将账户健康度、风控建议、历史复盘摘要、期权建议和 Scanner Strategy V1 输出接入每日报告。
-3. 完成 DeepSeek 分析层最小闭环：股票基础分析、市场情绪摘要、期权策略解释，所有 prompt 读取后端结构化上下文。
-4. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
-5. 完成期权助手 V2A 前端体验：候选点击填入合约检查表单、默认池扫描、明确缺少 bid/ask。
-6. 拆分 `ui/index.html`：先拆 CSS 和期权 JS，降低单文件复杂度。
+2. 在本机依赖完整环境启动 UI，人工验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
+3. 在用户本机网络环境运行 `make ai-analyze`、`make ai-options`、`make ai-stock SYMBOL=AAPL`，用真实 DeepSeek 返回复核 prompt 长度、Markdown 质量和数据边界措辞。
+4. 将账户健康度、DeepSeek 解读、风控建议、历史复盘摘要、期权建议和 Scanner Strategy V1 输出接入每日报告。
+5. 扩展 `TradeReviewService` 对期权成交、部分成交费用、转仓和做空的识别能力。
+6. 拆分 `ui/index.html`：先拆 CSS、Dashboard JS 和期权 JS，降低单文件复杂度。
 7. 实现 `Phase F` 最小回测框架，验证 scanner 候选能否转化为交易策略。
 
 暂缓：

@@ -258,6 +258,371 @@
       background: var(--surface);
     }
 
+    .dashboard-mode {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dashboard-mode .watch,
+    .dashboard-mode .context,
+    .dashboard-mode .splitter {
+      display: none;
+    }
+
+    .dashboard-workspace {
+      display: none;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 32px 32px;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+
+    .dashboard-workspace.active {
+      display: block;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+
+    .dashboard-title h2 {
+      font-size: 24px;
+      font-weight: 680;
+      letter-spacing: 0;
+    }
+
+    .dashboard-title p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dashboard-status {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .status-chip {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: 12px;
+    }
+
+    .status-chip.bullish { color: var(--green); border-color: rgba(0, 199, 164, 0.45); }
+    .status-chip.bearish { color: var(--red); border-color: rgba(255, 75, 11, 0.45); }
+    .status-chip.neutral { color: var(--amber); border-color: rgba(245, 193, 77, 0.45); }
+
+    .refresh-all-btn {
+      min-height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 620;
+      cursor: pointer;
+    }
+
+    .refresh-all-btn:hover {
+      background: rgba(19, 156, 255, 0.1);
+    }
+
+    .refresh-all-btn:disabled {
+      opacity: 0.55;
+      cursor: progress;
+    }
+
+    .dashboard-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .dash-metric,
+    .dashboard-section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .dash-metric {
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .dash-metric span {
+      display: block;
+      color: var(--faint);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .dash-metric strong {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      font-family: var(--mono);
+      font-weight: 620;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dashboard-section {
+      margin-bottom: 16px;
+      padding: 16px;
+    }
+
+    .dashboard-section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .dashboard-section h3 {
+      font-size: 14px;
+      color: var(--soft);
+      font-weight: 650;
+    }
+
+    .dashboard-section-sub {
+      color: var(--faint);
+      font-size: 12px;
+    }
+
+    .candidate-cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .candidate-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-3);
+    }
+
+    .candidate-card-head,
+    .candidate-metrics,
+    .candidate-actions,
+    .position-row,
+    .event-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .candidate-card-head {
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .candidate-symbol {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      min-width: 0;
+    }
+
+    .candidate-symbol strong {
+      font-size: 16px;
+    }
+
+    .candidate-symbol span {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .candidate-score {
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: var(--green);
+      background: rgba(0, 199, 164, 0.12);
+      font-size: 12px;
+      font-family: var(--mono);
+    }
+
+    .candidate-signals {
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .candidate-metrics {
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+      color: var(--faint);
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+
+    .candidate-actions {
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .candidate-actions button,
+    .dashboard-link-btn {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--soft);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .candidate-actions button:hover,
+    .dashboard-link-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .position-row {
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .position-row:last-child,
+    .event-item:last-child {
+      border-bottom: 0;
+    }
+
+    .position-main {
+      min-width: 0;
+    }
+
+    .position-main strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .position-main span,
+    .position-risk {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .position-status {
+      color: var(--green);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .position-row.warning .position-status { color: var(--amber); }
+    .position-row.danger .position-status { color: var(--red); }
+
+    .event-item {
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .event-date {
+      min-width: 72px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .event-title {
+      flex: 1;
+      color: var(--soft);
+    }
+
+    .event-severity {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .event-severity.high { color: var(--red); }
+    .event-severity.medium { color: var(--amber); }
+
+    .collapsible .dashboard-section-head {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsible .section-body {
+      max-height: 360px;
+      overflow-y: auto;
+      transition: max-height 0.2s ease;
+    }
+
+    .collapsible.collapsed .section-body {
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .report-body {
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .report-body h1,
+    .report-body h2,
+    .report-body h3 {
+      margin: 14px 0 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .report-body p,
+    .report-body li {
+      margin: 4px 0;
+    }
+
+    .report-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+
+    .report-body th,
+    .report-body td {
+      padding: 5px 7px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .report-body th {
+      background: var(--surface-2);
+      color: var(--soft);
+    }
+
     .context {
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
@@ -1978,6 +2343,15 @@
         overflow: visible;
       }
 
+      .dashboard-workspace {
+        max-width: none;
+        padding: 20px;
+      }
+
+      .dashboard-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .workspace-body {
         grid-template-rows: 300px 8px 220px;
       }
@@ -2047,6 +2421,22 @@
         justify-content: space-between;
       }
 
+      .dashboard-header {
+        flex-direction: column;
+      }
+
+      .dashboard-status {
+        justify-content: flex-start;
+      }
+
+      .dashboard-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-workspace {
+        padding: 16px;
+      }
+
       .scanner-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -2077,7 +2467,8 @@
       </div>
       <div class="top-context">
         <div class="view-switch" id="viewSwitch" aria-label="页面切换">
-          <button class="view-btn active" type="button" data-view="stock">个股</button>
+          <button class="view-btn active" type="button" data-view="dashboard">仪表板</button>
+          <button class="view-btn" type="button" data-view="stock">个股</button>
           <button class="view-btn" type="button" data-view="scanner">扫描</button>
         </div>
         <span class="status-dot" aria-hidden="true"></span>
@@ -2108,7 +2499,79 @@
       <div class="splitter splitter-left" id="splitterLeft" aria-hidden="true"></div>
 
       <main class="workspace">
-        <div class="workspace-view stock-workspace active" id="stockWorkspace">
+        <section class="workspace-view dashboard-workspace active" id="dashboardWorkspace">
+          <div class="dashboard-header">
+            <div class="dashboard-title">
+              <p class="label">Decision Dashboard</p>
+              <h2>决策仪表板</h2>
+              <p id="dashDate">读取本地报告与扫描结果</p>
+            </div>
+            <div class="dashboard-status">
+              <div class="status-chip" id="dashMarketChip">市场 --</div>
+              <div class="status-chip" id="dashSchedulerChip">调度 --</div>
+              <button class="refresh-all-btn" id="dashRefreshBtn" type="button">刷新全部</button>
+            </div>
+          </div>
+
+          <div class="dashboard-strip" id="dashMetrics">
+            <div class="dash-metric"><span>SPY</span><strong class="numeric">--</strong></div>
+            <div class="dash-metric"><span>VIX</span><strong class="numeric">--</strong></div>
+            <div class="dash-metric"><span>仓位</span><strong class="numeric">--</strong></div>
+            <div class="dash-metric"><span>现金</span><strong class="numeric">--</strong></div>
+          </div>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
+              <h3>今日候选</h3>
+              <button class="dashboard-link-btn" type="button" id="dashOpenScanner">查看完整扫描</button>
+            </div>
+            <div class="candidate-cards" id="dashCandidates">
+              <div class="empty">正在读取本地扫描结果。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
+              <h3>持仓风控</h3>
+              <span class="dashboard-section-sub" id="dashPortfolioMeta">--</span>
+            </div>
+            <div id="dashPositions">
+              <div class="empty">正在读取账户健康度报告。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
+              <h3>近期事件</h3>
+              <span class="dashboard-section-sub">未来 14 天</span>
+            </div>
+            <div id="dashEvents">
+              <div class="empty">正在读取事件日历。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section collapsible">
+            <div class="dashboard-section-head section-toggle">
+              <h3>AI 研判</h3>
+              <span class="dashboard-section-sub">展开/收起</span>
+            </div>
+            <div class="section-body" id="dashAI">
+              <div class="empty">暂无 AI 研判。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section collapsible collapsed">
+            <div class="dashboard-section-head section-toggle">
+              <h3>每日报告</h3>
+              <span class="dashboard-section-sub">展开/收起</span>
+            </div>
+            <div class="section-body report-body" id="dashReport">
+              <div class="empty">暂无每日报告。</div>
+            </div>
+          </section>
+        </section>
+
+        <div class="workspace-view stock-workspace" id="stockWorkspace">
         <section class="quote">
           <div class="quote-main">
             <div class="symbol-line">
@@ -2519,7 +2982,8 @@
       pools: [],
       activePoolId: "longbridge_core",
       activeItem: null,
-      activeView: "stock",
+      activeView: "dashboard",
+      dashboardPayload: null,
       scannerPayload: null,
       scannerSelection: null,
       currentPeriod: "1mo",
@@ -2574,16 +3038,275 @@
 
     async function init() {
       initChart();
-      await loadPools();
       bindSearch();
       bindViewSwitch();
+      bindDashboard();
       bindRanges();
       bindRefresh();
       bindIndicatorSwitch();
       bindMetricTooltips();
       bindOptionsAssistant();
       bindSplitters();
-      await selectPool(state.activePoolId);
+      setView("dashboard", false);
+      loadDashboard().catch(error => showDashboardError(error));
+      loadPools()
+        .then(() => selectPool(state.activePoolId))
+        .catch(error => {
+          document.getElementById("poolTabs").innerHTML = '<button class="pool-chip active">本地数据</button>';
+          document.getElementById("stockList").innerHTML = `<div class="empty">股票池加载失败：${escapeHtml(error.message || error)}</div>`;
+        });
+    }
+
+    function bindDashboard() {
+      document.getElementById("dashRefreshBtn").addEventListener("click", () => {
+        triggerDashboardRefresh().catch(error => showDashboardError(error));
+      });
+      document.getElementById("dashOpenScanner").addEventListener("click", () => {
+        setView("scanner");
+      });
+      document.querySelectorAll(".dashboard-section.collapsible .section-toggle").forEach(node => {
+        node.addEventListener("click", () => {
+          node.closest(".collapsible")?.classList.toggle("collapsed");
+        });
+      });
+    }
+
+    async function loadDashboard() {
+      const data = await api("/api/dashboard");
+      state.dashboardPayload = data;
+      renderDashboard(data);
+      if (data.daily_report_available) {
+        loadDailyReport().catch(error => {
+          document.getElementById("dashReport").innerHTML = `<div class="empty">日报读取失败：${escapeHtml(error.message || error)}</div>`;
+        });
+      }
+    }
+
+    function renderDashboard(data) {
+      document.getElementById("dashDate").textContent = data.daily_report_date
+        ? `日报 ${data.daily_report_date} · 生成 ${formatDateTime(data.generated_at)}`
+        : `本地数据 · 生成 ${formatDateTime(data.generated_at)}`;
+
+      const market = data.market_overview || {};
+      const regime = market.regime || "中性";
+      const marketChip = document.getElementById("dashMarketChip");
+      marketChip.textContent = `市场 ${regime}`;
+      marketChip.className = `status-chip ${regime === "偏多" ? "bullish" : regime === "偏空" ? "bearish" : "neutral"}`;
+
+      const scheduler = data.scheduler || {};
+      const schedulerState = scheduler.state || {};
+      const refresh = data.refresh || {};
+      document.getElementById("dashSchedulerChip").textContent = refresh.running
+        ? "刷新中"
+        : `调度 ${schedulerState.last_status || (scheduler.enabled ? "待命" : "关闭")}`;
+
+      renderDashMetrics(data);
+      renderCandidateCards(data.scanner_top || []);
+      renderDashboardPositions(data);
+      renderDashboardEvents(data.events_upcoming || []);
+      document.getElementById("dashAI").innerHTML = data.ai_summary
+        ? `<p>${escapeHtml(data.ai_summary)}</p>`
+        : '<div class="empty">暂无 AI 研判。运行 AI 分析后显示。</div>';
+    }
+
+    function renderDashMetrics(data) {
+      const market = data.market_overview || {};
+      const metrics = [
+        ["SPY", `${money(market.spy?.price)} ${percentNumber(market.spy?.change_pct)}`],
+        ["VIX", `${priceNumber(market.vix?.price)} · ${market.vix?.state || "--"}`],
+        ["仓位", data.total_position_pct === null || data.total_position_pct === undefined ? "--" : `${Number(data.total_position_pct).toFixed(1)}%`],
+        ["现金", money(data.available_cash)],
+      ];
+      document.getElementById("dashMetrics").innerHTML = metrics.map(([label, value]) => `
+        <div class="dash-metric"><span>${escapeHtml(label)}</span><strong class="numeric">${escapeHtml(value)}</strong></div>
+      `).join("");
+      const meta = [];
+      if (data.portfolio_health_state) meta.push(data.portfolio_health_state);
+      if (data.cash_ratio_pct !== null && data.cash_ratio_pct !== undefined) meta.push(`现金 ${Number(data.cash_ratio_pct).toFixed(1)}%`);
+      if (data.pdt?.status) meta.push(`PDT ${data.pdt.status}`);
+      document.getElementById("dashPortfolioMeta").textContent = meta.join(" · ") || "--";
+    }
+
+    function renderCandidateCards(candidates) {
+      const host = document.getElementById("dashCandidates");
+      if (!candidates.length) {
+        host.innerHTML = '<div class="empty">暂无候选。点击“刷新全部”或等待每日调度生成扫描结果。</div>';
+        return;
+      }
+      host.innerHTML = candidates.map(candidate => {
+        const symbol = escapeHtml(candidate.symbol || "");
+        const signals = (candidate.signals || []).map(item => escapeHtml(item)).join(" · ");
+        return `
+          <article class="candidate-card">
+            <div class="candidate-card-head">
+              <div class="candidate-symbol">
+                <strong>${symbol || "--"}</strong>
+                <span>${escapeHtml(candidate.company_name || "")}</span>
+              </div>
+              <span class="candidate-score">Score ${escapeHtml(String(candidate.score ?? "--"))}</span>
+            </div>
+            <div class="candidate-signals">${signals || "暂无信号说明。"}</div>
+            <div class="candidate-metrics">
+              <span>${money(candidate.price)}</span>
+              <span>${percentNumber(candidate.change_pct)}</span>
+              <span>止损 ${money(candidate.atr_stop_price)}</span>
+              <span>风险 ${escapeHtml(candidate.risk_level || "--")}</span>
+              <span>${escapeHtml(candidate.action || "--")}</span>
+            </div>
+            <div class="candidate-actions">
+              <button type="button" onclick="dashGoDetail('${symbol}')">查看K线</button>
+              <button type="button" onclick="dashOpenOptions('${symbol}', ${Number(candidate.price) || "null"})">期权评估</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderDashboardPositions(data) {
+      const positions = data.positions_risk || [];
+      const host = document.getElementById("dashPositions");
+      if (!positions.length) {
+        host.innerHTML = '<div class="empty">未检测到账户健康度报告。运行 account-health 后显示。</div>';
+        return;
+      }
+      host.innerHTML = positions.map(position => {
+        const statusClass = position.status === "临近止损" ? "danger" : position.status === "警告" ? "warning" : "";
+        const symbol = escapeHtml(position.symbol || "");
+        return `
+          <div class="position-row ${statusClass}" role="button" tabindex="0" onclick="dashGoDetail('${symbol}')">
+            <div class="position-main">
+              <strong>${symbol || "--"} · ${escapeHtml(position.name || "")}</strong>
+              <span>权重 ${plainNumber(position.weight_pct)}% · 盈亏 ${percentNumber(position.unrealized_pl_pct)}</span>
+            </div>
+            <div class="position-risk numeric">
+              <div class="position-status">${escapeHtml(position.status || "--")}</div>
+              <div>距止损 ${position.stop_distance_pct === null || position.stop_distance_pct === undefined ? "--" : `${Number(position.stop_distance_pct).toFixed(1)}%`}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDashboardEvents(events) {
+      const host = document.getElementById("dashEvents");
+      if (!events.length) {
+        host.innerHTML = '<div class="empty">未来 14 天暂无本地事件记录。</div>';
+        return;
+      }
+      host.innerHTML = events.map(event => `
+        <div class="event-item">
+          <div class="event-date">${escapeHtml(event.date || "--")}</div>
+          <div class="event-title">${escapeHtml(event.title || "--")}</div>
+          <div class="event-severity ${escapeHtml(event.severity || "")}">${eventSeverityLabel(event.severity)}</div>
+        </div>
+      `).join("");
+    }
+
+    async function loadDailyReport() {
+      const report = await api("/api/reports/latest");
+      document.getElementById("dashReport").innerHTML = markdownToHtml(report.content_markdown || "");
+    }
+
+    async function triggerDashboardRefresh() {
+      const button = document.getElementById("dashRefreshBtn");
+      button.disabled = true;
+      button.textContent = "刷新中";
+      try {
+        const res = await fetch("/api/refresh", { method: "POST" });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(payload.error || `HTTP ${res.status}`);
+        document.getElementById("dashSchedulerChip").textContent = payload.message || "刷新已启动";
+        setTimeout(() => loadDashboard().catch(error => showDashboardError(error)), 2500);
+      } finally {
+        setTimeout(() => {
+          button.disabled = false;
+          button.textContent = "刷新全部";
+        }, 2500);
+      }
+    }
+
+    function showDashboardError(error) {
+      const message = escapeHtml(error.message || error);
+      document.getElementById("dashCandidates").innerHTML = `<div class="empty">仪表板读取失败：${message}</div>`;
+      document.getElementById("dashEvents").innerHTML = '<div class="empty">请确认本地 UI 服务正常运行。</div>';
+    }
+
+    async function dashGoDetail(symbol) {
+      if (!symbol) return;
+      const snapshot = state.visibleSnapshots.find(item => item.symbol === symbol) || { symbol };
+      await setView("stock", false);
+      await setActiveItem(snapshot);
+    }
+
+    function dashOpenOptions(symbol, price) {
+      if (!symbol) return;
+      state.activeItem = {
+        ...(state.activeItem || {}),
+        symbol,
+        current_price: Number.isFinite(price) ? price : null,
+        latest_close: Number.isFinite(price) ? price : null,
+        latest_history_date_us: todayDateKey(),
+      };
+      openOptionsAssistant();
+    }
+
+    function markdownToHtml(markdown) {
+      const lines = String(markdown || "").split("\n");
+      let html = "";
+      let inList = false;
+      let inTable = false;
+      const closeBlocks = () => {
+        if (inList) {
+          html += "</ul>";
+          inList = false;
+        }
+        if (inTable) {
+          html += "</tbody></table>";
+          inTable = false;
+        }
+      };
+      lines.forEach(line => {
+        if (!line.trim()) {
+          closeBlocks();
+          return;
+        }
+        if (line.startsWith("|") && line.endsWith("|")) {
+          if (line.includes("---")) return;
+          if (inList) {
+            html += "</ul>";
+            inList = false;
+          }
+          const cells = line.split("|").slice(1, -1).map(cell => escapeHtml(cell.trim()));
+          if (!inTable) {
+            html += "<table><tbody>";
+            inTable = true;
+          }
+          html += `<tr>${cells.map(cell => `<td>${cell}</td>`).join("")}</tr>`;
+          return;
+        }
+        if (line.startsWith("#")) {
+          closeBlocks();
+          const depth = Math.min(3, line.match(/^#+/)?.[0].length || 1);
+          html += `<h${depth}>${escapeHtml(line.replace(/^#+\s*/, ""))}</h${depth}>`;
+          return;
+        }
+        if (line.startsWith("- ")) {
+          if (inTable) {
+            html += "</tbody></table>";
+            inTable = false;
+          }
+          if (!inList) {
+            html += "<ul>";
+            inList = true;
+          }
+          html += `<li>${escapeHtml(line.slice(2))}</li>`;
+          return;
+        }
+        closeBlocks();
+        html += `<p>${escapeHtml(line)}</p>`;
+      });
+      closeBlocks();
+      return html || '<div class="empty">日报为空。</div>';
     }
 
     async function loadPools() {
@@ -2629,8 +3352,13 @@
       document.querySelectorAll(".view-btn").forEach(button => {
         button.classList.toggle("active", button.dataset.view === view);
       });
+      document.querySelector(".desk").classList.toggle("dashboard-mode", view === "dashboard");
+      document.getElementById("dashboardWorkspace").classList.toggle("active", view === "dashboard");
       document.getElementById("stockWorkspace").classList.toggle("active", view === "stock");
       document.getElementById("scannerWorkspace").classList.toggle("active", view === "scanner");
+      if (view === "dashboard" && refresh) {
+        await loadDashboard();
+      }
       if (view === "scanner" && refresh) {
         await loadScanner();
       }
@@ -4856,7 +5584,8 @@
     }
 
     init().catch(error => {
-      document.body.innerHTML = `<div class="empty" style="margin: 20px;">交易终端初始化失败：${escapeHtml(error)}</div>`;
+      const host = document.getElementById("dashboardWorkspace") || document.body;
+      host.innerHTML = `<div class="empty" style="margin: 20px;">初始化失败：${escapeHtml(error.message || error)}<br><button class="refresh-all-btn" type="button" onclick="location.reload()">重试</button></div>`;
     });
   </script>
 </body>

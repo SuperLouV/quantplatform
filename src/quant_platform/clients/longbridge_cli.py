@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import math
 import os
+import re
 import subprocess
 from dataclasses import dataclass, field
 from datetime import date
@@ -11,6 +13,9 @@ from typing import Any
 
 from quant_platform.config import DataConfig
 from quant_platform.time_utils import iso_beijing
+
+
+_SYMBOL_PATTERN = re.compile(r"^[A-Z0-9.]{1,10}$")
 
 
 class LongbridgeCLIError(RuntimeError):
@@ -179,6 +184,8 @@ def to_longbridge_symbol(symbol: str) -> str:
     normalized = symbol.strip().upper()
     if not normalized:
         raise LongbridgeCLIError("symbol is required")
+    if not _SYMBOL_PATTERN.fullmatch(normalized):
+        raise LongbridgeCLIError(f"invalid symbol for Longbridge CLI: {symbol}")
     market_suffixes = {".US", ".HK", ".SH", ".SZ", ".SG", ".HAS"}
     if any(normalized.endswith(suffix) for suffix in market_suffixes):
         return normalized
@@ -304,7 +311,10 @@ def _internal_symbol(symbol: str) -> str:
 def _optional_float(value: Any) -> float | None:
     if value in (None, ""):
         return None
-    return float(value)
+    result = float(value)
+    if not math.isfinite(result):
+        return None
+    return result
 
 
 def _date_args(*, start: date | None, end: date | None) -> list[str]:

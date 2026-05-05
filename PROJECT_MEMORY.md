@@ -15,14 +15,14 @@
 - 当前股票范围优先是 `default_core`、`NASDAQ 100`、后续 `S&P 500`、高热度股票和用户自定义池。
 - 当前免费数据源以 `yfinance` 为主，必须把它视为研究/原型数据源，不视为生产级行情源。
 - AI 是分析层，不是确定性规则层。AI 读取结构化数据和报告做综合研判，但不能替代信号、风控和回测。
-- DeepSeek/OpenAI-compatible API 后续可接入，但 API key 必须本地保存，不提交 Git。AI 输出必须保守，明确不确定性和风险。
+- DeepSeek/OpenAI-compatible API 已接入结构化报告解读；API key 必须本地保存，不提交 Git。AI 输出必须保守，明确不确定性和风险。
 
 ## 用户背景和工作流
 
 - 用户有技术背景，但不是专业量化交易员。
 - 用户希望逐步学习策略逻辑，所以解释设计时要讲清楚原因、风险和取舍。
 - 用户希望 Codex 同时像专业项目经理和架构师一样工作：先完善设计和路线图，再落地代码、测试、文档和提交。
-- 用户偏好专业纯色研究终端 UI，参考 Longbridge 深蓝黑风格；避免玻璃拟态和装饰化 dashboard。
+- 用户偏好专业纯色决策仪表板 UI，可参考 Longbridge 深蓝黑配色和信息密度，但产品定位是信息处理和分析系统，不是默认盯盘式交易终端；避免玻璃拟态、营销化 dashboard 和装饰化组件。
 - UI 可用性问题要认真处理，例如滚动条过大、主图与 RSI/指标副图分隔不清、未来多个指标标签的扩展方式。
 - RSI 不是特殊核心指标，只是用户最早明确提出的第一个可视化指标。图表、策略和 AI 分析必须把 RSI 当作通用指标系统的一部分，不能围绕 RSI 单点设计。
 - 用户主要工作流预期：
@@ -78,9 +78,11 @@
   - 账户摘要可用于期权助手自动填充净值、现金、持仓股数和成本价
   - 当前仍禁止任何真实下单、撤单、改单或自动执行交易
 - 自动化 AI 分析层：
-  - `make analyze` 读取本地 `StockSnapshot`、指标和最新持仓健康度，输出 `data/reports/ai_analysis/` JSON + Markdown
-  - OpenAI-compatible provider 通过配置或环境变量选择；模型层失败不阻断确定性结构化报告
-  - AI 输出只做解释、风险提示和人工复核问题，不生成自动交易动作
+  - `make analyze` 保留旧 dashboard 结构化摘要
+  - `make ai-analyze` 读取最新 `account_health_*.json`，构建 prompt 并调用 DeepSeek/OpenAI-compatible provider，输出账户健康度中文 Markdown 解读
+  - `make ai-options` 读取最新 `options_advice_*.json`，输出 covered call / cash-secured put 建议的模型解读
+  - `make ai-stock SYMBOL=AAPL` 读取本地单股 snapshot，并可结合最新账户健康/期权建议中的匹配项做技术面解读
+  - AI 失败时明确写入 `model_status=error/skipped`，不使用 placeholder 假结论；AI 输出只做解释、风险提示和人工复核问题，不生成自动交易动作
 - 真实持仓期权建议：
   - `make options-advice` 读取 Longbridge 只读持仓，yfinance 读取期权链
   - 默认只扫描 AAPL、TSLA、NVDA、GOOGL/GOOG、TSM 等高流动性期权标的；ETF、BRK.B 和非白名单标的跳过并写入原因，避免全持仓期权链扫描超时
@@ -154,8 +156,10 @@
 当前最值得继续推进的顺序：
 
 1. 在用户正常 Python/Longbridge 网络环境运行 `make account-health`、`make trade-review`、`make auto-scan`，用真实本地产物校验账户、成交和期权链权限。
-2. 将账户健康度、风控建议、交易复盘摘要、期权建议、自选关注度和 scanner 候选接入每日报告。
-3. 扩展市场概览历史数据：DIA、^VIX 和 11 个 SPDR sector ETF。
-4. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
-5. 扩展交易复盘口径：期权成交、费用、部分成交、转仓和做空。
-6. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。
+2. 在依赖完整的本机环境验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新和日报渲染。
+3. 将账户健康度、风控建议、交易复盘摘要、期权建议、自选关注度和 scanner 候选接入每日报告。
+4. 扩展市场概览历史数据：DIA、^VIX 和 11 个 SPDR sector ETF。
+5. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
+6. 扩展交易复盘口径：期权成交、费用、部分成交、转仓和做空。
+7. 将 DeepSeek 账户/期权/个股解读接入每日报告。
+8. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。

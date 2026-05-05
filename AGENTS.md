@@ -43,7 +43,7 @@ The user expects Codex to act as both senior engineer and pragmatic project mana
 - If sample account data is needed in tests or docs, use obviously fake values.
 - Prefer Beijing time in UI and logs. Use clearly named US/Eastern fields only when market logic needs it.
 - The user often keeps the local UI server running; do not start or stop port `8000` unless explicitly asked.
-- The user prefers professional pure-color UI, inspired by Longbridge: deep blue-black surfaces, high information density, strong orange-red/teal-green contrast, restrained borders, and useful layout over decorative effects.
+- The user prefers professional pure-color UI, inspired by Longbridge colors but positioned as a decision dashboard and information-processing system, not a trading terminal: deep blue-black surfaces, high information density, strong orange-red/teal-green contrast, restrained borders, and useful layout over decorative effects.
 - UI issues that affect daily use should be treated as real product work, not cosmetic polish. Current known pain points include oversized scrollbars, unclear separation between main chart and RSI/indicator subpanels, and scaling future indicator tabs beyond RSI.
 
 ## Startup Reading Order
@@ -119,7 +119,7 @@ Already available:
 - Automated AI analysis layer:
   - reads local `StockSnapshot`, indicators, and latest portfolio health output
   - writes structured JSON + Markdown to `data/reports/ai_analysis/`
-  - can call a configured OpenAI-compatible provider, but deterministic report generation does not depend on model success
+  - can call DeepSeek/OpenAI-compatible providers for account-health, options-advice, and stock technical interpretation
 - Account-aware options advice:
   - reads real Longbridge positions read-only
   - uses yfinance option chains for covered call / cash-secured put suggestions
@@ -149,7 +149,7 @@ Main missing pieces:
 - Provider fallback beyond `yfinance`
 - Market regime filter using SPY/QQQ/VIX/breadth
 - Strategy-enhancing data sources such as SEC 13F and FINRA short interest
-- DeepSeek/OpenAI-compatible AI analysis layer that reads structured local data and produces conservative explanations
+- Daily report integration for DeepSeek account/options/stock interpretations
 - News/sentiment layer using Longbridge news first, then other sources later
 - UI decomposition: `ui/index.html` is still too large and should be split after the current user-facing fixes
 
@@ -216,7 +216,7 @@ Scripts:
 
 UI:
 
-- `ui/index.html`: current single-file local terminal-style UI
+- `ui/index.html`: current single-file local UI; default view is a decision dashboard, with stock analysis and scanner as secondary views
 
 ## Useful Commands
 
@@ -255,7 +255,8 @@ python3 scripts/serve_ui.py
 
 ## UI Product Rules
 
-- The local UI is a working research terminal, not a landing page.
+- The local UI is a working decision dashboard and research system, not a landing page and not a default watch-the-tape trading terminal.
+- The default first screen should answer what matters today: market state, candidates, holding risk, events, AI interpretation, and the daily report.
 - Prefer compact, professional, pure-color layouts over glassmorphism, gradients, and decorative cards.
 - Major panels must have usable vertical scrolling without oversized browser-default scrollbars dominating the interface.
 - Main chart, volume, RSI, MACD, and future indicator subpanels should have clear visual separation and consistent tab/toolbar patterns.

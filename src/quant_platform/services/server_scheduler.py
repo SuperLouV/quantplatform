@@ -218,7 +218,7 @@ class DailyRefreshScheduler:
         history = payload.get("history")
         if not isinstance(history, dict):
             return False
-        return all(isinstance(item, dict) and item.get("status") == "success" for item in history.values())
+        return any(isinstance(item, dict) and item.get("status") == "success" for item in history.values())
 
     def _latest_summary(self) -> dict[str, Any] | None:
         try:

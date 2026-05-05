@@ -54,13 +54,16 @@ Codex 接手入口：
 - 已将单股强制刷新接入 `quote_provider: auto`：优先 Longbridge CLI 获取实时/盘前/盘后快照，失败时 fallback 到 yfinance，前端数据状态展示快照来源
 - 已新增 Longbridge 真实股票池同步：读取只读 `positions/watchlist`，过滤指数、期权和非 US 市场，生成本地 `longbridge_core` 股票池；持仓保留数量/成本价，自选保留分组
 - 已新增真实持仓/自选基本策略分析：Longbridge 负责实时行情，yfinance 本地日线负责指标和信号，输出持仓健康度与自选关注度 JSON + Markdown
-- 已新增自动化 AI 分析报告：读取本地 `StockSnapshot`、指标和最新持仓健康度，生成结构化 JSON + 中文 Markdown；配置 OpenAI-compatible provider 后可追加模型综合摘要
+- 已新增模型驱动 AI 解读报告：`make ai-analyze` 读取最新账户健康 JSON，`make ai-options` 读取最新期权建议 JSON，`make ai-stock SYMBOL=AAPL` 读取单股快照并调用 DeepSeek/OpenAI-compatible provider 生成保守中文 Markdown；失败时明确标记模型错误，不再用 placeholder 代替真实解读
 - 已新增真实持仓期权建议：读取 Longbridge 只读持仓，默认只扫描高流动性期权标的（AAPL/TSLA/NVDA/GOOGL/TSM 等），ETF、BRK.B 和低优先级标的会跳过并写入原因，避免全持仓期权链扫描超时
 - 已新增期权截图文字解析工具：可从 OCR 文本或本机 OCR 图片中提取 expiry、strike、bid/ask，并可用 yfinance 期权链交叉验证
 - 已新增账户健康度与风控报告：读取 Longbridge 只读账户、本地快照和事件日历；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标；ETF/特殊个股有行业兜底，并输出具体控仓/减仓金额建议
 - 已新增历史交易复盘：读取 Longbridge 只读历史订单/成交记录，按股票多头 FIFO 统计胜率、盈亏比、平均持有时间、最大回撤、个股和月份表现
 - 已新增自动扫描报告：汇总 Scanner Strategy V1 股票扫描、真实持仓 covered call / cash-secured put 建议和 CSP 观察候选，输出 JSON + Markdown
-- 下一步重点是把账户健康度、历史复盘、期权建议和 scanner 输出接入日报，并继续推进市场概览 ETF 历史更新和最小回测
+- 已完成 Claude Code 审核提出的 P0 修复：UI 服务优先读取 `config/settings.yaml`，指标引擎移除并发共享状态，调度器避免单票失败导致每日死循环重试，Longbridge CLI 数值和 symbol 输入做安全防护
+- 已新增 Dashboard 聚合 API：`/api/dashboard` 只读本地 scanner、账户健康度、事件、AI 和日报产物，`/api/reports/latest` 返回最新 Markdown 日报，`POST /api/refresh` 后台触发收盘刷新 + 宏观代理刷新 + 日报生成
+- UI 默认首页已从个股 K 线工作台改为“决策仪表板”，一屏展示市场状态、今日候选、持仓风控、近期事件、AI 研判和每日报告；个股和扫描视图保留在顶栏切换中
+- 下一步重点是把账户健康度、AI 解读、历史复盘、期权建议和 scanner 输出接入日报，并继续推进市场概览 ETF 历史更新和最小回测
 
 ## 当前主流程
 
@@ -75,10 +78,11 @@ Codex 接手入口：
 
 当前 UI 第一版遵循最小化原则：
 
-- 默认优先展示 `长桥真实股票池`；本地尚未同步时回退到旧 `默认列表`
+- 默认显示“决策仪表板”，优先回答今天该看什么、该避开什么、持仓有什么风险
+- 个股视图中默认优先展示 `长桥真实股票池`；本地尚未同步时回退到旧 `默认列表`
 - 支持通过搜索把股票手动加入 `自选列表`
 - 每只股票都提供独立图形界面和当前快照指标
-- 第二页“扫描”展示当前股票池的候选动作、分数、趋势、RSI、MACD、成交量、风险和行情日期
+- “扫描”视图展示当前股票池的候选动作、分数、趋势、RSI、MACD、成交量、风险和行情日期
 - 右侧分析区已接入第一版系统判断，会展示风险等级、关键点和风险提示
 - 股票推荐范围先聚焦 `NASDAQ 100`、`S&P 500`、高热度股票和用户自定义列表，复杂列表和全市场扫描后续再逐步放开
 
@@ -137,7 +141,10 @@ Codex 新会话请先阅读：
 - 同步 Longbridge 真实股票池：`make longbridge-pool-sync`
 - 生成 Longbridge 真实持仓/自选策略分析：`make longbridge-portfolio-analysis`
 - 分析前顺带刷新 yfinance 日线历史：`make longbridge-portfolio-analysis UPDATE_HISTORY=1`
-- 生成自动化 AI 分析报告：`make analyze`
+- 生成旧版 dashboard AI 摘要：`make analyze`
+- 对最新账户健康报告做 DeepSeek 解读：`make ai-analyze`
+- 对最新期权建议报告做 DeepSeek 解读：`make ai-options`
+- 对单只股票做 DeepSeek 技术面解读：`make ai-stock SYMBOL=AAPL`
 - 跳过模型层只生成规则结构化 AI 报告：`make analyze ANALYZE_ARGS=--no-model`
 - 生成真实持仓期权策略建议：`make options-advice`（可用 `OPTIONS_ADVICE_ARGS="--timeout-seconds 45 --max-workers 2 --max-expirations-per-symbol 2"` 控制速度）
 - 生成账户健康度与风控报告：`make account-health`
@@ -165,6 +172,8 @@ Codex 新会话请先阅读：
 - 生成中文每日报告：`make daily-report`
 - 收盘刷新、宏观代理刷新后生成报告：`make daily-refresh-report`
 - UI 服务内置调度器状态：`curl http://127.0.0.1:8000/api/scheduler`
+- UI 决策仪表板数据：`curl http://127.0.0.1:8000/api/dashboard`
+- 最新每日报告 API：`curl http://127.0.0.1:8000/api/reports/latest`
 - 安装盘后自动刷新：`make schedule-install`
 - 查看盘后自动刷新状态：`make schedule-status`
 - 卸载盘后自动刷新：`make schedule-uninstall`

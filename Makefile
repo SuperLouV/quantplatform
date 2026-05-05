@@ -15,11 +15,14 @@ TRADE_REVIEW_ARGS ?=
 LONGBRIDGE_SYMBOL ?= AAPL
 OPTION_SCAN_SYMBOL ?= AAPL
 ANALYZE_ARGS ?=
+AI_ANALYZE_ARGS ?=
+AI_OPTIONS_ARGS ?=
+AI_STOCK_ARGS ?=
 LOG_TO_CONSOLE ?= 0
 UPDATE_HISTORY ?= 0
 CONSOLE_LOG_ENV = QP_LOG_TO_CONSOLE=$(LOG_TO_CONSOLE)
 
-.PHONY: ui check analyze events history history-full option-evaluate option-scan-symbol option-screenshot options-advice account-health trade-review auto-scan longbridge-quote longbridge-pool-sync longbridge-portfolio-analysis market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
+.PHONY: ui check analyze ai-analyze ai-options ai-stock events history history-full option-evaluate option-scan-symbol option-screenshot options-advice account-health trade-review auto-scan longbridge-quote longbridge-pool-sync longbridge-portfolio-analysis market-overview-refresh pool-refresh pool-refresh-nasdaq100 daily-refresh daily-refresh-nasdaq100 daily-report daily-refresh-report schedule-install schedule-uninstall schedule-status schedule-plist
 
 ui:
 	@$(CONSOLE_LOG_ENV) $(PYTHON) scripts/serve_ui.py $(PORT)
@@ -31,6 +34,15 @@ check:
 
 analyze:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/analyze.py $(ANALYZE_ARGS)
+
+ai-analyze:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/analyze.py --mode account $(AI_ANALYZE_ARGS)
+
+ai-options:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/analyze.py --mode options $(AI_OPTIONS_ARGS)
+
+ai-stock:
+	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/analyze.py --mode stock --symbol $(SYMBOL) $(AI_STOCK_ARGS)
 
 events:
 	@$(CONSOLE_LOG_ENV) PYTHONPATH=src $(PYTHON) scripts/update_market_events.py --start 2026-01-01 --end 2026-12-31
