@@ -51,6 +51,11 @@ REFRESH_STATE: dict[str, object] = {
     "last_status": None,
     "last_error": None,
 }
+MAX_JSON_BODY_BYTES = 64 * 1024
+
+
+class RequestBodyTooLarge(ValueError):
+    pass
 
 
 class QuantPlatformHandler(SimpleHTTPRequestHandler):
@@ -174,6 +179,8 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             if bool(payload.get("with_prompt")):
                 response["ai_prompt"] = OPTIONS_SERVICE.build_ai_prompt(evaluation)
             self._respond_json(response)
+        except RequestBodyTooLarge as exc:
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
@@ -183,6 +190,8 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
             with quiet_known_native_stderr():
                 result = _sell_put_scan_from_payload(payload)
             self._respond_json({"scan": result.to_dict()})
+        except RequestBodyTooLarge as exc:
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
@@ -203,6 +212,8 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
                     "execution_boundary": "read_only_analysis_no_auto_order",
                 }
             )
+        except RequestBodyTooLarge as exc:
+            self._respond_json({"error": str(exc)}, status=HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
         except Exception as exc:  # noqa: BLE001
             self._respond_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
 
@@ -239,9 +250,15 @@ class QuantPlatformHandler(SimpleHTTPRequestHandler):
         )
 
     def _read_json_body(self) -> dict[str, object]:
-        length = int(self.headers.get("Content-Length") or 0)
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError as exc:
+            raise ValueError("Invalid Content-Length") from exc
         if length <= 0:
             return {}
+        if length > MAX_JSON_BODY_BYTES:
+            self.close_connection = True
+            raise RequestBodyTooLarge(f"JSON body exceeds {MAX_JSON_BODY_BYTES} bytes")
         payload = json.loads(self.rfile.read(length).decode("utf-8"))
         if not isinstance(payload, dict):
             raise ValueError("JSON body must be an object")

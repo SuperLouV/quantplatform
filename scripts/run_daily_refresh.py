@@ -35,7 +35,7 @@ def main() -> None:
         pool_path = PROJECT_ROOT / pool_path
 
     with quiet_known_native_stderr():
-        from quant_platform.services.daily_refresh import DailyRefreshService
+        from quant_platform.services.daily_refresh import DailyRefreshService, summarize_supplemental_outputs
 
         settings = load_settings(default_settings_path(PROJECT_ROOT))
         service = DailyRefreshService(settings)
@@ -70,23 +70,13 @@ def main() -> None:
             f"history_empty={payload['history_empty']} "
             f"history_error={payload['history_error']} "
             f"market_events={payload['market_events_count']} "
-            f"supplemental={_summarize_supplemental(payload['supplemental_outputs'])} "
+            f"supplemental={summarize_supplemental_outputs(payload['supplemental_outputs'])} "
             f"summary={payload['summary_path']}"
         )
 
 
 def _count_history(history: dict[str, dict[str, object]], status: str) -> int:
     return sum(1 for item in history.values() if item.get("status") == status)
-
-
-def _summarize_supplemental(outputs: object) -> str:
-    if not isinstance(outputs, dict) or not outputs:
-        return "none"
-    parts = []
-    for name, payload in outputs.items():
-        status = payload.get("status") if isinstance(payload, dict) else "unknown"
-        parts.append(f"{name}:{status}")
-    return ",".join(parts)
 
 
 if __name__ == "__main__":

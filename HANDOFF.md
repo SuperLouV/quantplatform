@@ -83,7 +83,9 @@
 - UI 服务配置加载已改为优先 `config/settings.yaml`，不存在时回落到 `config/settings.example.yaml`
 - `IndicatorEngine.compute()` 不再写共享 `self.indicator_columns`，指标列放入 `IndicatorComputation.indicator_columns`，避免 `ThreadingHTTPServer` 并发请求共享状态竞争
 - UI 内置调度器的 daily refresh completion 判断改为“摘要存在且至少一只成功”，避免单只退市/异常 symbol 导致当天无限重试
+- 第二轮代码审查后，UI 内置调度器不再要求账户健康、期权建议、宏观风险、AI 解读等 supplemental 产物全部存在才算完成；这些产物是可选分析层，失败应记录但不触发每日刷新循环
 - Longbridge CLI read-only client 已增加 symbol 白名单和 `nan/inf` 过滤
+- Macro risk 情绪数值已过滤 `nan/inf`，本地 JSON POST API 已增加 64KB 请求体上限
 - 新增 `/api/dashboard`、`/api/reports/latest`、`/api/reports?date=YYYY-MM-DD`、`/api/health`、`POST /api/chat` 和后台式 `POST /api/refresh`
 - `yfinance` 历史数据
 - `yfinance` 搜索

@@ -156,7 +156,7 @@ class DailyRefreshService:
             "daily_refresh.success",
             pool_id=pool.pool_id,
             market_date_us=market_date.isoformat(),
-            supplemental=_summarize_supplemental(supplemental_outputs),
+            supplemental=summarize_supplemental_outputs(supplemental_outputs),
             summary_path=str(result.summary_path),
         )
         return result
@@ -462,9 +462,11 @@ def _loggable(payload: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in payload.items() if key != "warnings"}
 
 
-def _summarize_supplemental(outputs: dict[str, Any]) -> str:
+def summarize_supplemental_outputs(outputs: object) -> str:
     if not outputs:
         return "none"
+    if not isinstance(outputs, dict):
+        return "unknown"
     parts = []
     for name, payload in outputs.items():
         status = payload.get("status") if isinstance(payload, dict) else "unknown"

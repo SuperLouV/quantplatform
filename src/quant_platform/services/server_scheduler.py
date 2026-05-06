@@ -11,7 +11,7 @@ from typing import Any
 
 from quant_platform.config import Settings
 from quant_platform.console_output import quiet_known_native_stderr
-from quant_platform.services.daily_refresh import DailyRefreshService
+from quant_platform.services.daily_refresh import DailyRefreshService, summarize_supplemental_outputs
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.time_utils import latest_completed_us_market_date, now_beijing
 
@@ -169,7 +169,7 @@ class DailyRefreshScheduler:
             self.state.last_status = "success"
             self.state.last_summary_path = str(result.summary_path)
             history_counts = _history_counts(result.history)
-            supplemental_summary = _supplemental_summary(result.supplemental_outputs or {})
+            supplemental_summary = summarize_supplemental_outputs(result.supplemental_outputs or {})
             self.logger.info(
                 "scheduler.daily_refresh.success",
                 market_date_us=market_date.isoformat(),
@@ -229,26 +229,7 @@ class DailyRefreshScheduler:
             return False
         if not any(isinstance(item, dict) and item.get("status") == "success" for item in history.values()):
             return False
-        supplemental = payload.get("supplemental_outputs")
-        if not isinstance(supplemental, dict):
-            supplemental = {}
-        return all(key in supplemental for key in self._required_supplemental_keys())
-
-    def _required_supplemental_keys(self) -> list[str]:
-        keys: list[str] = []
-        if self.settings.scheduler.daily_refresh_sync_longbridge_pool:
-            keys.append("longbridge_pool_sync")
-        if self.settings.scheduler.daily_refresh_generate_account_health:
-            keys.append("account_health")
-        if self.settings.scheduler.daily_refresh_generate_options_advice:
-            keys.append("options_advice")
-        if self.settings.scheduler.daily_refresh_generate_daily_report:
-            keys.append("daily_report")
-        if self.settings.scheduler.daily_refresh_generate_ai_analysis:
-            keys.extend(["ai_dashboard", "ai_account_health"])
-            if self.settings.scheduler.daily_refresh_generate_options_advice:
-                keys.append("ai_options_advice")
-        return keys
+        return True
 
     def _latest_summary(self) -> dict[str, Any] | None:
         try:
@@ -295,13 +276,3 @@ def _history_counts(history: dict[str, dict[str, Any]]) -> dict[str, int]:
         if status in counts:
             counts[status] += 1
     return counts
-
-
-def _supplemental_summary(outputs: dict[str, Any]) -> str:
-    if not outputs:
-        return "none"
-    parts = []
-    for name, payload in outputs.items():
-        status = payload.get("status") if isinstance(payload, dict) else "unknown"
-        parts.append(f"{name}:{status}")
-    return ",".join(parts)
