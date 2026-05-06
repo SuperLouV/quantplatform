@@ -1,6 +1,6 @@
 # Plan
 
-日期：2026-05-05
+日期：2026-05-06
 
 ## 项目目标
 
@@ -70,13 +70,30 @@
 
 当前主要缺口：
 
-- 真实持仓健康度、自选关注度和风控建议接入每日报告
-- DeepSeek 账户健康、期权建议和个股技术面解读接入每日报告
+- 综合每日报告已接入真实持仓健康度、自选关注度、风控建议、期权建议、宏观/新闻风险和 AI 解读产物；后续重点是验证真实本地产物质量，而不是继续拆散生成多份日报
 - 最小回测框架
 - 市场状态过滤：SPY/QQQ/VIX/市场宽度
 - provider fallback 和更可靠行情源
 - 期权助手 V2 后续增强：把截图解析结果更深地接入建议报告，增加更严格的流动性、财报、IV 和组合风险检查
 - UI/架构拆分：参考 Longbridge 深蓝黑纯色工作台风格，后续拆分 `ui/index.html`、`scripts/serve_ui.py` 和 `UIDataService`
+
+## 2026-05-06 阶段落地：综合每日报告 V1
+
+本阶段完成：
+
+- `DailyReportService` 输出唯一综合日报：同名 Markdown 供人工速读，同名 JSON 作为 AI 主入口。
+- JSON schema 为 `daily_comprehensive_report_v1`，包含 `executive_summary / market_context / holdings_analysis / watchlist_monitor / options_strategy_advice / data_update / data_gaps / ai_reading_contract`。
+- 每个真实持仓条目整合基本面概况、价格-成交量资金流代理、基金/机构持仓数据状态、技术走势、宏观/新闻情绪、期权建议和人工复核事项。
+- 自选股监控读取 Longbridge watchlist 策略分析，输出进场机会状态、关注分数、技术摘要、情绪摘要和人工复核提示。
+- 期权策略建议读取真实持仓期权建议，第一版只把 covered call / cash-secured put 规则化纳入日报；复杂价差、跨式、滚仓先作为后续增强，不生成伪建议。
+- `DailyRefreshService` 新增 `portfolio_strategy` 补充任务，确保收盘后准备包里有真实持仓/自选策略产物可供综合日报读取。
+- 决策面板 AI chat 现在优先读取结构化日报 JSON，再读取 Markdown 摘录和其它散落产物。
+
+设计取舍：
+
+- 当前数据源没有稳定的真实逐笔 capital flow 和完整基金/机构持仓更新，所以日报明确区分 `真实数据 / proxy / missing data gap`。资金流先用价格、涨跌幅、成交量、量比和 volume z-score 做 proxy，并在字段中标明不是逐笔资金流。
+- 基金/机构持仓字段不做编造；若本地 snapshot 没有 holders 数据，进入 `data_gaps`，后续数据源优先接 yfinance holders cache 或 SEC 13F。
+- “一份日报”指统一综合输出和 AI 读取入口；账户健康、期权建议、宏观风险、portfolio_strategy 仍作为底层结构化产物存在，供复用和诊断。
 
 ## 2026-05-05 阶段落地：AI 分析与期权建议
 

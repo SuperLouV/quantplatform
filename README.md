@@ -48,7 +48,7 @@ Codex 接手入口：
 - 已新增第二页“候选池扫描”MVP：`/api/scanner?pool_id=default_core` 基于本地快照、技术指标和数据状态输出候选表，前端可在“个股/扫描”之间切换
 - 已将候选池扫描规则从 UI 服务拆到 `screeners/scanner.py`，输出结构化 `ScanSignal / ScanCandidate / ScanSummary`，后续可复用于日报、回测和策略迁移
 - 已参考外部策略扫描方案，落地 `Scanner Strategy V1` 的第一批基础字段：池内截面动量排名、跳过最近 5 日的 20/60/120 日收益、RSI 变化、60 日成交量 z-score 和 ATR 归一化趋势距离；扫描页会在本地缓存缺少新字段时从本地 parquet 兜底计算，不联网
-- 已新增中文 Markdown 每日报告 MVP，汇总本地市场概览、scanner 候选、市场事件、数据刷新摘要和给 AI 的分析提示
+- 已新增综合每日报告 V1：同名 Markdown 供人工速读，同名 JSON 作为 AI 主入口，整合市场状态、scanner、真实持仓、自选股监控、期权建议、宏观/新闻情绪、数据刷新和数据缺口
 - 已新增期权策略 MVP，支持 `cash_secured_put` 和 `covered_call` 的规则层风险检查；右侧工作栏已有“期权助手”入口，可手工输入合约并展示资金占用、盈亏平衡、硬性风险和观察项，不自动下单
 - 已新增 Longbridge Terminal CLI 只读数据源原型，可通过本地 OAuth 登录后的 `longbridge quote` 获取实时、盘前和盘后行情，并归一化为项目快照字段
 - 已将单股强制刷新接入 `quote_provider: auto`：优先 Longbridge CLI 获取实时/盘前/盘后快照，失败时 fallback 到 yfinance，前端数据状态展示快照来源
@@ -65,6 +65,7 @@ Codex 接手入口：
 - UI 默认首页已从个股 K 线工作台改为“决策仪表板”，一屏展示市场状态、今日候选、持仓风控、近期事件、AI 研判和每日报告；个股和扫描视图保留在顶栏切换中
 - 已将 `make daily-refresh` 升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新行情，生成账户健康、期权建议、AI 解读和每日报告，并默认在 terminal 打印关键步骤日志
 - 每日报告新增“持仓、期权与 AI 自动分析”章节，会读取 daily refresh summary 的 `supplemental_outputs` 并摘录 AI Markdown
+- 每日报告已升级为唯一综合日报：`daily_*.json` 使用 `daily_comprehensive_report_v1` 结构，逐个持仓输出基本面、资金流代理、机构/基金持仓数据状态、技术走势、情绪新闻和期权建议；Markdown 只做人工速读
 - 已新增决策面板只读 AI 对话窗口：`POST /api/chat` 读取最新日报、scanner、账户健康、期权建议、宏观风险和 AI 解读等本地产物回答股票/期权问题，不输出自动下单指令
 - 已新增宏观/新闻风险快照 MVP：`make macro-risk` 优先读取 Longbridge `market-temp` 和 `news`，结合本地 `SPY/QQQ/DIA/^VIX/sector ETF` 市场概览，写入 `data/reports/macro_risk/` 并接入 Dashboard 与 `daily-refresh`
 - 下一步重点是把宏观/新闻风险更深地接入日报和 scanner 过滤规则，并实现最小信号驱动回测
@@ -175,7 +176,7 @@ Codex 新会话请先阅读：
 - 收盘后刷新 NASDAQ 100：`make daily-refresh-nasdaq100`
 - 收盘后刷新自定义股票池：`make daily-refresh POOL=data/reference/system/stock_pools/watchlist/watchlist.json`
 - 刷新市场宏观代理历史：`make market-overview-refresh`
-- 生成中文每日报告：`make daily-report`
+- 生成综合每日报告：`make daily-report`（写入同名 `daily_*.json` + `daily_*.md`；JSON 是 AI 推荐读取入口）
 - 收盘刷新、宏观代理刷新后生成报告：`make daily-refresh-report`
 - UI 服务内置调度器状态：`curl http://127.0.0.1:8000/api/scheduler`
 - UI 决策仪表板数据：`curl http://127.0.0.1:8000/api/dashboard`

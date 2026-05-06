@@ -198,6 +198,8 @@ class DailyRefreshService:
         if self.settings.scheduler.daily_refresh_generate_options_advice:
             self.logger.notice("daily_refresh.options_advice.start")
             outputs["options_advice"] = self._run_options_advice()
+        self.logger.notice("daily_refresh.portfolio_strategy.start")
+        outputs["portfolio_strategy"] = self._run_portfolio_strategy()
         if self.settings.scheduler.daily_refresh_generate_macro_risk:
             self.logger.notice("daily_refresh.macro_risk.start")
             outputs["macro_risk"] = self._run_macro_risk(pool_id=pool_id, market_date=market_date)
@@ -272,6 +274,37 @@ class DailyRefreshService:
             self.logger.notice("daily_refresh.options_advice.error", error=str(exc))
             return {"status": "error", "error": str(exc)}
 
+    def _run_portfolio_strategy(self) -> dict[str, Any]:
+        try:
+            from quant_platform.services.portfolio_strategy import PortfolioStrategyService
+
+            result = PortfolioStrategyService(self.settings).analyze(update_history=False)
+            payload = {
+                "status": "success",
+                "generated_at_beijing": result.generated_at_beijing,
+                "position_count": result.position_count,
+                "watchlist_count": result.watchlist_count,
+                "combined_count": result.combined_count,
+                "quote_success_count": result.quote_success_count,
+                "quote_error_count": result.quote_error_count,
+                "history_error_count": result.history_error_count,
+                "json_path": str(result.json_path),
+                "markdown_path": str(result.markdown_path),
+            }
+            self.logger.info("daily_refresh.portfolio_strategy.success", **payload)
+            self.logger.notice(
+                "daily_refresh.portfolio_strategy.success",
+                positions=result.position_count,
+                watchlist=result.watchlist_count,
+                quote_errors=result.quote_error_count,
+                history_errors=result.history_error_count,
+            )
+            return payload
+        except Exception as exc:  # noqa: BLE001 - real-pool analysis is useful but should not block the daily package.
+            self.logger.error("daily_refresh.portfolio_strategy.error", error=str(exc))
+            self.logger.notice("daily_refresh.portfolio_strategy.error", error=str(exc))
+            return {"status": "error", "error": str(exc)}
+
     def _run_macro_risk(self, *, pool_id: str, market_date: date) -> dict[str, Any]:
         try:
             from quant_platform.services.macro_risk import MacroRiskService
@@ -341,7 +374,10 @@ class DailyRefreshService:
                 "generated_at_beijing": result.generated_at_beijing,
                 "scanner_count": result.scanner_count,
                 "market_events_count": result.market_events_count,
+                "holding_count": result.holding_count,
+                "watchlist_count": result.watchlist_count,
                 "path": str(result.path),
+                "json_path": str(result.json_path),
             }
             self.logger.info("daily_refresh.daily_report.success", **payload)
             self.logger.notice("daily_refresh.daily_report.success", path=str(result.path))

@@ -38,8 +38,11 @@ def main() -> None:
         "market_date_us": result.market_date_us.isoformat(),
         "generated_at_beijing": result.generated_at_beijing,
         "path": str(result.path),
+        "json_path": str(result.json_path),
         "scanner_count": result.scanner_count,
         "market_events_count": result.market_events_count,
+        "holding_count": result.holding_count,
+        "watchlist_count": result.watchlist_count,
     }
     if args.json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -49,6 +52,8 @@ def main() -> None:
             f"pool={payload['pool_id']} "
             f"market_date_us={payload['market_date_us']} "
             f"scanner_count={payload['scanner_count']} "
+            f"holdings={payload['holding_count']} "
+            f"watchlist={payload['watchlist_count']} "
             f"market_events={payload['market_events_count']} "
             f"path={payload['path']}"
         )

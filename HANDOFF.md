@@ -41,6 +41,7 @@
 - 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
 - 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
 - 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
+- 综合每日报告 V1：`make daily-report` 现在生成同名 `daily_*.json` 和 `daily_*.md`；JSON 是 AI 主入口，schema 为 `daily_comprehensive_report_v1`，整合持仓基本面、资金流代理、机构/基金持仓数据状态、技术走势、情绪新闻、自选股监控、期权建议、数据刷新和数据缺口
 
 ## 当前前端状态
 
@@ -104,10 +105,11 @@
 - 历史交易复盘报告脚本
 - 股票 + 期权自动扫描报告脚本
 - 宏观/新闻风险快照脚本
+- 综合日报结构化 JSON 输出，供决策面板 AI chat 优先读取
 
 当前数据层已具备基础 provider 请求保护、交易日历、操作日志和数据质量检查，还缺少：
 
-- 报告可读取的失败原因输出
+- 更完整的真实 capital flow 与基金/机构持仓数据源；当前日报会明确标记 proxy 或 data gap
 - provider 降级
 - 更可靠的付费或半付费行情源
 
@@ -119,7 +121,7 @@
 2. 用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的质量和边界措辞。
 3. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
 4. 用真实 Longbridge CLI 环境运行 `make macro-risk` / `make daily-refresh`，确认 `market-temp/news` 权限、terminal 日志和 `data/reports/macro_risk/` 产物质量。
-5. 下一个开发任务：把宏观/新闻风险转成 scanner 过滤字段和日报专章，再进入最小信号驱动回测。
+5. 下一个开发任务：用真实本地产物复核综合日报 JSON 质量，把宏观/新闻风险转成 scanner 过滤字段，再进入最小信号驱动回测。
 
 ## 建议的下一步顺序
 

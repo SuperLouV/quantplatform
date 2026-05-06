@@ -90,6 +90,7 @@ class DecisionChatService:
             "generated_at_beijing": iso_beijing(),
             "execution_boundary": "read_only_analysis_no_auto_order",
             "requested_symbol": symbol,
+            "daily_report_structured": self._load_latest_json(reports_dir, "daily*.json", source_paths, warnings),
             "daily_report": self._load_latest_markdown(reports_dir, "daily*.md", source_paths, warnings, max_chars=12000),
             "scanner": self._load_latest_json(reference_dir / "system" / "scan_results", "*.json", source_paths, warnings),
             "account_health": self._load_latest_json(reports_dir / "account_health", "account_health_*.json", source_paths, warnings),
@@ -234,6 +235,22 @@ def _compact_context(context: dict[str, Any]) -> dict[str, Any]:
             "pool": scanner.get("pool"),
             "summary": scanner.get("summary"),
             "top_candidates": candidates[:12],
+        }
+    daily_structured = compact.get("daily_report_structured")
+    if isinstance(daily_structured, dict):
+        compact["daily_report_structured"] = {
+            "schema_version": daily_structured.get("schema_version"),
+            "report_metadata": daily_structured.get("report_metadata"),
+            "executive_summary": daily_structured.get("executive_summary"),
+            "market_context": daily_structured.get("market_context"),
+            "top_holdings_analysis": (daily_structured.get("holdings_analysis") or [])[:12]
+            if isinstance(daily_structured.get("holdings_analysis"), list)
+            else [],
+            "watchlist_monitor": (daily_structured.get("watchlist_monitor") or [])[:12]
+            if isinstance(daily_structured.get("watchlist_monitor"), list)
+            else [],
+            "options_strategy_advice": daily_structured.get("options_strategy_advice"),
+            "data_gaps": (daily_structured.get("data_gaps") or [])[:20] if isinstance(daily_structured.get("data_gaps"), list) else [],
         }
     account = compact.get("account_health")
     if isinstance(account, dict):
