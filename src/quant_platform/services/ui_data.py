@@ -653,14 +653,28 @@ class UIDataService:
         return result
 
     def _dashboard_ai_summary(self) -> str | None:
-        report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports" / "ai_analysis", "*.json")
+        report_path = _latest_ai_summary_file(self.settings.storage.processed_dir.parent / "reports" / "ai_analysis")
         if report_path is None:
             return None
         payload = _load_json(report_path) or {}
         model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
-        markdown = str(model.get("markdown") or "").strip()
-        if markdown:
-            return _first_meaningful_line(markdown)
+        model_text = str(model.get("markdown") or model.get("summary") or model.get("raw_text") or "").strip()
+        if model_text:
+            return _first_meaningful_line(model_text)
+        summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+        if summary:
+            snapshot_count = summary.get("snapshot_count")
+            risk_counts = summary.get("risk_counts") if isinstance(summary.get("risk_counts"), dict) else {}
+            recommendation_counts = (
+                summary.get("recommendation_counts")
+                if isinstance(summary.get("recommendation_counts"), dict)
+                else {}
+            )
+            return (
+                f"规则层分析 {snapshot_count or '--'} 个标的："
+                f"低风险 {risk_counts.get('low', 0)}，中风险 {risk_counts.get('medium', 0)}，高风险 {risk_counts.get('high', 0)}；"
+                f"观察 {recommendation_counts.get('watch', 0)}，风险复核 {recommendation_counts.get('risk_review', 0)}。"
+            )
         prompt = payload.get("prompt_payload") if isinstance(payload.get("prompt_payload"), dict) else {}
         context = prompt.get("structured_context") if isinstance(prompt.get("structured_context"), dict) else {}
         risk = context.get("risk_summary") if isinstance(context.get("risk_summary"), dict) else {}
@@ -762,6 +776,25 @@ def _latest_file(base: Path, pattern: str) -> Path | None:
     if not matches:
         return None
     return max(matches, key=lambda path: (path.stat().st_mtime, path.name))
+
+
+def _latest_ai_summary_file(base: Path) -> Path | None:
+    if not base.exists():
+        return None
+    matches = sorted(
+        [path for path in base.glob("*.json") if path.is_file()],
+        key=lambda path: (path.stat().st_mtime, path.name),
+        reverse=True,
+    )
+    fallback: Path | None = None
+    for path in matches:
+        payload = _load_json(path) or {}
+        model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
+        if str(model.get("markdown") or model.get("summary") or model.get("raw_text") or "").strip():
+            return path
+        if fallback is None and isinstance(payload.get("summary"), dict):
+            fallback = path
+    return fallback or (matches[0] if matches else None)
 
 
 def _pct_change(value: float | None, base: float | None) -> float | None:
@@ -896,11 +929,41 @@ def _invested_pct(risk: dict[str, object]) -> float | None:
 
 
 def _first_meaningful_line(markdown: str) -> str:
+    take_next = False
     for raw_line in markdown.splitlines():
         line = raw_line.strip().strip("#").strip()
-        if line:
-            return line
+        line = line.strip("*").strip()
+        if not line or line == "---":
+            continue
+        if "一句话结论" in line or "总体摘要" in line:
+            take_next = True
+            continue
+        if take_next and line:
+            return _truncate_text(line)
+        if _is_ai_boilerplate_line(line):
+            continue
+        return _truncate_text(line)
     return markdown[:240]
+
+
+def _is_ai_boilerplate_line(line: str) -> bool:
+    normalized = line.replace(" ", "")
+    if normalized.startswith(("好的", "收到", "以下是")):
+        return True
+    return any(
+        pattern in normalized
+        for pattern in (
+            "不构成任何交易指令",
+            "不构成交易指令",
+            "仅供人工复核",
+            "仅供参考",
+            "辅助人工复核",
+        )
+    )
+
+
+def _truncate_text(value: str, limit: int = 220) -> str:
+    return value if len(value) <= limit else value[: limit - 1].rstrip() + "…"
 
 
 def _daily_report_date(path: Path | None) -> str | None:
