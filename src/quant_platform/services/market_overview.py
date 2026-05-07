@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import UTC, date
-from pathlib import Path
 
 import pandas as pd
 
@@ -14,7 +13,7 @@ from quant_platform.services.bootstrap import bootstrap_local_state
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.time_utils import to_us_eastern
 
-INDEX_SYMBOLS = ("SPY", "QQQ", "DIA", "^VIX")
+INDEX_SYMBOLS = ("^IXIC", "SPY", "VOO", "QQQ", "DIA", "^VIX")
 SECTOR_ETFS = {
     "XLK": "科技",
     "XLF": "金融",

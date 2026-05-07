@@ -26,6 +26,7 @@ class DailyRefreshResult:
     dashboard_path: Path
     snapshot_count: int
     history: dict[str, dict[str, Any]]
+    market_overview_history: dict[str, dict[str, Any]] | None = None
     market_events_count: int | None = None
     supplemental_outputs: dict[str, dict[str, Any]] | None = None
 
@@ -108,6 +109,14 @@ class DailyRefreshService:
             empty=_count_history_status(history_results, "empty"),
             error=_count_history_status(history_results, "error"),
         )
+        self.logger.notice("daily_refresh.market_overview_history.start")
+        market_overview_history = self._refresh_market_overview_history(market_date)
+        self.logger.notice(
+            "daily_refresh.market_overview_history.done",
+            success=_count_history_status(market_overview_history, "success"),
+            empty=_count_history_status(market_overview_history, "empty"),
+            error=_count_history_status(market_overview_history, "error"),
+        )
         snapshot_paths, dashboard_path = self.snapshot_batch.update_pool(pool, max_workers=workers)
         self.logger.notice("daily_refresh.snapshots.done", snapshots=len(snapshot_paths), dashboard_path=str(dashboard_path))
 
@@ -129,6 +138,7 @@ class DailyRefreshService:
             dashboard_path=dashboard_path,
             snapshot_count=len(snapshot_paths),
             history=history_results,
+            market_overview_history=market_overview_history,
             market_events_count=market_events_count,
             supplemental_outputs=supplemental_outputs,
         )
@@ -189,6 +199,41 @@ class DailyRefreshService:
             self.logger.error("daily_refresh.longbridge_pool_sync.error", error=str(exc))
             self.logger.notice("daily_refresh.longbridge_pool_sync.error", error=str(exc))
             return {"status": "error", "error": str(exc)}
+
+    def _refresh_market_overview_history(self, market_date: date) -> dict[str, dict[str, Any]]:
+        try:
+            from quant_platform.services.market_overview import MARKET_OVERVIEW_SYMBOLS
+        except Exception as exc:  # noqa: BLE001 - should not happen, but keep the main pool refresh alive.
+            self.logger.error("daily_refresh.market_overview_history.import_error", error=str(exc))
+            return {}
+
+        results: dict[str, dict[str, Any]] = {}
+        for symbol in MARKET_OVERVIEW_SYMBOLS:
+            try:
+                result = self.history_updater.update_symbol(symbol, end=market_date + timedelta(days=1))
+                status = _history_status(result.cursor, market_date)
+                results[symbol] = {
+                    "status": status,
+                    "rows_fetched": result.rows_written,
+                    "rows_written": result.rows_written,
+                    "total_rows": result.total_rows,
+                    "earliest_date": result.earliest_date,
+                    "latest_date": result.latest_date,
+                    "cursor": result.cursor,
+                    "processed_path": str(result.processed_path),
+                }
+                if status != "success":
+                    results[symbol]["reason"] = "cursor_before_market_date"
+                    self.logger.error(
+                        "daily_refresh.market_overview_history.empty",
+                        symbol=symbol,
+                        cursor=result.cursor,
+                        market_date_us=market_date.isoformat(),
+                    )
+            except Exception as exc:  # noqa: BLE001 - one ETF/index must not block the daily package.
+                results[symbol] = {"status": "error", "error": str(exc)}
+                self.logger.error("daily_refresh.market_overview_history.error", symbol=symbol, error=str(exc))
+        return results
 
     def _generate_pre_report_outputs(self, *, pool_id: str, market_date: date) -> dict[str, dict[str, Any]]:
         outputs: dict[str, dict[str, Any]] = {}
@@ -461,6 +506,7 @@ class DailyRefreshService:
             "snapshot_count": result.snapshot_count,
             "market_events_count": result.market_events_count,
             "history": result.history,
+            "market_overview_history": result.market_overview_history or {},
             "supplemental_outputs": result.supplemental_outputs or {},
         }
         result.summary_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

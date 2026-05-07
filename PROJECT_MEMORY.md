@@ -1,6 +1,6 @@
 # Project Memory
 
-最后更新：2026-05-06
+最后更新：2026-05-07
 
 ## 项目一句话
 
@@ -69,10 +69,16 @@
   - 持仓、期权与 AI 自动分析摘要，读取 daily refresh summary 的 `supplemental_outputs`
   - 给 AI 的结构化分析提示
   - 当目标交易日没有成功刷新时，自动回落到本地最新可用行情日。
+- 综合每日报告增强：
+  - `daily_*.json` 仍是 AI 主入口，`daily_*.md` 是人工速读层
+  - 真实持仓全量分析，持仓条目加入账户级风控、ATR 止损、集中度/最大亏损状态和本地 120/252 日回撤代理
+  - 自选股报告默认限量展示，优先按自选关注分、scanner 动作、成交量状态和核心标的排序，避免日报被 watchlist 淹没
+  - 日报加入账户风险画像、指标增强建议、宏观/板块历史刷新统计和更完整技术指标字段
 - 简单市场宏观分析：
-  - `SPY/QQQ/DIA` 判断大盘、科技成长和道指蓝筹趋势
+  - `^IXIC/SPY/VOO/QQQ/DIA` 判断纳指、标普、ETF 代理、科技成长和道指蓝筹趋势
   - `^VIX` 判断波动/恐慌状态
   - 11 个 sector ETF 预留板块轮动分析
+  - `daily-refresh` 会额外刷新市场概览所需指数和板块 ETF 历史，并把结果写入 summary 的 `market_overview_history`
 - Longbridge 只读接口：
   - quote snapshots
   - assets / portfolio / positions
@@ -88,6 +94,7 @@
   - `make ai-stock SYMBOL=AAPL` 读取本地单股 snapshot，并可结合最新账户健康/期权建议中的匹配项做技术面解读
   - AI 失败时明确写入 `model_status=error/skipped`，不使用 placeholder 假结论；AI 输出只做解释、风险提示和人工复核问题，不生成自动交易动作
   - 常用脚本优先读取本地 `config/settings.yaml`，不存在时回落到 example；API key 仍从 `.env` / 环境变量读取，不能提交 Git
+  - Dashboard AI 分析在缺少 portfolio_strategy 匹配时，会从最新 `account_health_*.json` 匹配真实持仓风险字段，避免真实持仓健康度丢失
 - 真实持仓期权建议：
   - `make options-advice` 读取 Longbridge 只读持仓，yfinance 读取期权链
   - 默认只扫描 AAPL、TSLA、NVDA、GOOGL/GOOG、TSM 等高流动性期权标的；ETF、BRK.B 和非白名单标的跳过并写入原因，避免全持仓期权链扫描超时
@@ -106,6 +113,7 @@
 - 决策面板 AI 对话：
   - Dashboard 新增只读 AI 对话窗口，后端 `/api/chat` 读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照
   - AI 回答股票和期权辅助问题时必须说明数据依据、风险、人工复核项和不能自动执行的边界
+  - chat compact context 已兼容新版 `watchlist_monitor.items` 结构，并优先带入日报中的账户风险画像
 - 宏观/新闻风险：
   - `make macro-risk` 优先读取 Longbridge `market-temp/news`，结合本地 `SPY/QQQ/DIA/^VIX/sector ETF` 市场概览
   - 输出 `risk_on / neutral / risk_off / caution_overheated` 等风险状态和 scanner 过滤提示，写入 `data/reports/macro_risk/`
@@ -166,11 +174,10 @@
 
 当前最值得继续推进的顺序：
 
-1. 在用户正常 Python/Longbridge 网络环境运行 `make account-health`、`make trade-review`、`make auto-scan`，用真实本地产物校验账户、成交和期权链权限。
-2. 在依赖完整的本机环境验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
+1. 在用户正常 Python/Longbridge 网络环境运行 `make daily-refresh`，用真实本地产物验证账户风险画像、持仓回撤、watchlist 限量排序、宏观/板块历史刷新和 AI 解读是否全部进入综合日报。
+2. 在依赖完整的本机环境验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和新版日报渲染。
 3. 用真实 Longbridge CLI 环境验证 `make macro-risk` 的 `market-temp/news` 字段、权限和失败降级。
-4. 将宏观/新闻风险接入 scanner 过滤字段和日报专章，并继续接入交易复盘摘要、自选关注度。
+4. 将宏观/新闻风险转成 scanner 过滤字段，并继续接入交易复盘摘要。
 5. 做最小回测框架，验证 scanner 候选到交易策略的可行性。
 6. 扩展交易复盘口径：期权成交、费用、部分成交、转仓和做空。
-7. 将 DeepSeek 账户/期权/个股解读接入每日报告。
-8. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。
+7. 再接入更多 API 和数据源，优先评估 SEC 13F、FINRA、NAAIM、AAII、Fear & Greed、新闻和舆情数据。

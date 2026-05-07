@@ -1,6 +1,6 @@
 # Handoff
 
-最后更新：2026-05-06
+最后更新：2026-05-07
 
 ## 当前状态
 
@@ -29,19 +29,19 @@
 - `Scanner Strategy V1`：截面动量排名、跳过最近 5 日收益、RSI 变化、成交量 z-score、ATR 归一化趋势距离
 - 新窗口项目记忆入口 `PROJECT_MEMORY.md`
 - 中文 Markdown 每日报告 MVP：本地市场概览、scanner 候选、市场事件、数据刷新摘要和 AI 分析提示
-- 简单市场宏观分析：`SPY/QQQ/DIA/^VIX`，其中 VIX 状态会进入日报和 AI 分析提示
+- 简单市场宏观分析：`^IXIC/SPY/VOO/QQQ/DIA/^VIX`，其中 VIX 状态会进入日报和 AI 分析提示
 - Longbridge 真实股票池同步：`make longbridge-pool-sync` 读取只读 `positions/watchlist`，生成本地敏感 `longbridge_core` 股票池，过滤指数、期权和非 US 市场
 - 真实持仓/自选策略分析：`make longbridge-portfolio-analysis` 输出 JSON + Markdown，包含持仓健康度和自选关注度，复用 indicators、signals 和 `MarketScanner`
 - 模型驱动 AI 解读报告：`make ai-analyze` 读取最新账户健康 JSON，`make ai-options` 读取最新期权建议 JSON，`make ai-stock SYMBOL=AAPL` 读取单股快照并调用 DeepSeek/OpenAI-compatible provider 输出 Markdown；失败时明确标记 `model_status=error/skipped`，不再用 placeholder 替代真实模型解读
-- `make daily-refresh` 已升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新股票池历史与快照，生成账户健康、期权建议、AI Dashboard / 账户健康 / 期权建议解读，再生成每日报告；补充任务结果写入 summary 的 `supplemental_outputs`
+- `make daily-refresh` 已升级为收盘后准备包：同步 Longbridge 真实持仓/自选池，刷新股票池历史、宏观指数/板块 ETF 历史与快照，生成账户健康、期权建议、AI Dashboard / 账户健康 / 期权建议解读，再生成每日报告；补充任务结果写入 summary 的 `supplemental_outputs`
 - daily refresh 默认会在 terminal 打印关键步骤日志，便于第二天直接看到股票池刷新、账户/期权分析、AI 解读和日报是否成功；详细日志仍写入 `data/logs/*.jsonl`
 - 常用脚本优先读取本地 `config/settings.yaml`，不存在时回落到 `config/settings.example.yaml`；AI key 继续通过 `.env` / 环境变量读取，不提交 Git
-- 决策面板只读 AI 对话：新增 `/api/chat` 和 Dashboard 对话窗口，后端读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照作为上下文，输出中文保守分析，不输出自动交易指令
+- 决策面板只读 AI 对话：新增 `/api/chat` 和 Dashboard 对话窗口，后端读取最新日报、scanner、账户健康、期权建议、宏观风险、AI 解读和指定股票快照作为上下文，输出中文保守分析，不输出自动交易指令；已兼容新版 `watchlist_monitor.items` 并带入日报账户风险画像
 - 宏观/新闻风险 MVP：新增 `make macro-risk` 和 `MacroRiskService`，优先读取 Longbridge `market-temp/news`，结合本地市场概览，写入 `data/reports/macro_risk/`；`daily-refresh` 默认会生成并打印 `daily_refresh.macro_risk.*`
 - 真实持仓期权建议：`make options-advice` 读取 Longbridge 只读持仓，默认只扫 AAPL/TSLA/NVDA/GOOGL/GOOG/TSM 等高流动性期权标的；ETF、BRK.B 和非白名单持仓会跳过并写明原因
 - 账户健康度报告：`make account-health` 会保留 `BRK.B` 这类 class-share symbol，ETF/特殊个股有行业兜底；缺 ATR 时会尝试补齐本地 yfinance 日线并即时计算指标，报告包含可量化控仓动作
 - 期权截图解析：`make option-screenshot` 支持 OCR 文本/本机 OCR 图片提取 expiry、strike、bid/ask，并可用 yfinance 验证
-- 综合每日报告 V1：`make daily-report` 现在生成同名 `daily_*.json` 和 `daily_*.md`；JSON 是 AI 主入口，schema 为 `daily_comprehensive_report_v1`，整合持仓基本面、资金流代理、机构/基金持仓数据状态、技术走势、情绪新闻、自选股监控、期权建议、数据刷新和数据缺口
+- 综合每日报告 V1：`make daily-report` 现在生成同名 `daily_*.json` 和 `daily_*.md`；JSON 是 AI 主入口，schema 为 `daily_comprehensive_report_v1`，整合持仓基本面、资金流代理、机构/基金持仓数据状态、技术走势、情绪新闻、自选股监控、期权建议、数据刷新和数据缺口；本轮已加入账户风险画像、持仓 ATR/回撤风险、自选股限量优先级、指标增强建议和宏观/板块历史刷新统计
 
 ## 当前前端状态
 
@@ -106,6 +106,8 @@
 - 股票 + 期权自动扫描报告脚本
 - 宏观/新闻风险快照脚本
 - 综合日报结构化 JSON 输出，供决策面板 AI chat 优先读取
+- Daily refresh summary 现在包含 `market_overview_history`，用于确认 `^IXIC/SPY/VOO/QQQ/DIA/^VIX` 与板块 ETF 是否随每日准备包刷新
+- Dashboard AI 分析在缺少 portfolio_strategy 匹配时，会 fallback 到最新 `account_health_*.json` 的真实持仓风险字段
 
 当前数据层已具备基础 provider 请求保护、交易日历、操作日志和数据质量检查，还缺少：
 
@@ -117,11 +119,11 @@
 
 接下来最重要的不是继续扩 UI，而是进入核心系统阶段：
 
-1. 在正常 Python/Longbridge/网络环境下运行 `make daily-refresh`，确认 terminal 关键日志、`supplemental_outputs`、账户健康、期权建议、AI 解读和日报都成功生成。
+1. 在正常 Python/Longbridge/网络环境下运行 `make daily-refresh`，确认 terminal 关键日志、`market_overview_history`、`supplemental_outputs`、账户健康、期权建议、AI 解读和新版综合日报都成功生成。
 2. 用真实 DeepSeek key 复核每日自动 AI Dashboard / 账户健康 / 期权建议解读的质量和边界措辞。
-3. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和日报渲染。
+3. 在本机依赖完整环境启动 UI，验证 Dashboard 默认首页、候选跳转、期权弹窗、一键刷新、AI 对话和新版日报渲染。
 4. 用真实 Longbridge CLI 环境运行 `make macro-risk` / `make daily-refresh`，确认 `market-temp/news` 权限、terminal 日志和 `data/reports/macro_risk/` 产物质量。
-5. 下一个开发任务：用真实本地产物复核综合日报 JSON 质量，把宏观/新闻风险转成 scanner 过滤字段，再进入最小信号驱动回测。
+5. 下一个开发任务：用真实本地产物复核综合日报 JSON 质量，特别是持仓回撤、账户风险画像、自选股限量排序和宏观/板块刷新结果；随后把宏观/新闻风险转成 scanner 过滤字段，再进入最小信号驱动回测。
 
 ## 建议的下一步顺序
 
@@ -159,8 +161,8 @@
 - `data/logs/` 和 `.env` 是本地产物，不应提交 Git
 - `data/reference/system/stock_pools/longbridge/`、`data/reference/system/longbridge/` 和 `data/reports/portfolio_strategy/` 包含真实账户/自选产物，已加入 `.gitignore`，不要提交
 - 当前 Codex 沙箱内 Longbridge CLI 可通过临时 HOME 查看 help，但真实 `positions/watchlist` 请求被网络连接限制拦截；需要在用户正常终端环境运行同步命令
-- 当前执行环境的 `python` 缺少项目依赖 `pandas/yfinance`，因此全量单元测试会在导入依赖时失败；已完成 `compileall` 和不依赖行情库的截图解析测试
-- 本轮新增风控/账户健康度/交易复盘/自动扫描测试可在 `python` 3.11 下通过；系统 `python3` 仍指向 3.7，不符合项目 `>=3.11`
+- 系统 `python3` 仍指向 3.7，不符合项目 `>=3.11`，且没有 `pytest/ruff`；本轮使用 `/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -m unittest discover -s tests/unit` 跑通 57 个单元测试
+- `/Users/louyilin/.hermes/hermes-agent/venv/bin/ruff` 可用于 lint，本轮相关文件 `ruff check` 已通过；该 3.11 venv 缺 `pandas`，不能用来跑需要行情库的 pytest
 - `AGENTS.md` 是 Codex 新窗口入口，`PROJECT_MEMORY.md` 保存长期项目理解和自我约束
 - `tasks/backlog.md` 保存未来功能和 API 接入计划
 

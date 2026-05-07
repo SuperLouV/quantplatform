@@ -52,6 +52,64 @@ class AutomatedAIAnalysisServiceTest(unittest.TestCase):
             self.assertEqual(payload["analyses"][0]["result"]["target_id"], "AAPL")
             self.assertEqual(payload["analyses"][0]["structured_report"]["technical_interpretation"]["state"], "偏强")
 
+    def test_analyze_dashboard_matches_latest_account_health_positions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            settings = _settings(root)
+            dashboard = settings.storage.reference_dir / "system" / "dashboard_data.json"
+            dashboard.parent.mkdir(parents=True)
+            dashboard.write_text(
+                json.dumps(
+                    {
+                        "snapshots": [
+                            {
+                                "symbol": "TSM",
+                                "pool_ids": ["longbridge_core"],
+                                "current_price": 200,
+                                "latest_close": 200,
+                                "quote_provider_status": "success",
+                                "screening_status": "ready",
+                                "indicators": {"sma_20": 190, "sma_50": 180, "rsi_14": 60, "macd_histogram": 1, "atr_14": 4},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            report_dir = root / "data" / "reports" / "account_health"
+            report_dir.mkdir(parents=True)
+            (report_dir / "account_health_20260506T000000Z.json").write_text(
+                json.dumps(
+                    {
+                        "risk_assessment": {
+                            "positions": [
+                                {
+                                    "symbol": "TSM",
+                                    "quantity": 10,
+                                    "cost_price": 150,
+                                    "current_price": 200,
+                                    "market_value": 2000,
+                                    "weight_pct": 10,
+                                    "unrealized_pl_pct": 33.3,
+                                    "concentration_status": "breach",
+                                    "max_loss_status": "ok",
+                                    "flags": ["单股仓位超过上限。"],
+                                }
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = AutomatedAIAnalysisService(settings).analyze_dashboard(use_model=False)
+
+            payload = json.loads(result.json_path.read_text(encoding="utf-8"))
+            analysis = payload["analyses"][0]
+            self.assertEqual(analysis["portfolio"]["cost_price"], 150)
+            self.assertEqual(analysis["structured_report"]["holding_health"]["source"], "account_health")
+            self.assertNotIn("未匹配到真实持仓健康度", json.dumps(analysis, ensure_ascii=False))
+
     def test_analyze_latest_account_health_calls_model_and_writes_markdown(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -238,17 +238,21 @@ def _compact_context(context: dict[str, Any]) -> dict[str, Any]:
         }
     daily_structured = compact.get("daily_report_structured")
     if isinstance(daily_structured, dict):
+        watchlist_monitor = daily_structured.get("watchlist_monitor")
+        if isinstance(watchlist_monitor, dict):
+            watchlist_items = watchlist_monitor.get("items") if isinstance(watchlist_monitor.get("items"), list) else []
+        else:
+            watchlist_items = watchlist_monitor if isinstance(watchlist_monitor, list) else []
         compact["daily_report_structured"] = {
             "schema_version": daily_structured.get("schema_version"),
             "report_metadata": daily_structured.get("report_metadata"),
             "executive_summary": daily_structured.get("executive_summary"),
             "market_context": daily_structured.get("market_context"),
+            "account_risk_profile": daily_structured.get("account_risk_profile"),
             "top_holdings_analysis": (daily_structured.get("holdings_analysis") or [])[:12]
             if isinstance(daily_structured.get("holdings_analysis"), list)
             else [],
-            "watchlist_monitor": (daily_structured.get("watchlist_monitor") or [])[:12]
-            if isinstance(daily_structured.get("watchlist_monitor"), list)
-            else [],
+            "watchlist_monitor": watchlist_items[:12],
             "options_strategy_advice": daily_structured.get("options_strategy_advice"),
             "data_gaps": (daily_structured.get("data_gaps") or [])[:20] if isinstance(daily_structured.get("data_gaps"), list) else [],
         }

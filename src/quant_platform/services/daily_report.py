@@ -8,6 +8,8 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
+
 from quant_platform.config import Settings
 from quant_platform.services.bootstrap import bootstrap_local_state
 from quant_platform.services.market_events import MarketEventService
@@ -15,6 +17,8 @@ from quant_platform.services.market_overview import MarketOverview, MarketOvervi
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
 from quant_platform.services.ui_data import UIDataService
 from quant_platform.time_utils import iso_beijing, latest_completed_us_market_date, now_beijing, to_beijing
+
+MAX_WATCHLIST_REPORT_ITEMS = 12
 
 
 @dataclass(slots=True)
@@ -78,10 +82,10 @@ class DailyReportService:
             market_date_us=market_date.isoformat(),
             path=str(path),
             json_path=str(json_path),
-            scanner_count=len(scanner.get("candidates", [])),
-            market_events_count=len(events),
-            holding_count=len(report_payload.get("holdings_analysis") or []),
-            watchlist_count=len(report_payload.get("watchlist_monitor") or []),
+                scanner_count=len(scanner.get("candidates", [])),
+                market_events_count=len(events),
+                holding_count=len(report_payload.get("holdings_analysis") or []),
+                watchlist_count=_watchlist_reported_count(report_payload.get("watchlist_monitor")),
         )
         return DailyReportResult(
             pool_id=pool_id,
@@ -92,7 +96,7 @@ class DailyReportService:
             scanner_count=len(scanner.get("candidates", [])),
             market_events_count=len(events),
             holding_count=len(report_payload.get("holdings_analysis") or []),
-            watchlist_count=len(report_payload.get("watchlist_monitor") or []),
+            watchlist_count=_watchlist_reported_count(report_payload.get("watchlist_monitor")),
         )
 
     def _build_comprehensive_payload(
@@ -145,11 +149,17 @@ class DailyReportService:
         )
         ai_sources = _ai_source_artifacts(supplemental_outputs)
         holding_symbols = _holding_symbols(account_health, portfolio_strategy)
-        watchlist_symbols = _watchlist_symbols(portfolio_strategy)
-        snapshots = _load_snapshots(self.settings, _ordered_unique([*holding_symbols, *watchlist_symbols]))
+        raw_watchlist_symbols = _watchlist_symbols(portfolio_strategy)
         scan_by_symbol = _items_by_symbol(candidates)
         portfolio_positions = _items_by_symbol((portfolio_strategy or {}).get("positions") if isinstance(portfolio_strategy, dict) else [])
         portfolio_watchlist = _items_by_symbol((portfolio_strategy or {}).get("watchlist") if isinstance(portfolio_strategy, dict) else [])
+        watchlist_symbols = _select_watchlist_symbols(
+            raw_watchlist_symbols,
+            portfolio_watchlist=portfolio_watchlist,
+            scan_by_symbol=scan_by_symbol,
+            holding_symbols=holding_symbols,
+        )
+        snapshots = _load_snapshots(self.settings, _ordered_unique([*holding_symbols, *watchlist_symbols]))
         account_positions = _items_by_symbol(
             ((account_health or {}).get("risk_assessment") or {}).get("positions")
             if isinstance((account_health or {}).get("risk_assessment"), dict)
@@ -158,6 +168,7 @@ class DailyReportService:
         position_actions = _items_by_symbol((account_health or {}).get("position_actions") if isinstance(account_health, dict) else [])
         options_by_symbol = _options_by_symbol(options_advice)
         news_by_symbol = _news_by_symbol(macro_risk)
+        drawdown_by_symbol = _drawdown_metrics_by_symbol(self.settings, holding_symbols)
         data_gaps: list[dict[str, Any]] = []
         holdings = [
             _holding_analysis(
@@ -170,6 +181,7 @@ class DailyReportService:
                 options=options_by_symbol.get(symbol, []),
                 news=news_by_symbol.get(symbol, []),
                 macro_risk=macro_risk,
+                drawdown_metrics=drawdown_by_symbol.get(symbol),
                 data_gaps=data_gaps,
             )
             for symbol in holding_symbols
@@ -217,10 +229,11 @@ class DailyReportService:
                 "refresh_summary_generated_at_beijing": refresh_summary.get("generated_at_beijing") if refresh_summary else None,
                 "history_counts": refresh_counts,
                 "history_coverage": _history_coverage_summary(refresh_summary),
+                "market_overview_history_counts": _market_overview_history_counts(refresh_summary),
                 "snapshot_count": refresh_summary.get("snapshot_count") if refresh_summary else None,
                 "supplemental_outputs": _compact_supplemental_outputs(supplemental_outputs),
                 "daily_update_design": [
-                    "每日刷新先更新 Longbridge 真实持仓/自选池，再刷新 yfinance 日线和本地快照。",
+                    "每日刷新先更新 Longbridge 真实持仓/自选池，再刷新股票池、宏观指数和板块 ETF 的 yfinance 日线与本地快照。",
                     "综合日报读取本地结构化产物生成 JSON，Markdown 只是人工阅读层。",
                     "任何数据缺失都进入 data_gaps，不用占位结论替代真实数据。",
                 ],
@@ -242,6 +255,8 @@ class DailyReportService:
                 },
                 "watchlist": {
                     "count": len(watchlist_monitor),
+                    "source_count": len(raw_watchlist_symbols),
+                    "report_limit": MAX_WATCHLIST_REPORT_ITEMS,
                     "entry_watch": sum(1 for item in watchlist_monitor if item.get("entry_opportunity_state") in {"重点关注", "候选买入"}),
                 },
                 "options": _options_summary(options_advice),
@@ -253,21 +268,32 @@ class DailyReportService:
                 "sectors": [_market_row_payload(item) for item in overview.sectors],
                 "macro_risk": _compact_macro_risk(macro_risk),
             },
+            "account_risk_profile": _account_risk_profile(account_health),
             "scanner_candidates": {
                 "candidate_buy": candidate_buy[:20],
                 "watch": watch[:20],
                 "risk_or_data_issue": risk[:20],
             },
             "holdings_analysis": holdings,
-            "watchlist_monitor": watchlist_monitor,
+            "watchlist_monitor": {
+                "selection_policy": (
+                    f"真实持仓全量分析；自选股最多展示 {MAX_WATCHLIST_REPORT_ITEMS} 个，"
+                    "优先选择 portfolio_strategy 关注分、scanner 候选买入/风险、近期新闻和异常量能更高的标的。"
+                ),
+                "source_count": len(raw_watchlist_symbols),
+                "reported_count": len(watchlist_monitor),
+                "items": watchlist_monitor,
+            },
             "options_strategy_advice": _options_strategy_section(options_advice, options_by_symbol),
+            "analysis_depth_recommendations": _analysis_depth_recommendations(),
             "market_events": [_event_payload(event) for event in events[:30]],
             "ai_reading_contract": {
                 "recommended_read_order": [
                     "executive_summary",
                     "market_context.macro_risk",
+                    "account_risk_profile",
                     "holdings_analysis",
-                    "watchlist_monitor",
+                    "watchlist_monitor.items",
                     "options_strategy_advice",
                     "data_update",
                     "data_gaps",
@@ -290,6 +316,8 @@ class DailyReportService:
         scanner = report.get("scanner_candidates") if isinstance(report.get("scanner_candidates"), dict) else {}
         data_update = report.get("data_update") if isinstance(report.get("data_update"), dict) else {}
         source_artifacts = ((report.get("data_sources") or {}).get("source_artifacts") or []) if isinstance(report.get("data_sources"), dict) else []
+        watchlist_section = report.get("watchlist_monitor") if isinstance(report.get("watchlist_monitor"), dict) else {}
+        watchlist_items = watchlist_section.get("items") if isinstance(watchlist_section.get("items"), list) else []
 
         sections = [
             f"# QuantPlatform 综合每日报告 - {meta.get('market_date_us')}",
@@ -300,16 +328,9 @@ class DailyReportService:
             "- 边界：只读分析，不自动下单、撤单或改单；所有交易动作必须人工在券商界面确认。",
             "- AI 读取：同名 `.json` 是结构化主报告，Markdown 是人工速读层。",
             "",
-            "## 执行摘要",
+            "## 宏观与大盘",
             "",
             f"- 市场状态：{summary.get('market_state')}；宏观/新闻风险：{summary.get('macro_risk_state')}；情绪：{summary.get('sentiment_state')}",
-            f"- Scanner：候选买入 {scanner_summary.get('candidate_buy', 0)}，继续观察 {scanner_summary.get('watch', 0)}，风险回避 {scanner_summary.get('risk_avoid', 0)}，数据不足 {scanner_summary.get('insufficient_data', 0)}",
-            f"- 持仓：{holdings_summary.get('count', 0)} 个，需复核 {holdings_summary.get('risk_review', 0)} 个；自选：{watchlist_summary.get('count', 0)} 个，进场监控 {watchlist_summary.get('entry_watch', 0)} 个",
-            f"- 期权：covered call {options_summary.get('covered_call_count', 0)}，cash-secured put {options_summary.get('cash_secured_put_count', 0)}，数据异常 {options_summary.get('error_count', 0)}",
-            f"- 数据缺口：{summary.get('data_gap_count', 0)} 项",
-            "",
-            "## 市场概览",
-            "",
             f"- VIX 状态：{overview_summary.get('vix_state')}（收盘：{_number(overview_summary.get('vix_close'))}）",
             f"- 强势板块：{', '.join(overview_summary.get('top_sectors') or []) or '数据不足'}",
             f"- 弱势板块：{', '.join(overview_summary.get('weak_sectors') or []) or '数据不足'}",
@@ -320,6 +341,28 @@ class DailyReportService:
             "",
             _render_missing_market_payload(market_context),
             "",
+            "## 今日账户摘要",
+            "",
+            f"- 持仓：{holdings_summary.get('count', 0)} 个，需复核 {holdings_summary.get('risk_review', 0)} 个；自选来源 {watchlist_summary.get('source_count', 0)} 个，本报告展示 {watchlist_summary.get('count', 0)} 个。",
+            f"- Scanner：候选买入 {scanner_summary.get('candidate_buy', 0)}，继续观察 {scanner_summary.get('watch', 0)}，风险回避 {scanner_summary.get('risk_avoid', 0)}，数据不足 {scanner_summary.get('insufficient_data', 0)}。",
+            f"- 期权：covered call {options_summary.get('covered_call_count', 0)}，cash-secured put {options_summary.get('cash_secured_put_count', 0)}，数据异常 {options_summary.get('error_count', 0)}。",
+            f"- 数据缺口：{summary.get('data_gap_count', 0)} 项。",
+            "",
+            _render_account_risk_profile(report.get("account_risk_profile") if isinstance(report.get("account_risk_profile"), dict) else {}),
+            "",
+            "## 持仓逐股分析",
+            "",
+            _render_holdings_table(report.get("holdings_analysis") if isinstance(report.get("holdings_analysis"), list) else []),
+            "",
+            _render_holding_details(report.get("holdings_analysis") if isinstance(report.get("holdings_analysis"), list) else []),
+            "",
+            "## 自选关注",
+            "",
+            f"- 选择规则：{watchlist_section.get('selection_policy') or '-'}",
+            f"- 自选来源：{watchlist_section.get('source_count', 0)} 个；本报告展示：{watchlist_section.get('reported_count', 0)} 个。",
+            "",
+            _render_watchlist_table(watchlist_items),
+            "",
             "## Scanner 候选",
             "",
             _render_candidate_table("候选买入", scanner.get("candidate_buy") if isinstance(scanner.get("candidate_buy"), list) else []),
@@ -328,13 +371,9 @@ class DailyReportService:
             "",
             _render_candidate_table("风险回避 / 数据不足", scanner.get("risk_or_data_issue") if isinstance(scanner.get("risk_or_data_issue"), list) else []),
             "",
-            "## 持仓综合分析",
+            "## 指标增强建议",
             "",
-            _render_holdings_table(report.get("holdings_analysis") if isinstance(report.get("holdings_analysis"), list) else []),
-            "",
-            "## 自选股监控",
-            "",
-            _render_watchlist_table(report.get("watchlist_monitor") if isinstance(report.get("watchlist_monitor"), list) else []),
+            _render_analysis_depth(report.get("analysis_depth_recommendations") if isinstance(report.get("analysis_depth_recommendations"), list) else []),
             "",
             "## 期权策略建议",
             "",
@@ -557,6 +596,96 @@ def _render_holdings_table(rows: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _render_holding_details(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return "未找到真实持仓产物；请先运行 `make daily-refresh` 或 `make account-health`。"
+    sections: list[str] = []
+    for item in rows:
+        position = item.get("position") if isinstance(item.get("position"), dict) else {}
+        fundamental = item.get("fundamental") if isinstance(item.get("fundamental"), dict) else {}
+        technical = item.get("technical") if isinstance(item.get("technical"), dict) else {}
+        sentiment = item.get("sentiment") if isinstance(item.get("sentiment"), dict) else {}
+        risk = item.get("risk") if isinstance(item.get("risk"), dict) else {}
+        drawdown = risk.get("drawdown") if isinstance(risk.get("drawdown"), dict) else {}
+        atr_stop = risk.get("atr_stop") if isinstance(risk.get("atr_stop"), dict) else {}
+        indicators = technical.get("indicators") if isinstance(technical.get("indicators"), dict) else {}
+        flags = risk.get("risk_flags") if isinstance(risk.get("risk_flags"), list) else []
+        sections.extend(
+            [
+                f"### {item.get('symbol') or '-'} {item.get('name') or ''}".rstrip(),
+                "",
+                (
+                    f"- 真实持仓：数量 {_plain(position.get('quantity'))}，成本 {_money(position.get('cost_price'))}，"
+                    f"现价 {_money(position.get('current_price'))}，市值 {_money(position.get('market_value'))}，"
+                    f"权重 {_pct(position.get('weight_pct'))}，未实现盈亏 {_pct(position.get('unrealized_pl_pct'))}。"
+                ),
+                f"- 基本面：{fundamental.get('summary') or '-'}",
+                (
+                    f"- 技术面：{technical.get('summary') or '-'}；SMA20 {_number(indicators.get('sma_20'))}，"
+                    f"SMA50 {_number(indicators.get('sma_50'))}，SMA200 {_number(indicators.get('sma_200'))}，"
+                    f"RSI14 {_number(indicators.get('rsi_14'))}，MACD Hist {_number(indicators.get('macd_histogram'))}，"
+                    f"ATR14 {_number(indicators.get('atr_14'))}，量能 z60 {_number(indicators.get('volume_zscore_60'))}。"
+                ),
+                (
+                    f"- 风险量化：集中度 {risk.get('concentration_status') or '-'}，最大亏损 {risk.get('max_loss_status') or '-'}，"
+                    f"ATR 止损参考 {_money(atr_stop.get('stop_price'))}，ATR 风险/权益 {_pct(atr_stop.get('estimated_loss_pct_of_equity'))}，"
+                    f"近252日最大回撤 {_pct(drawdown.get('max_drawdown_252d_pct'))}，距近120日高点 {_pct(drawdown.get('current_drawdown_120d_pct'))}。"
+                ),
+                f"- 情绪/新闻：{sentiment.get('summary') or '-'}",
+                f"- 人工复核：{item.get('manual_review') or '-'}",
+                f"- 风险提示：{'；'.join(str(flag) for flag in flags) if flags else '-'}",
+                "",
+            ]
+        )
+    return "\n".join(sections).rstrip()
+
+
+def _render_account_risk_profile(profile: dict[str, Any]) -> str:
+    if not profile:
+        return "### 账户级风险画像\n\n- 未找到账户健康度产物。请先运行 `make account-health` 或 `make daily-refresh`。"
+    summary = profile.get("summary") if isinstance(profile.get("summary"), dict) else {}
+    lines = [
+        "### 账户级风险画像",
+        "",
+        f"- 健康度：{summary.get('health_state') or '-'}（{_plain(summary.get('health_score'))}/100），权益 {_money(summary.get('equity'))}，现金比例 {_pct(summary.get('cash_ratio_pct'))}，组合 HHI {_number(summary.get('hhi'))}。",
+        f"- 最大亏损检查：{profile.get('max_loss_checks') or '-'}",
+        "",
+        "| 标的 | 权重 | 成本盈亏 | ATR止损 | ATR风险/权益 | 状态 | 动作 |",
+        "| --- | ---: | ---: | ---: | ---: | --- | --- |",
+    ]
+    actions = _items_by_symbol(profile.get("position_actions") if isinstance(profile.get("position_actions"), list) else [])
+    positions = profile.get("positions") if isinstance(profile.get("positions"), list) else []
+    if not positions:
+        lines.append("| - | - | - | - | - | - | 未找到真实持仓 |")
+    for item in positions:
+        if not isinstance(item, dict):
+            continue
+        stop = item.get("atr_stop") if isinstance(item.get("atr_stop"), dict) else {}
+        action = actions.get(_normalize_symbol(str(item.get("symbol") or ""))) or {}
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(item.get("symbol") or "-"),
+                    _pct(item.get("weight_pct")),
+                    _pct(item.get("unrealized_pl_pct")),
+                    _money(stop.get("stop_price")),
+                    _pct(stop.get("estimated_loss_pct_of_equity")),
+                    f"{item.get('concentration_status') or '-'} / {item.get('max_loss_status') or '-'}",
+                    _plain_table_text(str(action.get("action") or "-")),
+                ]
+            )
+            + " |"
+        )
+    sectors = profile.get("sector_exposures") if isinstance(profile.get("sector_exposures"), list) else []
+    if sectors:
+        lines.extend(["", "行业敞口 Top："])
+        for item in sectors[:5]:
+            if isinstance(item, dict):
+                lines.append(f"- {item.get('sector')}: {_pct(item.get('weight_pct'))}，{', '.join(item.get('symbols') or [])}")
+    return "\n".join(lines)
+
+
 def _render_watchlist_table(rows: list[dict[str, Any]]) -> str:
     lines = [
         "| 标的 | 分组 | 机会状态 | 分数 | 技术/量能 | 情绪 | 人工动作 |",
@@ -582,6 +711,17 @@ def _render_watchlist_table(rows: list[dict[str, Any]]) -> str:
                 ]
             )
             + " |"
+        )
+    return "\n".join(lines)
+
+
+def _render_analysis_depth(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return "- 暂无指标增强建议。"
+    lines: list[str] = []
+    for item in rows:
+        lines.append(
+            f"- {item.get('category')}: {item.get('recommendation')}；用途：{item.get('use_case')}；状态：{item.get('implementation_status')}。"
         )
     return "\n".join(lines)
 
@@ -624,10 +764,12 @@ def _render_options_report_section(payload: dict[str, Any]) -> str:
 
 def _render_data_update(data_update: dict[str, Any], source_artifacts: list[Any]) -> str:
     counts = data_update.get("history_counts") if isinstance(data_update.get("history_counts"), dict) else {}
+    market_counts = data_update.get("market_overview_history_counts") if isinstance(data_update.get("market_overview_history_counts"), dict) else {}
     coverage = data_update.get("history_coverage") if isinstance(data_update.get("history_coverage"), dict) else {}
     lines = [
         f"- refresh summary：{data_update.get('refresh_summary_generated_at_beijing') or '未找到'}",
         f"- 历史刷新：success={counts.get('success', 0)}，empty={counts.get('empty', 0)}，error={counts.get('error', 0)}",
+        f"- 宏观/板块刷新：success={market_counts.get('success', 0)}，empty={market_counts.get('empty', 0)}，error={market_counts.get('error', 0)}",
         f"- 历史覆盖：最早 {coverage.get('earliest_date') or '-'}，最新 {coverage.get('latest_date') or '-'}，最少行数 {coverage.get('min_rows') or 0}",
         f"- 快照数量：{data_update.get('snapshot_count') or '-'}",
         "- 结构化日报 JSON 是 AI 后续分析的优先入口。",
@@ -725,6 +867,7 @@ def _render_supplemental_outputs(outputs: dict[str, Any]) -> str:
     for key in [
         "longbridge_pool_sync",
         "account_health",
+        "portfolio_strategy",
         "options_advice",
         "macro_risk",
         "ai_dashboard",
@@ -770,6 +913,7 @@ def _supplemental_label(key: str) -> str:
     return {
         "longbridge_pool_sync": "Longbridge 持仓/自选池",
         "account_health": "账户健康与风控",
+        "portfolio_strategy": "持仓/自选策略分析",
         "options_advice": "持仓期权策略",
         "macro_risk": "宏观/新闻风险",
         "ai_dashboard": "AI 股票池解读",
@@ -788,6 +932,10 @@ def _supplemental_key_result(key: str, payload: dict[str, Any]) -> str:
     if key == "account_health":
         return _plain_table_text(
             f"score={payload.get('health_score', '-')} state={payload.get('health_state', '-')} warnings={payload.get('warning_count', '-')}"
+        )
+    if key == "portfolio_strategy":
+        return _plain_table_text(
+            f"positions={payload.get('position_count', '-')} watchlist={payload.get('watchlist_count', '-')} quote_errors={payload.get('quote_error_count', '-')}"
         )
     if key == "options_advice":
         return _plain_table_text(
@@ -943,6 +1091,43 @@ def _watchlist_symbols(portfolio_strategy: dict[str, Any] | None) -> list[str]:
     return _ordered_unique([_normalize_symbol(str(item.get("symbol") or "")) for item in watchlist if isinstance(item, dict)])
 
 
+def _select_watchlist_symbols(
+    symbols: list[str],
+    *,
+    portfolio_watchlist: dict[str, dict[str, Any]],
+    scan_by_symbol: dict[str, dict[str, Any]],
+    holding_symbols: list[str],
+    limit: int = MAX_WATCHLIST_REPORT_ITEMS,
+) -> list[str]:
+    holding_set = set(holding_symbols)
+    candidates = [symbol for symbol in symbols if symbol not in holding_set]
+    scored = sorted(
+        candidates,
+        key=lambda symbol: (
+            -_watchlist_priority_score(symbol, portfolio_watchlist.get(symbol), scan_by_symbol.get(symbol)),
+            symbol,
+        ),
+    )
+    return scored[:limit]
+
+
+def _watchlist_priority_score(symbol: str, watch_item: dict[str, Any] | None, scan_item: dict[str, Any] | None) -> float:
+    score = _optional_float((watch_item or {}).get("attention_score")) or 0.0
+    if (watch_item or {}).get("attention_state") == "重点关注":
+        score += 25
+    if (scan_item or {}).get("action") == "候选买入":
+        score += 30
+    elif (scan_item or {}).get("action") == "风险回避":
+        score += 18
+    score += _optional_float((scan_item or {}).get("score")) or 0.0
+    volume_state = str((scan_item or {}).get("volume_state") or "")
+    if "放量" in volume_state or "资金参与" in volume_state:
+        score += 10
+    if symbol in {"AAPL", "MSFT", "NVDA", "TSLA", "GOOGL", "GOOG", "META", "AMZN", "TSM", "QQQ", "SPY", "VOO"}:
+        score += 5
+    return score
+
+
 def _load_snapshots(settings: Settings, symbols: list[str]) -> dict[str, dict[str, Any]]:
     snapshots: dict[str, dict[str, Any]] = {}
     for symbol in symbols:
@@ -995,6 +1180,39 @@ def _news_by_symbol(payload: dict[str, Any] | None) -> dict[str, list[dict[str, 
     return result
 
 
+def _drawdown_metrics_by_symbol(settings: Settings, symbols: list[str]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for symbol in symbols:
+        path = settings.storage.processed_dir / "yfinance" / "bars" / f"{symbol}.parquet"
+        if not path.exists():
+            continue
+        try:
+            frame = pd.read_parquet(path)
+        except Exception:
+            continue
+        if frame.empty or "close" not in frame:
+            continue
+        try:
+            prepared = frame.sort_values("timestamp") if "timestamp" in frame else frame
+            closes = pd.to_numeric(prepared["close"], errors="coerce").dropna()
+            if closes.empty:
+                continue
+            tail_252 = closes.tail(252)
+            tail_120 = closes.tail(120)
+            max_drawdown = ((tail_252 / tail_252.cummax()) - 1).min() * 100 if not tail_252.empty else None
+            current_drawdown_120 = ((tail_120.iloc[-1] / tail_120.max()) - 1) * 100 if len(tail_120.index) else None
+            result[symbol] = {
+                "data_status": "ok",
+                "lookback_rows": int(len(tail_252.index)),
+                "max_drawdown_252d_pct": _round_optional(max_drawdown),
+                "current_drawdown_120d_pct": _round_optional(current_drawdown_120),
+                "latest_close": _round_optional(closes.iloc[-1]),
+            }
+        except Exception:
+            continue
+    return result
+
+
 def _holding_analysis(
     symbol: str,
     *,
@@ -1006,6 +1224,7 @@ def _holding_analysis(
     options: list[dict[str, Any]],
     news: list[dict[str, Any]],
     macro_risk: dict[str, Any] | None,
+    drawdown_metrics: dict[str, Any] | None,
     data_gaps: list[dict[str, Any]],
 ) -> dict[str, Any]:
     item_gaps: list[dict[str, Any]] = []
@@ -1046,6 +1265,10 @@ def _holding_analysis(
         "options": option_summary,
         "risk": {
             "risk_flags": (portfolio_position or {}).get("risk_flags") or (account_position or {}).get("flags") or [],
+            "concentration_status": (account_position or {}).get("concentration_status"),
+            "max_loss_status": (account_position or {}).get("max_loss_status"),
+            "atr_stop": (account_position or {}).get("atr_stop"),
+            "drawdown": drawdown_metrics,
             "position_action": position_action,
         },
         "data_gaps": item_gaps,
@@ -1196,10 +1419,17 @@ def _technical_analysis(snapshot: dict[str, Any] | None, scanner_item: dict[str,
         for key in (
             "sma_20",
             "sma_50",
+            "sma_200",
+            "ema_12",
+            "ema_26",
             "rsi_14",
             "macd",
             "macd_signal",
             "macd_histogram",
+            "roc_10",
+            "bbands_upper",
+            "bbands_middle",
+            "bbands_lower",
             "atr_14",
             "ret_20d_skip5",
             "ret_60d_skip5",
@@ -1382,6 +1612,70 @@ def _compact_macro_risk(payload: dict[str, Any] | None) -> dict[str, Any] | None
     }
 
 
+def _account_risk_profile(payload: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not isinstance(payload, dict):
+        return None
+    assessment = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+    return {
+        "generated_at_beijing": payload.get("generated_at_beijing"),
+        "as_of": payload.get("as_of"),
+        "summary": {
+            "equity": assessment.get("equity"),
+            "cash": assessment.get("cash"),
+            "cash_ratio_pct": assessment.get("cash_ratio_pct"),
+            "invested_value": assessment.get("invested_value"),
+            "position_count": assessment.get("position_count"),
+            "hhi": assessment.get("hhi"),
+            "health_score": assessment.get("health_score"),
+            "health_state": assessment.get("health_state"),
+            "pdt": assessment.get("pdt"),
+        },
+        "positions": assessment.get("positions") if isinstance(assessment.get("positions"), list) else [],
+        "sector_exposures": assessment.get("sector_exposures") if isinstance(assessment.get("sector_exposures"), list) else [],
+        "event_risks": assessment.get("event_risks") if isinstance(assessment.get("event_risks"), list) else [],
+        "max_loss_checks": assessment.get("max_loss_checks"),
+        "warnings": assessment.get("warnings") or [],
+        "recommendations": assessment.get("recommendations") or [],
+        "position_actions": payload.get("position_actions") if isinstance(payload.get("position_actions"), list) else [],
+        "improvement_plan": payload.get("improvement_plan") if isinstance(payload.get("improvement_plan"), list) else [],
+    }
+
+
+def _analysis_depth_recommendations() -> list[dict[str, str]]:
+    return [
+        {
+            "category": "趋势强度",
+            "recommendation": "增加 ADX/DMI、EMA10/21/50/200 斜率和相对 SPY/QQQ 强弱。",
+            "use_case": "区分真正趋势股和单日反弹，避免只看 SMA 位置。",
+            "implementation_status": "ADX/相对强弱待实现；EMA/SMA 已有部分基础。",
+        },
+        {
+            "category": "波动率与回撤",
+            "recommendation": "加入历史波动率、ATR 百分位、布林带宽度、近120/252日最大回撤。",
+            "use_case": "让仓位、止损和追涨风险跟真实波动匹配。",
+            "implementation_status": "ATR/布林带已计算；本日报已加入持仓回撤代理。",
+        },
+        {
+            "category": "量价确认",
+            "recommendation": "增加 OBV、MFI、成交额百分位和上涨/下跌日量能对比。",
+            "use_case": "判断上涨是否有资金参与，减少低量假突破。",
+            "implementation_status": "量比与 volume z-score 已有；OBV/MFI 待实现。",
+        },
+        {
+            "category": "账户风险",
+            "recommendation": "持续使用真实成本、股数、权重、ATR 止损损失、行业敞口和 HHI。",
+            "use_case": "把个股分析从普通股票点评升级为账户相关决策支持。",
+            "implementation_status": "账户健康度已接入日报与 AI Dashboard。",
+        },
+        {
+            "category": "基本面与事件",
+            "recommendation": "补营收/利润增长、估值分位、财报日期、分析师修正、SEC 13F/内部人交易。",
+            "use_case": "解释技术信号背后的基本面和事件风险。",
+            "implementation_status": "基础估值字段已有；高质量基本面/13F/内部人数据待接入。",
+        },
+    ]
+
+
 def _event_payload(event: dict[str, object]) -> dict[str, object]:
     return {
         "event_time_beijing": _event_time_beijing(event.get("event_time")),
@@ -1479,6 +1773,22 @@ def _history_coverage_summary(refresh_summary: dict[str, Any] | None) -> dict[st
     }
 
 
+def _market_overview_history_counts(refresh_summary: dict[str, Any] | None) -> dict[str, int]:
+    counts = {"success": 0, "empty": 0, "error": 0}
+    if not refresh_summary:
+        return counts
+    history = refresh_summary.get("market_overview_history", {})
+    if not isinstance(history, dict):
+        return counts
+    for item in history.values():
+        if not isinstance(item, dict):
+            continue
+        status = str(item.get("status") or "")
+        if status in counts:
+            counts[status] += 1
+    return counts
+
+
 def _render_ai_prompt(
     pool_id: str,
     market_date_us: date,
@@ -1517,6 +1827,13 @@ def _refresh_history_counts(refresh_summary: dict[str, Any] | None) -> dict[str,
         if status in counts:
             counts[status] += 1
     return counts
+
+
+def _watchlist_reported_count(value: object) -> int:
+    if isinstance(value, dict):
+        items = value.get("items")
+        return len(items) if isinstance(items, list) else 0
+    return len(value) if isinstance(value, list) else 0
 
 
 def _report_market_date(refresh_summary: dict[str, Any] | None, explicit_date: date | None) -> date:
@@ -1604,3 +1921,8 @@ def _optional_float(value: object) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _round_optional(value: object) -> float | None:
+    number = _optional_float(value)
+    return None if number is None else round(number, 2)

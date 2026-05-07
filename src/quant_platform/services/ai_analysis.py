@@ -234,14 +234,19 @@ class AutomatedAIAnalysisService:
     ) -> AutomatedAIAnalysisRunResult:
         snapshots = self._load_dashboard_snapshots(max_symbols=max_symbols)
         portfolio = self._load_latest_portfolio_strategy()
+        account_payload, account_path = self._load_optional_latest_report("account_health", "account_health_*.json")
         portfolio_by_symbol = {
             str(item.get("symbol") or "").upper(): item
             for item in portfolio.get("positions", [])
             if isinstance(item, dict)
         }
+        account_by_symbol = _account_positions_by_symbol(account_payload)
 
         analyses = [
-            self._analyze_snapshot(snapshot, portfolio_by_symbol.get(snapshot.symbol.upper()))
+            self._analyze_snapshot(
+                snapshot,
+                portfolio_by_symbol.get(snapshot.symbol.upper()) or account_by_symbol.get(_normalize_symbol(snapshot.symbol)),
+            )
             for snapshot in snapshots
             if pool_id in snapshot.pool_ids or pool_id == "all" or not snapshot.pool_ids
         ]
@@ -270,6 +275,7 @@ class AutomatedAIAnalysisService:
             "model": model_summary,
             "summary": _summarize_analyses(analyses),
             "analyses": analyses,
+            "source_paths": [str(path) for path in [account_path] if path],
             "warnings": warnings,
         }
         json_path, markdown_path = self._write_outputs(payload)
@@ -809,12 +815,10 @@ def _compact_risk_position(item: dict[str, Any]) -> dict[str, Any]:
             "weight_pct",
             "unrealized_pl",
             "unrealized_pl_pct",
-            "atr_14",
-            "atr_stop_price",
-            "atr_stop_loss",
+            "atr_stop",
             "concentration_status",
             "max_loss_status",
-            "warnings",
+            "flags",
         ],
     )
 
@@ -901,8 +905,60 @@ def _matching_options_position(payload: dict[str, Any] | None, symbol: str) -> d
     return None
 
 
+def _account_positions_by_symbol(payload: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    if not payload:
+        return {}
+    assessment = payload.get("risk_assessment") if isinstance(payload.get("risk_assessment"), dict) else {}
+    result: dict[str, dict[str, Any]] = {}
+    for item in assessment.get("positions") or []:
+        if not isinstance(item, dict):
+            continue
+        symbol = _normalize_symbol(str(item.get("symbol") or ""))
+        if symbol:
+            position = _compact_risk_position(item)
+            position["source"] = "account_health"
+            position["health_score"] = _score_from_account_risk_position(item)
+            position["health_state"] = _state_from_account_risk_position(item)
+            position["risk_flags"] = item.get("flags") or []
+            result[symbol] = position
+    return result
+
+
+def _score_from_account_risk_position(item: dict[str, Any]) -> int:
+    score = 70
+    if item.get("concentration_status") == "breach":
+        score -= 20
+    if item.get("max_loss_status") == "breach":
+        score -= 20
+    if item.get("flags"):
+        score -= min(18, len(item.get("flags") or []) * 6)
+    pnl_pct = _finite_float(item.get("unrealized_pl_pct"))
+    if pnl_pct is not None:
+        if pnl_pct <= -8:
+            score -= 10
+        elif pnl_pct >= 10:
+            score += 5
+    return _bounded(score)
+
+
+def _state_from_account_risk_position(item: dict[str, Any]) -> str:
+    score = _score_from_account_risk_position(item)
+    if score >= 70:
+        return "健康"
+    if score >= 50:
+        return "观察"
+    return "风险复核"
+
+
 def _same_symbol(left: Any, right: str) -> bool:
-    return str(left or "").upper().replace(".US", "") == right.upper().replace(".US", "")
+    return _normalize_symbol(str(left or "")) == _normalize_symbol(right)
+
+
+def _normalize_symbol(symbol: str) -> str:
+    normalized = str(symbol or "").strip().upper()
+    if normalized.endswith(".US"):
+        normalized = normalized[:-3]
+    return normalized
 
 
 def _pick(payload: dict[str, Any], keys: list[str]) -> dict[str, Any]:
@@ -1010,7 +1066,7 @@ def _holding_health(
         score = _optional_int(portfolio_item.get("health_score"))
         state = str(portfolio_item.get("health_state") or "未知")
         return {
-            "source": "portfolio_strategy",
+            "source": portfolio_item.get("source") or "portfolio_strategy",
             "score": score,
             "state": state,
             "quantity": portfolio_item.get("quantity"),
