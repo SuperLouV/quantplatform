@@ -540,7 +540,10 @@ class UIDataService:
     def _dashboard_macro_risk(self) -> dict[str, object] | None:
         report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports" / "macro_risk", "macro_risk_*.json")
         if report_path is None:
-            return None
+            overview = self._dashboard_market_overview()
+            if overview is None:
+                return None
+            return _macro_risk_from_market_overview(overview)
         payload = _load_json(report_path) or {}
         overview = payload.get("market_overview") if isinstance(payload.get("market_overview"), dict) else {}
         overview_summary = overview.get("summary") if isinstance(overview.get("summary"), dict) else {}
@@ -653,41 +656,24 @@ class UIDataService:
         return result
 
     def _dashboard_ai_summary(self) -> str | None:
-        report_path = _latest_ai_summary_file(self.settings.storage.processed_dir.parent / "reports" / "ai_analysis")
-        if report_path is None:
-            return None
-        payload = _load_json(report_path) or {}
-        model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
-        model_text = str(model.get("markdown") or model.get("summary") or model.get("raw_text") or "").strip()
-        if model_text:
-            return _first_meaningful_line(model_text)
-        summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
-        if summary:
-            snapshot_count = summary.get("snapshot_count")
-            risk_counts = summary.get("risk_counts") if isinstance(summary.get("risk_counts"), dict) else {}
-            recommendation_counts = (
-                summary.get("recommendation_counts")
-                if isinstance(summary.get("recommendation_counts"), dict)
-                else {}
-            )
-            return (
-                f"规则层分析 {snapshot_count or '--'} 个标的："
-                f"低风险 {risk_counts.get('low', 0)}，中风险 {risk_counts.get('medium', 0)}，高风险 {risk_counts.get('high', 0)}；"
-                f"观察 {recommendation_counts.get('watch', 0)}，风险复核 {recommendation_counts.get('risk_review', 0)}。"
-            )
-        prompt = payload.get("prompt_payload") if isinstance(payload.get("prompt_payload"), dict) else {}
-        context = prompt.get("structured_context") if isinstance(prompt.get("structured_context"), dict) else {}
-        risk = context.get("risk_summary") if isinstance(context.get("risk_summary"), dict) else {}
-        recommendations = risk.get("recommendations") if isinstance(risk.get("recommendations"), list) else []
-        if recommendations:
-            return "；".join(str(item) for item in recommendations[:2])
-        summary = context.get("account_summary") if isinstance(context.get("account_summary"), dict) else {}
-        if summary:
-            return (
-                f"账户风险状态 {summary.get('risk_level') or '--'}，"
-                f"现金 {summary.get('available_cash') or '--'}，"
-                f"持仓数 {summary.get('position_count') or '--'}。"
-            )
+        base = self.settings.storage.processed_dir.parent / "reports" / "ai_analysis"
+        account_path = _latest_ai_summary_file(base, "ai_account_health_*.json")
+        dashboard_path = _latest_ai_summary_file(base, "ai_analysis_*.json")
+
+        sections: list[str] = []
+        account_summary = _ai_summary_from_file(account_path)
+        if account_summary:
+            sections.append(f"持仓账户：{account_summary}")
+        dashboard_summary = _ai_summary_from_file(dashboard_path)
+        if dashboard_summary and dashboard_summary != account_summary:
+            sections.append(f"市场扫描：{dashboard_summary}")
+        if sections:
+            return "\n".join(sections[:2])
+
+        options_path = _latest_ai_summary_file(base, "ai_options_advice_*.json")
+        options_summary = _ai_summary_from_file(options_path)
+        if options_summary:
+            return f"期权策略：{options_summary}"
         return None
 
     def _dashboard_daily_report_meta(self) -> dict[str, object]:
@@ -778,11 +764,11 @@ def _latest_file(base: Path, pattern: str) -> Path | None:
     return max(matches, key=lambda path: (path.stat().st_mtime, path.name))
 
 
-def _latest_ai_summary_file(base: Path) -> Path | None:
+def _latest_ai_summary_file(base: Path, pattern: str = "*.json") -> Path | None:
     if not base.exists():
         return None
     matches = sorted(
-        [path for path in base.glob("*.json") if path.is_file()],
+        [path for path in base.glob(pattern) if path.is_file()],
         key=lambda path: (path.stat().st_mtime, path.name),
         reverse=True,
     )
@@ -795,6 +781,79 @@ def _latest_ai_summary_file(base: Path) -> Path | None:
         if fallback is None and isinstance(payload.get("summary"), dict):
             fallback = path
     return fallback or (matches[0] if matches else None)
+
+
+def _ai_summary_from_file(path: Path | None) -> str | None:
+    if path is None:
+        return None
+    payload = _load_json(path) or {}
+    model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
+    model_text = str(model.get("markdown") or model.get("summary") or model.get("raw_text") or "").strip()
+    if model_text:
+        return _first_meaningful_line(model_text)
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    if summary:
+        snapshot_count = summary.get("snapshot_count")
+        risk_counts = summary.get("risk_counts") if isinstance(summary.get("risk_counts"), dict) else {}
+        recommendation_counts = (
+            summary.get("recommendation_counts")
+            if isinstance(summary.get("recommendation_counts"), dict)
+            else {}
+        )
+        return (
+            f"规则层分析 {snapshot_count or '--'} 个标的："
+            f"低风险 {risk_counts.get('low', 0)}，中风险 {risk_counts.get('medium', 0)}，高风险 {risk_counts.get('high', 0)}；"
+            f"观察 {recommendation_counts.get('watch', 0)}，风险复核 {recommendation_counts.get('risk_review', 0)}。"
+        )
+    prompt = payload.get("prompt_payload") if isinstance(payload.get("prompt_payload"), dict) else {}
+    context = prompt.get("structured_context") if isinstance(prompt.get("structured_context"), dict) else {}
+    risk = context.get("risk_summary") if isinstance(context.get("risk_summary"), dict) else {}
+    recommendations = risk.get("recommendations") if isinstance(risk.get("recommendations"), list) else []
+    if recommendations:
+        return "；".join(str(item) for item in recommendations[:2])
+    account_summary = context.get("account_summary") if isinstance(context.get("account_summary"), dict) else {}
+    if account_summary:
+        return (
+            f"账户风险状态 {account_summary.get('risk_level') or '--'}，"
+            f"现金 {account_summary.get('available_cash') or '--'}，"
+            f"持仓数 {account_summary.get('position_count') or '--'}。"
+        )
+    return None
+
+
+def _macro_risk_from_market_overview(overview: dict[str, object]) -> dict[str, object] | None:
+    vix = overview.get("vix") if isinstance(overview.get("vix"), dict) else {}
+    spy = overview.get("spy") if isinstance(overview.get("spy"), dict) else {}
+    qqq = overview.get("qqq") if isinstance(overview.get("qqq"), dict) else {}
+    vix_price = _optional_float(vix.get("price")) if isinstance(vix, dict) else None
+    regime = str(overview.get("regime") or "中性")
+    if vix_price is not None and vix_price >= 25:
+        risk_state = "风险升高"
+        hint = "VIX 处于高波动区间，扫描候选需要降低追涨权重，优先复核仓位和现金。"
+    elif regime == "偏空":
+        risk_state = "偏防守"
+        hint = "SPY/QQQ 趋势偏弱，候选扫描需要优先看回撤和成交量确认。"
+    elif regime == "偏多":
+        risk_state = "风险正常"
+        hint = "指数趋势偏多但仍需结合持仓集中度、财报和事件日历人工复核。"
+    else:
+        risk_state = "中性观察"
+        hint = "市场方向不够一致，候选扫描应降低单一技术信号权重。"
+    dates = [
+        str(item.get("as_of"))
+        for item in (spy, qqq, vix)
+        if isinstance(item, dict) and item.get("as_of")
+    ]
+    return {
+        "generated_at_beijing": iso_beijing(),
+        "market_date_us": max(dates) if dates else None,
+        "risk_state": risk_state,
+        "sentiment_state": "本地市场快照",
+        "scanner_filter_hint": hint,
+        "vix_state": vix.get("state") if isinstance(vix, dict) else None,
+        "news_item_count": 0,
+        "warnings": ["未找到最新宏观风险报告，当前展示由 SPY/QQQ/VIX 本地数据兜底生成。"],
+    }
 
 
 def _pct_change(value: float | None, base: float | None) -> float | None:

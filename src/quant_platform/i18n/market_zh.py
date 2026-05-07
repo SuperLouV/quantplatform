@@ -6,7 +6,7 @@ from copy import deepcopy
 
 
 POOL_NAME_ZH: dict[str, str] = {
-    "custom_manual": "自选列表",
+    "custom_manual": "手动列表",
     "default_core": "默认列表",
     "longbridge_core": "长桥真实股票池",
     "longbridge_positions": "长桥持仓",

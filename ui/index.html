@@ -2695,21 +2695,21 @@
 
           <section class="dashboard-section">
             <div class="dashboard-section-head">
-              <h3>今日候选</h3>
-              <button class="dashboard-link-btn" type="button" id="dashOpenScanner">查看完整扫描</button>
-            </div>
-            <div class="candidate-cards" id="dashCandidates">
-              <div class="empty">正在读取本地扫描结果。</div>
-            </div>
-          </section>
-
-          <section class="dashboard-section">
-            <div class="dashboard-section-head">
               <h3>持仓风控</h3>
               <span class="dashboard-section-sub" id="dashPortfolioMeta">--</span>
             </div>
             <div id="dashPositions">
               <div class="empty">正在读取账户健康度报告。</div>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <div class="dashboard-section-head">
+              <h3>候选观察池</h3>
+              <button class="dashboard-link-btn" type="button" id="dashOpenScanner">查看完整扫描</button>
+            </div>
+            <div class="candidate-cards" id="dashCandidates">
+              <div class="empty">正在读取本地扫描结果。</div>
             </div>
           </section>
 
@@ -2736,15 +2736,15 @@
           <section class="dashboard-section">
             <div class="dashboard-section-head">
               <h3>AI 对话</h3>
-              <span class="dashboard-section-sub">只读本地报告</span>
+              <span class="dashboard-section-sub">暂缓开放</span>
             </div>
             <div class="chat-panel">
               <div class="chat-messages" id="dashChatMessages">
-                <div class="empty">可以询问当前持仓、候选、期权策略和风险。回答只基于本地结构化产物。</div>
+                <div class="empty">该入口暂缓开放。当前先使用每日刷新生成的持仓账户 AI 研判、市场扫描和每日报告，避免慢请求影响主流程。</div>
               </div>
               <form class="chat-form" id="dashChatForm">
-                <textarea id="dashChatInput" maxlength="2000" placeholder="例如：我当前持仓里哪些股票明天最需要先看风险？"></textarea>
-                <button id="dashChatSubmit" type="submit">发送</button>
+                <textarea id="dashChatInput" maxlength="2000" placeholder="AI 对话入口暂缓开放" disabled></textarea>
+                <button id="dashChatSubmit" type="submit" disabled>暂停</button>
               </form>
             </div>
           </section>
@@ -3169,7 +3169,7 @@
   <script>
     const state = {
       pools: [],
-      activePoolId: "longbridge_core",
+      activePoolId: "longbridge_positions",
       activeItem: null,
       activeView: "dashboard",
       dashboardPayload: null,
@@ -3299,8 +3299,9 @@
       renderCandidateCards(data.scanner_top || []);
       renderDashboardPositions(data);
       renderDashboardEvents(data.events_upcoming || []);
-      document.getElementById("dashAI").innerHTML = data.ai_summary
-        ? `<p>${escapeHtml(data.ai_summary)}</p>`
+      const aiSummary = String(data.ai_summary || "").trim();
+      document.getElementById("dashAI").innerHTML = aiSummary
+        ? aiSummary.split("\n").filter(Boolean).map(line => `<p>${escapeHtml(line)}</p>`).join("")
         : '<div class="empty">暂无 AI 研判。运行 AI 分析后显示。</div>';
     }
 
@@ -3446,6 +3447,7 @@
     async function sendDashboardChat() {
       const input = document.getElementById("dashChatInput");
       const button = document.getElementById("dashChatSubmit");
+      if (input.disabled || button.disabled) return;
       const question = input.value.trim();
       if (!question) return;
       const history = state.chatMessages.slice(-6).map(item => ({
@@ -3571,16 +3573,25 @@
 
     async function loadPools() {
       const data = await api("/api/pools");
-      const defaultPools = data.pools.filter(pool => ["longbridge_core", "default_core"].includes(pool.pool_id));
+      const poolOrder = [
+        "longbridge_positions",
+        "longbridge_core",
+        "longbridge_watchlist",
+        "default_core",
+        "nasdaq100",
+      ];
+      const defaultPools = data.pools
+        .filter(pool => poolOrder.includes(pool.pool_id))
+        .sort((a, b) => poolOrder.indexOf(a.pool_id) - poolOrder.indexOf(b.pool_id));
       const customPool = {
         pool_id: "custom_manual",
         name: "Custom",
-        name_zh: "自选列表",
+        name_zh: "手动列表",
         pool_type: "manual",
         source: "frontend_local_storage",
         symbol_count: state.customList.length,
       };
-      state.pools = [customPool, ...defaultPools];
+      state.pools = [...defaultPools, customPool];
       if (!state.pools.some(pool => pool.pool_id === state.activePoolId)) {
         state.activePoolId = defaultPools[0]?.pool_id || "custom_manual";
       }
@@ -3668,7 +3679,7 @@
         pool: {
           pool_id: "custom_manual",
           name: "Custom",
-          name_zh: "自选列表",
+          name_zh: "手动列表",
           pool_type: "manual",
           source: "frontend_local_storage",
           symbol_count: snapshots.length,
@@ -3718,8 +3729,8 @@
       const rows = document.getElementById("scannerRows");
       const detail = document.getElementById("scannerDetail");
       if (state.activePoolId === "custom_manual") {
-        rows.innerHTML = '<tr><td colspan="10" class="scanner-empty">自选列表扫描后续会接入。当前请先使用默认核心池或 NASDAQ 100。</td></tr>';
-        detail.innerHTML = '<div class="scanner-empty">自选列表目前只用于个股工作台展示。</div>';
+        rows.innerHTML = '<tr><td colspan="10" class="scanner-empty">手动列表扫描后续会接入。当前请先使用长桥持仓、长桥核心池或 NASDAQ 100。</td></tr>';
+        detail.innerHTML = '<div class="scanner-empty">手动列表目前只用于个股工作台展示。</div>';
         renderScannerSummary(null);
         return;
       }
