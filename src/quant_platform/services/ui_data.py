@@ -865,12 +865,15 @@ def _position_priority(item: dict[str, object]) -> float:
 
 def _position_risk_payload(item: dict[str, object]) -> dict[str, object]:
     atr_stop = item.get("atr_stop") if isinstance(item.get("atr_stop"), dict) else {}
-    status = "健康"
-    if item.get("concentration_status") == "breach" or item.get("max_loss_status") not in {None, "ok"}:
-        status = "警告"
     stop_distance = _optional_float(atr_stop.get("stop_distance_pct")) if isinstance(atr_stop, dict) else None
-    if stop_distance is not None and stop_distance <= 3:
-        status = "临近止损"
+    if item.get("max_loss_status") not in {None, "ok"}:
+        status = "风险超限"
+    elif item.get("concentration_status") == "breach":
+        status = "仓位超限"
+    elif stop_distance is not None and stop_distance <= 3:
+        status = "保护线近"
+    else:
+        status = "健康"
     return {
         "symbol": item.get("symbol"),
         "name": item.get("name"),

@@ -3388,7 +3388,7 @@
         return;
       }
       host.innerHTML = positions.map(position => {
-        const statusClass = position.status === "临近止损" ? "danger" : position.status === "警告" ? "warning" : "";
+        const statusClass = position.status === "风险超限" ? "danger" : ["仓位超限", "保护线近"].includes(position.status) ? "warning" : "";
         const symbol = escapeHtml(position.symbol || "");
         return `
           <div class="position-row ${statusClass}" role="button" tabindex="0" onclick="dashGoDetail('${symbol}')">
@@ -3398,7 +3398,7 @@
             </div>
             <div class="position-risk numeric">
               <div class="position-status">${escapeHtml(position.status || "--")}</div>
-              <div>距止损 ${position.stop_distance_pct === null || position.stop_distance_pct === undefined ? "--" : `${Number(position.stop_distance_pct).toFixed(1)}%`}</div>
+              <div>距ATR保护线 ${position.stop_distance_pct === null || position.stop_distance_pct === undefined ? "--" : `${Number(position.stop_distance_pct).toFixed(1)}%`}</div>
             </div>
           </div>
         `;
