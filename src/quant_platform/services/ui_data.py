@@ -288,6 +288,7 @@ class UIDataService:
             "pdt": None,
             "events_upcoming": [],
             "ai_summary": None,
+            "ai_insights": [],
             "daily_report_available": False,
             "daily_report_date": None,
         }
@@ -300,6 +301,7 @@ class UIDataService:
             ("positions", self._dashboard_positions),
             ("events_upcoming", self._dashboard_events),
             ("ai_summary", self._dashboard_ai_summary),
+            ("ai_insights", self._dashboard_ai_insights),
             ("daily_report", self._dashboard_daily_report_meta),
         ):
             try:
@@ -676,6 +678,33 @@ class UIDataService:
             return f"期权策略：{options_summary}"
         return None
 
+    def _dashboard_ai_insights(self) -> list[dict[str, object]]:
+        base = self.settings.storage.processed_dir.parent / "reports" / "ai_analysis"
+        insights = [
+            item
+            for item in (
+                _ai_insight_from_file(
+                    _latest_ai_summary_file(base, "ai_account_health_*.json"),
+                    title="持仓账户",
+                    source="account_health",
+                ),
+                _ai_insight_from_file(
+                    _latest_ai_summary_file(base, "ai_analysis_*.json"),
+                    title="市场扫描",
+                    source="dashboard_scan",
+                ),
+            )
+            if item is not None
+        ]
+        if insights:
+            return insights
+        options = _ai_insight_from_file(
+            _latest_ai_summary_file(base, "ai_options_advice_*.json"),
+            title="期权策略",
+            source="options_advice",
+        )
+        return [options] if options is not None else []
+
     def _dashboard_daily_report_meta(self) -> dict[str, object]:
         report_path = _latest_file(self.settings.storage.processed_dir.parent / "reports", "daily*.md")
         return {
@@ -819,6 +848,54 @@ def _ai_summary_from_file(path: Path | None) -> str | None:
             f"持仓数 {account_summary.get('position_count') or '--'}。"
         )
     return None
+
+
+def _ai_insight_from_file(path: Path | None, *, title: str, source: str) -> dict[str, object] | None:
+    if path is None:
+        return None
+    payload = _load_json(path) or {}
+    summary = _ai_summary_from_file(path)
+    if not summary:
+        return None
+    model = payload.get("model") if isinstance(payload.get("model"), dict) else {}
+    model_text = str(model.get("markdown") or model.get("summary") or model.get("raw_text") or "").strip()
+    details = _meaningful_ai_lines(model_text, limit=8) if model_text else []
+    if not details:
+        details = [summary]
+    return {
+        "title": title,
+        "source": source,
+        "source_file": path.name,
+        "generated_at_beijing": payload.get("generated_at_beijing"),
+        "model_status": payload.get("model_status") or model.get("status") or ("success" if model_text else "skipped"),
+        "summary": summary,
+        "details": details,
+    }
+
+
+def _meaningful_ai_lines(markdown: str, *, limit: int) -> list[str]:
+    lines: list[str] = []
+    take_next = False
+    for raw_line in markdown.splitlines():
+        stripped = raw_line.strip()
+        is_heading = stripped.startswith("#")
+        line = stripped.strip("#").strip()
+        line = line.strip("*").strip()
+        if not line or line == "---" or line.startswith("|") or set(line) <= {"-", "|", " "}:
+            continue
+        if _is_ai_boilerplate_line(line):
+            continue
+        if "一句话结论" in line or "总体摘要" in line or "关键风险" in line:
+            take_next = True
+            continue
+        if is_heading:
+            continue
+        if take_next or line.startswith(("-", "1.", "2.", "3.", "4.", "5.")) or len(lines) < 2:
+            lines.append(_truncate_text(line.lstrip("- ").strip(), limit=220))
+            take_next = False
+        if len(lines) >= limit:
+            break
+    return lines
 
 
 def _macro_risk_from_market_overview(overview: dict[str, object]) -> dict[str, object] | None:

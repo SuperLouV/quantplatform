@@ -592,6 +592,57 @@
       font-size: 11px;
     }
 
+    .ai-insights {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ai-insight {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0b151d;
+    }
+
+    .ai-insight-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .ai-insight-head strong {
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .ai-insight-head span {
+      color: var(--faint);
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+
+    .ai-insight-summary,
+    .ai-insight-details {
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .ai-insight-summary {
+      margin-bottom: 8px;
+    }
+
+    .ai-insight-details {
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .ai-insight-details li {
+      margin: 4px 0;
+    }
+
     .chat-panel {
       display: grid;
       grid-template-rows: minmax(160px, 260px) auto;
@@ -2726,7 +2777,7 @@
           <section class="dashboard-section collapsible">
             <div class="dashboard-section-head section-toggle">
               <h3>AI 研判</h3>
-              <span class="dashboard-section-sub">展开/收起</span>
+              <span class="dashboard-section-sub" id="dashAIMeta">展开/收起</span>
             </div>
             <div class="section-body" id="dashAI">
               <div class="empty">暂无 AI 研判。</div>
@@ -3299,8 +3350,42 @@
       renderCandidateCards(data.scanner_top || []);
       renderDashboardPositions(data);
       renderDashboardEvents(data.events_upcoming || []);
-      const aiSummary = String(data.ai_summary || "").trim();
-      document.getElementById("dashAI").innerHTML = aiSummary
+      renderDashboardAI(data.ai_insights || [], data.ai_summary || "");
+    }
+
+    function renderDashboardAI(insights, fallbackSummary) {
+      const host = document.getElementById("dashAI");
+      const meta = document.getElementById("dashAIMeta");
+      if (insights.length) {
+        meta.textContent = `${insights.map(item => item.title || item.source).join(" + ")} · 展开/收起`;
+        host.innerHTML = `
+          <div class="ai-insights">
+            ${insights.map(item => {
+              const details = (item.details || [])
+                .filter(Boolean)
+                .map(line => `<li>${escapeHtml(line)}</li>`)
+                .join("");
+              const metaText = [formatDateTime(item.generated_at_beijing), item.model_status]
+                .filter(Boolean)
+                .join(" · ");
+              return `
+                <article class="ai-insight">
+                  <div class="ai-insight-head">
+                    <strong>${escapeHtml(item.title || item.source || "AI")}</strong>
+                    <span>${escapeHtml(metaText || item.source_file || "")}</span>
+                  </div>
+                  <p class="ai-insight-summary">${escapeHtml(item.summary || "")}</p>
+                  ${details ? `<ul class="ai-insight-details">${details}</ul>` : ""}
+                </article>
+              `;
+            }).join("")}
+          </div>
+        `;
+        return;
+      }
+      meta.textContent = "展开/收起";
+      const aiSummary = String(fallbackSummary || "").trim();
+      host.innerHTML = aiSummary
         ? aiSummary.split("\n").filter(Boolean).map(line => `<p>${escapeHtml(line)}</p>`).join("")
         : '<div class="empty">暂无 AI 研判。运行 AI 分析后显示。</div>';
     }
