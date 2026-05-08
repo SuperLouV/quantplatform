@@ -3480,10 +3480,11 @@
           <div class="position-row ${statusClass}" role="button" tabindex="0" onclick="dashGoDetail('${symbol}')">
             <div class="position-main">
               <strong>${symbol || "--"} · ${escapeHtml(position.name || "")}</strong>
-              <span>权重 ${plainNumber(position.weight_pct)}% · 盈亏 ${percentNumber(position.unrealized_pl_pct)}</span>
+              <span>权重 ${plainNumber(position.weight_pct)}% · 盈亏 ${percentNumber(position.unrealized_pl_pct)} · ${escapeHtml(position.action_reason || "")}</span>
             </div>
             <div class="position-risk numeric">
               <div class="position-status">${escapeHtml(position.status || "--")}</div>
+              <div>${escapeHtml(position.suggested_action || "继续观察")}</div>
               <div>距ATR保护线 ${position.stop_distance_pct === null || position.stop_distance_pct === undefined ? "--" : `${Number(position.stop_distance_pct).toFixed(1)}%`}</div>
             </div>
           </div>

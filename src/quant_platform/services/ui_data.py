@@ -1035,6 +1035,8 @@ def _position_priority(item: dict[str, object]) -> float:
 def _position_risk_payload(item: dict[str, object]) -> dict[str, object]:
     atr_stop = item.get("atr_stop") if isinstance(item.get("atr_stop"), dict) else {}
     stop_distance = _optional_float(atr_stop.get("stop_distance_pct")) if isinstance(atr_stop, dict) else None
+    unrealized_pl_pct = _optional_float(item.get("unrealized_pl_pct"))
+    flags = item.get("flags") if isinstance(item.get("flags"), list) else []
     if item.get("max_loss_status") not in {None, "ok"}:
         status = "风险超限"
     elif item.get("concentration_status") == "breach":
@@ -1043,17 +1045,54 @@ def _position_risk_payload(item: dict[str, object]) -> dict[str, object]:
         status = "保护线近"
     else:
         status = "健康"
+    suggested_action = _position_suggested_action(
+        status=status,
+        stop_distance_pct=stop_distance,
+        unrealized_pl_pct=unrealized_pl_pct,
+    )
     return {
         "symbol": item.get("symbol"),
         "name": item.get("name"),
         "status": status,
+        "suggested_action": suggested_action,
+        "action_reason": str(flags[0]) if flags else _position_action_reason(suggested_action),
         "current_price": _optional_float(item.get("current_price")),
         "weight_pct": _optional_float(item.get("weight_pct")),
         "stop_price": _optional_float(atr_stop.get("stop_price")) if isinstance(atr_stop, dict) else None,
         "stop_distance_pct": stop_distance,
-        "unrealized_pl_pct": _optional_float(item.get("unrealized_pl_pct")),
-        "flags": item.get("flags") if isinstance(item.get("flags"), list) else [],
+        "unrealized_pl_pct": unrealized_pl_pct,
+        "flags": flags,
     }
+
+
+def _position_suggested_action(
+    *,
+    status: str,
+    stop_distance_pct: float | None,
+    unrealized_pl_pct: float | None,
+) -> str:
+    if status == "风险超限":
+        return "减仓/止损复核"
+    if status == "仓位超限":
+        return "降仓复核"
+    if stop_distance_pct is not None and stop_distance_pct <= 3:
+        if unrealized_pl_pct is not None and unrealized_pl_pct > 0:
+            return "止盈保护复核"
+        return "止损风险复核"
+    if unrealized_pl_pct is not None and unrealized_pl_pct >= 20:
+        return "上移保护线"
+    return "继续观察"
+
+
+def _position_action_reason(action: str) -> str:
+    return {
+        "减仓/止损复核": "风险阈值已触发，需要人工确认是否降低亏损暴露。",
+        "降仓复核": "仓位集中度高于系统上限，需要人工确认是否降低单股权重。",
+        "止盈保护复核": "价格接近 ATR 保护线且仍有浮盈，需要人工确认是否保护利润。",
+        "止损风险复核": "价格接近 ATR 保护线，需要人工确认风险是否可接受。",
+        "上移保护线": "浮盈较高，建议人工确认保护线是否需要上移。",
+        "继续观察": "当前未触发核心风险阈值，继续跟踪趋势、事件和仓位变化。",
+    }.get(action, "需要人工复核。")
 
 
 def _invested_pct(risk: dict[str, object]) -> float | None:

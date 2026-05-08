@@ -10,6 +10,7 @@ from quant_platform.services.ui_data import (
     _ai_summary_from_file,
     _latest_ai_summary_file,
     _macro_risk_from_market_overview,
+    _position_risk_payload,
 )
 
 
@@ -66,6 +67,24 @@ class UIDashboardHelpersTest(unittest.TestCase):
         self.assertEqual(payload["sentiment_state"], "本地市场快照")
         self.assertEqual(payload["market_date_us"], "2026-05-06")
         self.assertIn("SPY/QQQ/VIX", payload["warnings"][0])
+
+    def test_position_risk_payload_includes_decision_action(self) -> None:
+        payload = _position_risk_payload(
+            {
+                "symbol": "VOO",
+                "name": "VG S&P 500",
+                "weight_pct": 15.8,
+                "unrealized_pl_pct": 3.4,
+                "concentration_status": "breach",
+                "max_loss_status": "ok",
+                "atr_stop": {"stop_distance_pct": 2.2, "stop_price": 650},
+                "flags": ["单股仓位超过上限。"],
+            }
+        )
+
+        self.assertEqual(payload["status"], "仓位超限")
+        self.assertEqual(payload["suggested_action"], "降仓复核")
+        self.assertEqual(payload["action_reason"], "单股仓位超过上限。")
 
 
 if __name__ == "__main__":
