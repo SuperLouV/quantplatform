@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from datetime import date, datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from quant_platform.config import AppConfig, DataConfig, SchedulerConfig, Settings, StorageConfig
-from quant_platform.services.server_scheduler import DailyRefreshScheduler
+from quant_platform.services.server_scheduler import DailyRefreshScheduler, _is_fresh_completed_market_date
 
 
 class DailyRefreshSchedulerTest(unittest.TestCase):
@@ -54,6 +56,16 @@ class DailyRefreshSchedulerTest(unittest.TestCase):
             )
 
             self.assertFalse(scheduler._summary_is_complete(summary_path))
+
+    def test_scheduler_skips_when_beijing_run_maps_to_weekend_us_date(self) -> None:
+        monday_beijing = datetime(2026, 5, 11, 6, 30, tzinfo=ZoneInfo("Asia/Shanghai"))
+
+        self.assertFalse(_is_fresh_completed_market_date(monday_beijing, date(2026, 5, 8)))
+
+    def test_scheduler_runs_when_beijing_run_maps_to_completed_us_session(self) -> None:
+        saturday_beijing = datetime(2026, 5, 9, 6, 30, tzinfo=ZoneInfo("Asia/Shanghai"))
+
+        self.assertTrue(_is_fresh_completed_market_date(saturday_beijing, date(2026, 5, 8)))
 
 
 def _settings(root: Path) -> Settings:

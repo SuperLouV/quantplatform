@@ -13,7 +13,7 @@ from quant_platform.config import Settings
 from quant_platform.console_output import quiet_known_native_stderr
 from quant_platform.services.daily_refresh import DailyRefreshService, summarize_supplemental_outputs
 from quant_platform.services.operation_log import OperationLogger, operation_log_root
-from quant_platform.time_utils import latest_completed_us_market_date, now_beijing
+from quant_platform.time_utils import latest_completed_us_market_date, now_beijing, to_us_eastern
 
 
 @dataclass(slots=True)
@@ -112,6 +112,24 @@ class DailyRefreshScheduler:
         market_date = latest_completed_us_market_date(current)
         run_key = f"{current.date().isoformat()}:{market_date.isoformat()}"
         if run_key in self._attempted_keys:
+            return
+
+        if not _is_fresh_completed_market_date(current, market_date):
+            if run_key not in self._skipped_keys:
+                self._skipped_keys.add(run_key)
+                self.logger.info(
+                    "scheduler.daily_refresh.skipped",
+                    reason="no_new_us_market_session",
+                    market_date_us=market_date.isoformat(),
+                    us_eastern_date=to_us_eastern(current).date().isoformat(),
+                )
+                print(
+                    "DAILY_REFRESH skipped "
+                    f"market_date_us={market_date.isoformat()} "
+                    "reason=no_new_us_market_session",
+                    flush=True,
+                )
+            self._attempted_keys.add(run_key)
             return
 
         pool_path = self._pool_path()
@@ -276,3 +294,8 @@ def _history_counts(history: dict[str, dict[str, Any]]) -> dict[str, int]:
         if status in counts:
             counts[status] += 1
     return counts
+
+
+def _is_fresh_completed_market_date(current_beijing: Any, market_date: date) -> bool:
+    current_us_date = to_us_eastern(current_beijing).date()
+    return current_us_date == market_date
